@@ -1,0 +1,54 @@
+Symbol file:
+ - parameters:
+  - name
+  - prefix
+  - value
+  - + dynamics
+ - pins
+ - drawing
+
+Pins:
+ - name
+ - number
+ - electrical type
+ - graphic style
+ - show name
+ - show number
+ - length
+
+Parameters:
+ - name
+ - value
+ - show name
+ - show value
+
+Drawing items:
+ - Arc
+ - Circle
+ - Polyline
+ - Rectangle
+ - Path
+ - Text
+ - Label
+ - Picture
+ - Group ?
+
+Item properties:
+ - QPointF Position
+ - qreal ZValue
+ - qreal Rotation
+ - Flip X/Y
+ - Locked
+ - Visible
+ - opacity
+
+Graphics item properties:
+ - Pen
+  - color
+  - width
+  - style (solid, dash, dot, dashdot, dashdotdot)
+  - cap style (square, flat, round)
+  - join style (bevel, mitter, round)
+ - Brush
+  - color
+  - style (solid, cross, diagcross, ...)

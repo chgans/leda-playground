@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ledoc version="0.0">
+
+ <object type="blockdef" name="test">
+
+  <properties count="2">
+   <property name="author" type="string">chgans</property>
+   <property name="creationDate" type="datetime">0</property>
+
+  </properties>
+
+  <objects count="1">
+   <object name="ABCD" type="line">
+
+    <properties count="2">
+     <property name="p1" type="pointf">0,0</property>
+     <property name="p2" type="pointf">100.1,150.3</property>
+    </properties>
+
+   </object>
+  </objects>
+
+ </object>
+</ledoc>
