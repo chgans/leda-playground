@@ -17,10 +17,25 @@ int main(int argc, char *argv[])
     //w.show();
     //return a.exec();
     //return 0;
-    DocumentGraphicsItemGroup group;
-    for (int i=0; i<10; i++)
-        group.items.append(new DocumentGraphicsParameterItem);
-    QJsonDocument doc;
-    doc.setObject(group.toJson());
-    qDebug() << doc.toJson();
+    DocumentGraphicsItemGroup group1;
+    group1.items.append(new DocumentGraphicsParameterItem);
+    group1.items.append(new DocumentGraphicsRectangleItem);
+    QJsonDocument doc1;
+    QJsonObject obj1;
+    group1.toJson(obj1);
+    doc1.setObject(obj1);
+    qDebug() << doc1.toJson();
+
+    QJsonDocument doc2 = QJsonDocument::fromJson(doc1.toJson());
+    QJsonObject obj2 = doc2.object();
+    DocumentItem *item = createGraphicsItem(obj2);
+
+    QJsonDocument doc3;
+    QJsonObject obj3;
+    item->toJson(obj3);
+    doc3.setObject(obj3);
+    qDebug() << doc3.toJson();
+
+    qDebug() << (doc3 == doc1);
+
 }

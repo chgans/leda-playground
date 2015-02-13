@@ -2,7 +2,8 @@
 #define DOCUMENT_H
 
 #include <QObject>
-class QXmlStreamReader;
+
+class DocumentItem;
 
 // TODO:
 //   autosave stuff
@@ -31,13 +32,8 @@ signals:
 public slots:
 
 private:
-    QObject *parseObject(QXmlStreamReader *reader, QObject *parent);
-    void printError(QXmlStreamReader *reader, const QString &message);
-    QObject *createObject(const QString &type);
-    QVariant createVariant(const QString &type, const QString &value);
-
     QString m_filename;
-    QObject *m_root;
+    DocumentItem *m_root;
 };
 
 #endif // DOCUMENT_H

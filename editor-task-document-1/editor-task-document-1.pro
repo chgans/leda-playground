@@ -19,7 +19,8 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     document.h \
-    documentgraphicsitem.h
+    documentgraphicsitem.h \
+    leda.h
 
 FORMS    += mainwindow.ui
 

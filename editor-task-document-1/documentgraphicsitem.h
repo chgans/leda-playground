@@ -6,14 +6,16 @@
 #include <QBrush>
 #include <QJsonObject>
 
+#include <leda.h>
+
 class DocumentItem
 {
 public:
-    explicit DocumentItem() {}
-    virtual ~DocumentItem() {}
+    explicit DocumentItem();
+    virtual ~DocumentItem();
 
-    virtual bool fromJSon(const QJsonObject &json);
-    virtual QJsonObject toJson() const;
+    virtual void fromJson(const QJsonObject &obj);
+    virtual void toJson(QJsonObject &obj) const;
 };
 
 class DocumentGraphicsItem: public DocumentItem
@@ -22,8 +24,8 @@ public:
     explicit DocumentGraphicsItem();
     virtual ~DocumentGraphicsItem();
 
-    virtual bool fromJSon(const QJsonObject &json);
-    virtual QJsonObject toJson() const;
+    virtual void fromJson(const QJsonObject &obj);
+    virtual void toJson(QJsonObject &obj) const;
 
     QPointF position;
     qreal zValue;
@@ -35,14 +37,17 @@ public:
     qreal opacity;
 };
 
+// TODO: move to a factory thingy
+DocumentGraphicsItem *createGraphicsItem(const QJsonObject &obj);
+
 class DocumentGraphicsItemGroup: public DocumentGraphicsItem
 {
 public:
     explicit DocumentGraphicsItemGroup() {}
     virtual ~DocumentGraphicsItemGroup() {}
 
-    virtual bool fromJSon(const QJsonObject &json);
-    virtual QJsonObject toJson() const;
+    virtual void fromJson(const QJsonObject &obj);
+    virtual void toJson(QJsonObject &obj) const;
 
     QList<DocumentGraphicsItem*> items;
 };
@@ -53,8 +58,8 @@ public:
     explicit DocumentGraphicsParameterItem();
     virtual ~DocumentGraphicsParameterItem();
 
-    virtual bool fromJSon(const QJsonObject &json);
-    virtual QJsonObject toJson() const;
+    virtual void fromJson(const QJsonObject &obj);
+    virtual void toJson(QJsonObject &obj) const;
 
     QString name;
     QString value;
@@ -62,35 +67,35 @@ public:
     bool showValue;
 };
 
-/*
+
 class DocumentGraphicsPinItem: DocumentGraphicsItem
 {
 public:
     explicit DocumentGraphicsPinItem();
     virtual ~DocumentGraphicsPinItem();
 
-    virtual bool fromJSon(const QJsonObject &json);
-    virtual QJsonObject toJson() const;
+    virtual void fromJson(const QJsonObject &obj);
+    virtual void toJson(QJsonObject &obj) const;
 
-    QString name;
-    QString number;
-    bool showName;
-    bool showNumber;
-    // electricalType
-    // decoration
+    QString label;
+    QString designator;
+    bool showLabel;
+    bool showDesignator;
+    Le::ElectricalPortType electricalType;
+    Le::GraphicalPortDecoration decoration;
     qreal length;
     // TBD: bus and agglomerate
     // TBD: pin vs port
 };
 
-class DocumentGraphicsAbstractShapeItem: DocumentGraphicsItem
+class DocumentGraphicsAbstractShapeItem: public DocumentGraphicsItem
 {
 public:
     explicit DocumentGraphicsAbstractShapeItem();
     virtual ~DocumentGraphicsAbstractShapeItem();
 
-    virtual bool fromJSon(const QJsonObject &json);
-    virtual QJsonObject toJson() const;
+    virtual void fromJson(const QJsonObject &obj);
+    virtual void toJson(QJsonObject &obj) const;
 
     QPen pen;
     QBrush brush;
@@ -102,13 +107,13 @@ public:
     explicit DocumentGraphicsRectangleItem();
     virtual ~DocumentGraphicsRectangleItem();
 
-    virtual bool fromJSon(const QJsonObject &json);
-    virtual QJsonObject toJson() const;
+    virtual void fromJson(const QJsonObject &obj);
+    virtual void toJson(QJsonObject &obj) const;
 
     QPointF topLeftCorner;
     qreal width;
     qreal height;
 
 };
-*/
+
 #endif // DOCUMENTGRAPHICSITEM_H
