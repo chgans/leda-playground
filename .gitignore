@@ -1,3 +1,7 @@
+# Qt-creator files
+*.pro.user*
+*.autosave
+
 # Compiled Object files
 *.slo
 *.lo
