@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QDebug>
 
+#if 0
 void test1()
 {
     QJsonDocument doc1;
@@ -90,6 +91,7 @@ void test4()
     DocumentSymbolItem sym1;
 
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -98,8 +100,9 @@ int main(int argc, char *argv[])
     //Document doc;
     //doc.setParent(&a);
     //doc.load("../editor-task-document-1/doc1.xml");
-    //w.show();
-    //return a.exec();
+
+    w.show();
+    return a.exec();
     //return 0;
-    test3();
+    //test3();
 }

@@ -15,14 +15,19 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     document.cpp \
-    documentgraphicsitem.cpp
+    documentitems.cpp \
+    documentmodels.cpp \
+    schlibrarydockwidget.cpp
 
 HEADERS  += mainwindow.h \
     document.h \
-    documentgraphicsitem.h \
-    leda.h
+    leda.h \
+    documentitems.h \
+    documentmodels.h \
+    schlibrarydockwidget.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    schlibrarydockwidget.ui
 
 DISTFILES += \
     doc1.xml \

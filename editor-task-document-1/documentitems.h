@@ -54,6 +54,15 @@ public:
         return m_parent->m_children.indexOf(const_cast<DocumentItem*>(this));
     }
 
+    void setParentItem(DocumentItem *parent) {
+        if (m_parent)
+            m_parent->m_children.removeOne(this);
+        m_parent = parent;
+        if (m_parent) {
+            m_parent->m_children.append(this);
+        }
+    }
+
 protected:
     DocumentItem *m_parent;
     QList<DocumentItem *> m_children;
@@ -62,7 +71,7 @@ protected:
 };
 
 template <class T>
-class DocumentItemList: public DocumentItem, public QList<T*>
+class DocumentItemList: public DocumentItem//, public QList<T*>
 {
 public:
     explicit DocumentItemList(DocumentItem *parent, const QString &name = QString()):
@@ -70,6 +79,11 @@ public:
     {}
 
     virtual ~DocumentItemList() {}
+
+    T *listItem(int index) {
+        DocumentItem *item = childItem(index);
+        return static_cast<T*>(item);
+    }
 
 private:
 #if 0
@@ -226,11 +240,25 @@ public:
         m_designator->setValue(name);
     }
     
+    void addParameter(const QString &name, const QVariant &value, bool visible = true) {
+        DocumentParameterItem *param = new DocumentParameterItem(m_parameters);
+        param->setParamName(name);
+        param->setParamValue(value);
+        param->setVisibled(visible);
+    }
+
+    void addParameter(DocumentParameterItem *param) {
+        param->setParentItem(m_parameters);
+    }
+
+    DocumentParameterItemList *parameters() const {
+        return m_parameters;
+    }
+
 private:
     DocumentItem *m_symbolName;
     DocumentItem *m_description;
     DocumentItem *m_designator;
-
     DocumentParameterItemList *m_parameters;
     //DocumentPortItemList ports;
     //QList<DocumentModelItem *> models; // TBD: port mapping
@@ -238,22 +266,45 @@ private:
 };
 typedef DocumentItemList<DocumentSymbolItem> DocumentSymbolItemList;
 
-#if 0
+
 class DocumentSymbolCollectionItem: public DocumentItem
 {
 public:
-    explicit DocumentSymbolCollectionItem();
+    explicit DocumentSymbolCollectionItem(DocumentItem *parent);
     virtual ~DocumentSymbolCollectionItem();
 
-    virtual void fromJsonValue(const QJsonValue &val);
-    virtual void toJsonValue(QJsonValue &val) const;
+    QString creator() const {
+        return m_creator->value().toString();
+    }
+    void setCreator(const QString &name) {
+        m_creator->setValue(name);
+    }
+    QString license() const {
+        return m_license->value().toString();
+    }
+    void setLicense(const QString &name) {
+        m_license->setValue(name);
+    }
 
-    QString creator;
-    QString license;
-    DocumentParameterItemList parameters;
-    DocumentSymbolItemList symbols;
+    void addSymbol(DocumentSymbolItem *symbol) {
+        symbol->setParentItem(m_symbols);
+    }
+
+    DocumentSymbolItemList *symbols() const {
+        return m_symbols;
+    }
+
+    const DocumentSymbolItem *symbol(int index) const {
+        return m_symbols->listItem(index);
+    }
+private:
+    DocumentItem *m_creator;
+    DocumentItem *m_license;
+    //DocumentParameterItemList parameters;
+    DocumentSymbolItemList *m_symbols;
 };
 
+#if 0
 class DocumentGraphicsItemGroup: public DocumentGraphicsItem
 {
 public:

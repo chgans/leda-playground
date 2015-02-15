@@ -8,6 +8,7 @@ class MainWindow;
 }
 
 class QGraphicsScene;
+class DocumentTreeViewModel;
 
 class MainWindow : public QMainWindow
 {
@@ -20,6 +21,7 @@ public:
 private:
     Ui::MainWindow *m_ui;
     QGraphicsScene *m_scene;
+    DocumentTreeViewModel *m_docModel;
 };
 
 #endif // MAINWINDOW_H

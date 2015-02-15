@@ -400,3 +400,18 @@ DocumentSymbolItem::~DocumentSymbolItem()
 
 }
 
+
+
+DocumentSymbolCollectionItem::DocumentSymbolCollectionItem(DocumentItem *parent):
+    DocumentItem(parent, "symbolCollection")
+{
+
+    m_creator = new DocumentItem(this, "creator", "");
+    m_license = new DocumentItem(this, "license", "");
+    m_symbols = new DocumentSymbolItemList(this, "symbols");
+}
+
+DocumentSymbolCollectionItem::~DocumentSymbolCollectionItem()
+{
+
+}
