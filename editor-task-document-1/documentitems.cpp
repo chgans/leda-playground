@@ -1,6 +1,8 @@
 #include "documentitems.h"
 #include <QJsonArray>
 
+
+#if 0
 // TODO: move to a factory thingy
 DocumentGraphicsItem *createGraphicsItem(const QJsonValue &val)
 {
@@ -349,3 +351,52 @@ void DocumentPortItem::toJsonValue(QJsonValue &val) const
     obj.insert("electricalType", electricalType);
     val = QJsonValue(obj);
 }
+
+
+DocumentParameterItem::DocumentParameterItem()
+{
+
+}
+
+#endif
+
+DocumentItem::DocumentItem(DocumentItem *parent, const QString &name, const QVariant &value):
+    m_parent(parent), m_name(name), m_value(value)
+{
+    if (m_parent)
+        m_parent->m_children.append(this);
+}
+
+DocumentItem::~DocumentItem()
+{
+
+}
+
+
+DocumentParameterItem::DocumentParameterItem(DocumentItem *parent):
+    DocumentItem(parent, "parameter")
+{
+    m_visible = new DocumentItem(this, "visible", true);
+    m_name = new DocumentItem(this, "name", "");
+    m_value = new DocumentItem(this, "value");
+}
+
+DocumentParameterItem::~DocumentParameterItem()
+{
+
+}
+
+DocumentSymbolItem::DocumentSymbolItem(DocumentItem *parent):
+    DocumentItem(parent, "symbol")
+{
+    m_symbolName = new DocumentItem(this, "name", "");
+    m_description = new DocumentItem(this, "description", "");
+    m_designator = new DocumentItem(this, "designator", "");
+    m_parameters = new DocumentParameterItemList(this, "parameters");
+}
+
+DocumentSymbolItem::~DocumentSymbolItem()
+{
+
+}
+

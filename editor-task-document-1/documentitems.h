@@ -8,7 +8,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QList>
-
+#include <QVariant>
 #include <leda.h>
 
 // SymbolCollectionTableViewModel
@@ -20,32 +20,59 @@
 class DocumentItem
 {
 public:
-    explicit DocumentItem();
+    explicit DocumentItem(DocumentItem *parent,
+                          const QString &name = QString(),
+                          const QVariant &value = QVariant());
     virtual ~DocumentItem();
 
-    virtual void fromJsonValue(const QJsonValue &val);
-    virtual void toJsonValue(QJsonValue &val) const;
+    QString name() const {
+        return m_name;
+    }
+    void setName(const QString &name) {
+        m_name = name;
+    }
 
-    // propertyCount() rows w/ 3 columns: type, name, value
-    int propertyCount() const;
-    QVariant property(int index) const;
-    void setProperty(int index, const QVariant &val);
+    QVariant value() const {
+        return m_value;
+    }
+    void setValue(const QVariant &value) {
+        m_value = value;
+    }
 
-    int childItemCount() const;
-    DocumentItem *parentItem();
-    DocumentItem *childItem(int index);
-    int childIndex() const;
+    int childItemCount() const {
+        return m_children.size();
+    }
+    DocumentItem *parentItem() {
+        return m_parent;
+    }
+
+    DocumentItem *childItem(int index) {
+        return m_children.value(index);
+    }
+
+    int childIndex() const {
+        return m_parent->m_children.indexOf(const_cast<DocumentItem*>(this));
+    }
 
 protected:
+    DocumentItem *m_parent;
+    QList<DocumentItem *> m_children;
+    QString m_name;
+    QVariant m_value;
 };
 
 template <class T>
 class DocumentItemList: public DocumentItem, public QList<T*>
 {
 public:
-    explicit DocumentItemList() {}
+    explicit DocumentItemList(DocumentItem *parent, const QString &name = QString()):
+    DocumentItem(parent, name)
+    {}
+
     virtual ~DocumentItemList() {}
 
+private:
+#if 0
     virtual void fromJsonValue(const QJsonValue &val) {
         DocumentItem::fromJsonValue(val);
         QJsonArray valList = val.toArray();
@@ -72,20 +99,38 @@ public:
         item->fromJsonValue(val);
         return item;
     }
+#endif
 };
 
 class DocumentParameterItem: public DocumentItem
 {
 public:
-    explicit DocumentParameterItem();
+    explicit DocumentParameterItem(DocumentItem *parent = 0);
     virtual ~DocumentParameterItem();
 
-    virtual void fromJsonValue(const QJsonValue &val);
-    virtual void toJsonValue(QJsonValue &val) const;
+     bool isVisible() const {
+         return m_visible->value().toBool();
+     }
+     void setVisibled(bool visible) {
+         m_visible->setValue(visible);
+     }
+     const QString paramName() const {
+         return m_name->value().toString();
+     }
+     void setParamName(const QString &name) {
+         m_name->setValue(name);
+     }
+     QVariant paramValue() const {
+         return m_value->value();
+     }
+     void setParamValue(const QVariant &value) {
+         m_value->setValue(value);
+     }
 
-    bool visible;
-    QString name;
-    QString value;
+private:
+    DocumentItem *m_visible;
+    DocumentItem *m_name;
+    DocumentItem *m_value;
 };
 
 typedef DocumentItemList<DocumentParameterItem> DocumentParameterItemList;
@@ -102,7 +147,6 @@ public:
     virtual void toJsonValue(QJsonValue &val) const;
 
 };
-#endif
 
 // Like VHDL's ports
 class DocumentPortItem: public DocumentItem
@@ -154,28 +198,47 @@ public:
     }
 };
 
+#endif
 
 // Like VHDL's entity
 class DocumentSymbolItem: public DocumentItem
 {
 public:
-    explicit DocumentSymbolItem();
+    explicit DocumentSymbolItem(DocumentItem *parent);
     virtual ~DocumentSymbolItem();
 
-    virtual void fromJsonValue(const QJsonValue &val);
-    virtual void toJsonValue(QJsonValue &val) const;
+    QString symbolName() const {
+        return m_symbolName->value().toString();
+    }
+    void setSymbolName(const QString &name) {
+        m_symbolName->setValue(name);
+    }
+    QString description() const {
+        return m_description->value().toString();
+    }
+    void setDescription(const QString &name) {
+        m_description->setValue(name);
+    }
+    QString designator() const {
+        return m_designator->value().toString();
+    }
+    void setDesignator(const QString &name) {
+        m_designator->setValue(name);
+    }
+    
+private:
+    DocumentItem *m_symbolName;
+    DocumentItem *m_description;
+    DocumentItem *m_designator;
 
-    QString name;
-    QString description;
-    QString designator;
-
-    DocumentParameterItemList parameters;
-    DocumentPortItemList ports;
+    DocumentParameterItemList *m_parameters;
+    //DocumentPortItemList ports;
     //QList<DocumentModelItem *> models; // TBD: port mapping
-    DocumentGraphicsItemList drawingItems;
+    //DocumentGraphicsItemList drawingItems;
 };
 typedef DocumentItemList<DocumentSymbolItem> DocumentSymbolItemList;
 
+#if 0
 class DocumentSymbolCollectionItem: public DocumentItem
 {
 public:
@@ -266,5 +329,6 @@ public:
     qreal height;
 
 };
+#endif
 
 #endif // DOCUMENTGRAPHICSITEM_H
