@@ -1,10 +1,10 @@
-#include "documentgraphicsitem.h"
+#include "documentitems.h"
 #include <QJsonArray>
 
 // TODO: move to a factory thingy
-DocumentGraphicsItem *createGraphicsItem(const QJsonObject &obj)
+DocumentGraphicsItem *createGraphicsItem(const QJsonValue &val)
 {
-    QString typeName = obj.value("type").toString();
+    QString typeName = val.toObject().value("type").toString();
     DocumentGraphicsItem *item = 0;
     if (typeName == "graphicsItemGroup")
         item = new DocumentGraphicsItemGroup;
@@ -13,7 +13,7 @@ DocumentGraphicsItem *createGraphicsItem(const QJsonObject &obj)
     else if (typeName == "graphicsRectangleItem")
         item = new DocumentGraphicsRectangleItem;
     if (item)
-        item->fromJson(obj);
+        item->fromJsonValue(val);
     return item;
 }
 
@@ -28,11 +28,11 @@ DocumentItem::~DocumentItem()
 
 }
 
-void DocumentItem::fromJson(const QJsonObject &obj)
+void DocumentItem::fromJsonValue(const QJsonValue &val)
 {
 }
 
-void DocumentItem::toJson(QJsonObject &obj) const
+void DocumentItem::toJsonValue(QJsonValue &val) const
 {
 }
 
@@ -50,9 +50,10 @@ DocumentGraphicsItem::~DocumentGraphicsItem()
 
 }
 
-void DocumentGraphicsItem::fromJson(const QJsonObject &obj)
+void DocumentGraphicsItem::fromJsonValue(const QJsonValue &val)
 {
-    DocumentItem::fromJson(obj);
+    DocumentItem::fromJsonValue(val);
+    QJsonObject obj = val.toObject();
     position.setX(obj.value("x").toDouble(0.0));
     position.setY(obj.value("y").toDouble(0.0));
     zValue = obj.value("z").toDouble(0.0);
@@ -64,9 +65,10 @@ void DocumentGraphicsItem::fromJson(const QJsonObject &obj)
     opacity = obj.value("opacity").toDouble(1.0);
 }
 
-void DocumentGraphicsItem::toJson(QJsonObject &obj) const
+void DocumentGraphicsItem::toJsonValue(QJsonValue &val) const
 {
-    DocumentItem::toJson(obj);
+    DocumentItem::toJsonValue(val);
+    QJsonObject obj = val.toObject();
     obj.insert("type", "graphicsItem");
     obj.insert("x", position.x());
     obj.insert("y", position.y());
@@ -77,32 +79,26 @@ void DocumentGraphicsItem::toJson(QJsonObject &obj) const
     obj.insert("locked", locked);
     obj.insert("visible", visible);
     obj.insert("opacity", opacity);
+    val = QJsonValue(obj);
 }
 
-void DocumentGraphicsItemGroup::fromJson(const QJsonObject &obj)
+void DocumentGraphicsItemGroup::fromJsonValue(const QJsonValue &val)
 {
-    qDeleteAll(items);
+    qDeleteAll(items); // ?
     items.clear();
-    QJsonArray list = obj.value("items").toArray();
-    foreach (QJsonValue valItem, list) {
-        QJsonObject objItem = valItem.toObject();
-        DocumentGraphicsItem *item;
-        item = createGraphicsItem(objItem);
-        items.append(item);
-    }
+    QJsonObject obj = val.toObject();
+    items.fromJsonValue(obj.value("items"));
 }
 
-void DocumentGraphicsItemGroup::toJson(QJsonObject &obj) const
+void DocumentGraphicsItemGroup::toJsonValue(QJsonValue &val) const
 {
-    DocumentGraphicsItem::toJson(obj);
+    DocumentGraphicsItem::toJsonValue(val);
+    QJsonObject obj = val.toObject();
     obj.insert("type", "graphicsItemGroup");
-    QJsonArray list;
-    foreach (DocumentGraphicsItem *item, items) {
-        QJsonObject objItem;
-        item->toJson(objItem);
-        list.append(objItem);
-    }
-    obj.insert("items", list);
+    QJsonValue itemVals;
+    items.toJsonValue(itemVals);
+    obj.insert("items", itemVals);
+    val = QJsonValue(obj);
 }
 
 DocumentGraphicsParameterItem::DocumentGraphicsParameterItem():
@@ -116,23 +112,26 @@ DocumentGraphicsParameterItem::~DocumentGraphicsParameterItem()
 
 }
 
-void DocumentGraphicsParameterItem::fromJson(const QJsonObject &obj)
+void DocumentGraphicsParameterItem::fromJsonValue(const QJsonValue &val)
 {
-    DocumentGraphicsItem::fromJson(obj);
+    DocumentGraphicsItem::fromJsonValue(val);
+    QJsonObject obj = val.toObject();
     name = obj.value("name").toString();
     value = obj.value("value").toString();
     showName = obj.value("showName").toBool(false);
     showValue = obj.value("showValue").toBool(true);
 }
 
-void DocumentGraphicsParameterItem::toJson(QJsonObject &obj) const
+void DocumentGraphicsParameterItem::toJsonValue(QJsonValue &val) const
 {
-    DocumentGraphicsItem::toJson(obj);
+    DocumentGraphicsItem::toJsonValue(val);
+    QJsonObject obj = val.toObject();
     obj.insert("type", "graphicsParameterItem");
     obj.insert("name", name);
     obj.insert("value", value);
     obj.insert("showName", showName);
     obj.insert("showValue", showValue);
+    val = QJsonValue(obj);
 }
 
 
@@ -146,9 +145,10 @@ DocumentGraphicsAbstractShapeItem::~DocumentGraphicsAbstractShapeItem()
 
 }
 
-void DocumentGraphicsAbstractShapeItem::fromJson(const QJsonObject &obj)
+void DocumentGraphicsAbstractShapeItem::fromJsonValue(const QJsonValue &val)
 {
-    DocumentGraphicsItem::fromJson(obj);
+    DocumentGraphicsItem::fromJsonValue(val);
+    QJsonObject obj = val.toObject();
     QJsonObject penObj = obj.value("pen").toObject();
     QJsonObject brushObj = obj.value("brush").toObject();
     pen.setColor(QColor(penObj.value("color").toString("#FF000000")));
@@ -160,9 +160,10 @@ void DocumentGraphicsAbstractShapeItem::fromJson(const QJsonObject &obj)
     brush.setStyle((Qt::BrushStyle)brushObj.value("style").toInt(Qt::SolidPattern));
 }
 
-void DocumentGraphicsAbstractShapeItem::toJson(QJsonObject &obj) const
+void DocumentGraphicsAbstractShapeItem::toJsonValue(QJsonValue &val) const
 {
-    DocumentGraphicsItem::toJson(obj);
+    DocumentGraphicsItem::toJsonValue(val);
+    QJsonObject obj = val.toObject();
     obj.insert("type", "graphicsAbstractShapeItem");
     QJsonObject penObj;
     penObj.insert("color", pen.color().name(QColor::HexArgb));
@@ -175,6 +176,7 @@ void DocumentGraphicsAbstractShapeItem::toJson(QJsonObject &obj) const
     brushObj.insert("style", brush.style()); // No support for gradient and texture
     obj.insert("pen", penObj);
     obj.insert("brush", brushObj);
+    val = QJsonValue(obj);
 }
 
 
@@ -189,23 +191,26 @@ DocumentGraphicsRectangleItem::~DocumentGraphicsRectangleItem()
 
 }
 
-void DocumentGraphicsRectangleItem::fromJson(const QJsonObject &obj)
+void DocumentGraphicsRectangleItem::fromJsonValue(const QJsonValue &val)
 {
-    DocumentGraphicsAbstractShapeItem::fromJson(obj);
+    DocumentGraphicsAbstractShapeItem::fromJsonValue(val);
+    QJsonObject obj = val.toObject();
     topLeftCorner.setX(obj.value("x1").toDouble(0.0));
     topLeftCorner.setY(obj.value("y1").toDouble(0.0));
     width = obj.value("width").toDouble(0.0);
     height = obj.value("height").toDouble(0.0);
 }
 
-void DocumentGraphicsRectangleItem::toJson(QJsonObject &obj) const
+void DocumentGraphicsRectangleItem::toJsonValue(QJsonValue &val) const
 {
-    DocumentGraphicsAbstractShapeItem::toJson(obj);
+    DocumentGraphicsAbstractShapeItem::toJsonValue(val);
+    QJsonObject obj = val.toObject();
     obj.insert("type", "graphicsRectangleItem");
     obj.insert("x1", topLeftCorner.x());
     obj.insert("y1", topLeftCorner.y());
     obj.insert("width", width);
     obj.insert("height", height);
+    val = QJsonValue(obj);
 }
 
 
@@ -220,9 +225,10 @@ DocumentGraphicsPinItem::~DocumentGraphicsPinItem()
 
 }
 
-void DocumentGraphicsPinItem::fromJson(const QJsonObject &obj)
+void DocumentGraphicsPinItem::fromJsonValue(const QJsonValue &val)
 {
-    DocumentGraphicsItem::fromJson(obj);
+    DocumentGraphicsItem::fromJsonValue(val);
+    QJsonObject obj = val.toObject();
     label = obj.value("label").toString();
     designator = obj.value("designator").toString();
     showDesignator = obj.value("showDesignator").toBool(true);
@@ -232,9 +238,10 @@ void DocumentGraphicsPinItem::fromJson(const QJsonObject &obj)
     length = obj.value("length").toDouble(5);
 }
 
-void DocumentGraphicsPinItem::toJson(QJsonObject &obj) const
+void DocumentGraphicsPinItem::toJsonValue(QJsonValue &val) const
 {
-    DocumentGraphicsItem::toJson(obj);
+    DocumentGraphicsItem::toJsonValue(val);
+    QJsonObject obj = val.toObject();
     obj.insert("label", label);
     obj.insert("designator", designator);
     obj.insert("showLabel", showLabel);
@@ -242,4 +249,103 @@ void DocumentGraphicsPinItem::toJson(QJsonObject &obj) const
     obj.insert("length", length);
     obj.insert("decoration", decoration);
     obj.insert("electricalType", electricalType);
+    val = QJsonValue(obj);
+}
+
+
+
+
+DocumentParameterItem::DocumentParameterItem():
+    visible(true)
+{
+
+}
+
+DocumentParameterItem::~DocumentParameterItem()
+{
+
+}
+
+void DocumentParameterItem::fromJsonValue(const QJsonValue &val)
+{
+    DocumentItem::fromJsonValue(val);
+    QJsonObject obj = val.toObject();
+    visible = obj.value("visible").toBool(true);
+    name = obj.value("name").toString();
+    value = obj.value("value").toString();
+}
+
+void DocumentParameterItem::toJsonValue(QJsonValue &val) const
+{
+    DocumentItem::toJsonValue(val);
+    QJsonObject obj = val.toObject();
+    obj.insert("visible", visible);
+    obj.insert("name", name);
+    obj.insert("value", value);
+    val = QJsonValue(obj);
+}
+
+
+DocumentSymbolItem::DocumentSymbolItem()
+{
+
+}
+
+DocumentSymbolItem::~DocumentSymbolItem()
+{
+
+}
+
+void DocumentSymbolItem::fromJsonValue(const QJsonValue &val)
+{
+    DocumentItem::fromJsonValue(val);
+    QJsonObject obj = val.toObject();
+    parameters.fromJsonValue(obj.value("parameters"));
+    ports.fromJsonValue(obj.value("ports"));
+    drawingItems.fromJsonValue(obj.value("drawingItems"));
+}
+
+void DocumentSymbolItem::toJsonValue(QJsonValue &val) const
+{
+    DocumentItem::toJsonValue(val);
+    QJsonObject obj = val.toObject();
+    QJsonValue valList;
+    parameters.toJsonValue(valList);
+    obj.insert("properties", valList);
+    ports.toJsonValue(valList);
+    obj.insert("ports", valList);
+    drawingItems.toJsonValue(valList);
+    obj.insert("drawingItems", valList);
+    val = QJsonValue(obj);
+}
+
+
+DocumentPortItem::DocumentPortItem():
+    electricalType(Le::UnspecifiedPortType)
+{
+
+}
+
+DocumentPortItem::~DocumentPortItem()
+{
+
+}
+
+void DocumentPortItem::fromJsonValue(const QJsonValue &val)
+{
+    DocumentItem::fromJsonValue(val);
+    QJsonObject obj = val.toObject();
+    label = obj.value("label").toString();
+    designator = obj.value("designator").toString();
+    electricalType = (Le::ElectricalPortType)obj.value("electricalType").toInt(Le::UnspecifiedPortType);
+}
+
+void DocumentPortItem::toJsonValue(QJsonValue &val) const
+{
+    DocumentItem::toJsonValue(val);
+    QJsonObject obj = val.toObject();
+    obj.insert("label", label);
+    obj.insert("designator", designator);
+    obj.insert("electricalType", electricalType);
+    val = QJsonValue(obj);
 }
