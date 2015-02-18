@@ -1,23 +1,20 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2015-02-11T16:42:52
+# Project created by QtCreator 2015-02-16T11:45:56
 #
 #-------------------------------------------------
 
-QT       += core gui testlib
+QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = hierachical-vhdl-1
+TARGET = item-model-1
 TEMPLATE = app
 
-SUBDIRS = tests
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-    entity.cpp
+        mainwindow.cpp
 
-HEADERS  += mainwindow.h \
-    entity.h
+HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
