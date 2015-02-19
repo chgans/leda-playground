@@ -1,0 +1,53 @@
+Data oriented panels:
+{SCH,SCHLIB,PCB,PCBLIB}{List|Inspector|Filter}
+{SCH|PCB}Library (for browsing and placing symbols/components)
+
+
+{SCH,SCHLIB,PCB,PCBLIB}List:
+Purpose:
+ {view|Edit}
+ {all|non-masked|selected} objects
+ from {current component|all library},
+ includes {all types|only [...]}
+ => display table of objects
+Note:
+ Applies to graphical objects only
+
+{SCH,SCHLIB,PCB,PCBLIB}Filter:
+Purpose:
+ From {All|Selected|not-selected} objects
+ of {current|open|open of same project|Any of same project}
+ Find items matching the criteria {Query string}
+ => {select/zoom} matching objects
+ => {deselect/mask out} non matching objects
+Note:
+
+{SCH,SCHLIB,PCB,PCBLIB}Inspector:
+Purpose:
+ From selected objects
+ of {all types|only [...]}
+ => display table of object(s) properties
+
+Graphics Views:
+0) Editor's view
+- The document view for SCH, SCHLIB, PCB and PCLIB
+1) Design insight (http://techdocs.altium.com/display/ADOH/Design+Insight#Document_Insight)
+- Project insight: shows visual of all documents of the project when the mouse hovers the project's
+  icon in the project explorer
+- Document insight: As above but show only the document's own visual when the mouse hovers the
+  document's icon in the project explorer
+- Connectivity insight: shows visual of the hovered electrical object within it's document and
+  other project documents in the editor's view (SCH only)
+2) Board insight (http://techdocs.altium.com/display/ADOH/Working+with+the+Board+Insight+System)
+- Board insight pop-up: Show visual of the hovered object (single or multiple primitive)
+- Board insight lens: small magnified visual of the area under the mouse cursor
+- Board insight panel: the 2 above combined in a panel
+4) Others
+- Visual pick list: List of all items under cursor, plus visual of an item when hovered in the list.
+5) TODO: views in library expolers, clipboard and snipets
+
+TODO: Summarise the view features, decide of a class hierarchy
+ - what is displayed or not, single vs multi layer
+ - interactive vs non-interactive vs level of interaction (zoom, select, move, ...)
+ - select vs highlighted (2 modes in PCB) vs masked
+ - mask levels (dim+filter in SCH), (dim+mask+highlight in PCB)

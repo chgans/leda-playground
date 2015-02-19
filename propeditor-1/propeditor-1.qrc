@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>insertimage.png</file>
+        <file>simplifyrichtext.png</file>
+        <file>textanchor.png</file>
+        <file>textbold.png</file>
+        <file>textcenter.png</file>
+        <file>textitalic.png</file>
+        <file>textjustify.png</file>
+        <file>textleft.png</file>
+        <file>textright.png</file>
+        <file>textsubscript.png</file>
+        <file>textsuperscript.png</file>
+        <file>textunder.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,56 @@
+{
+    "producer": "LibreEDA-0.1",
+    "version": "0",
+    "author": "Ch'Gans <chgans@gna.org>",
+    "license": "CC-BY-SA",
+
+    "components": {
+        "1234567890": {
+            "manufacturer": "Texas Instrument",
+            "part-number": "LPV321-N",
+            "description": "General Purpose, Low Voltage, Low Power, Rail-to-Rail Output Operational Amplifiers",
+            "tags": ["opamp"]
+        }
+    },
+
+    "pcb-models": [
+    ],
+
+    "sch-models": [
+    ],
+
+    "simulation-models": [
+    ],
+
+    "signal-integrity-models": [
+    ],
+
+    "items": [
+        {
+            "type": "rect",
+            "x": 30,
+            "y": -10,
+            "width": 60,
+            "height": 60,
+            "border": {
+                "width": 1,
+                "color": "#ff00dd",
+                "style": "solid"
+            },
+            "fill": {
+                "color": "#ddeeff"
+            },
+            "locked": 0
+        },
+        {
+            "type": "port",
+            "x": 30,
+            "y": 0,
+            "length": 30,
+            "orientation": 180,
+            "color": "#ffffff",
+            "locked": 0
+        }
+
+    ]
+}

@@ -1,0 +1,59 @@
+<free-string>
+[keyword-choice]
+
+Entity <entity-id> Is
+  port (
+    <port-id>: [port-dir] [signal-type];
+    ...
+  );
+  attribute (
+    <attr-id>: [data-type];
+    ...
+  );
+End entity <entity-id>
+
+Architecture <arch-id> Of <entity-idref> Is
+  signal <signal-id>: [signal-type];
+  ...
+  attribute <attr-id>: [data-type];
+  ...
+begin
+  <id>: entity <entity-idref>(arch-idref>)
+   port map(
+    <port-idref> => <signal-idref>,
+    ...
+   );
+end
+
+
+namespace ElectricModel {
+
+class Id;
+
+class Entity {
+    Id id;
+    Port[] ports
+    Attribute[] attributes;
+}
+
+class Port {
+    Id id;
+    Direction dir;
+    SignalType type;
+}
+
+class Attribute {
+    Id id;
+    DataType type;
+}
+
+class Signal {
+    Id id;
+    SignalType type;
+}
+
+}
+
+namespace ElectricObject {
+    Id id;
+    Idref entity;

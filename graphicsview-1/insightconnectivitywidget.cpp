@@ -1,0 +1,42 @@
+#include "insightconnectivitywidget.h"
+
+#include "overview.h"
+
+#include <QVBoxLayout>
+#include <QTreeWidget>
+
+InsightConnectivityWidget::InsightConnectivityWidget(QWidget *parent) :
+    QFrame(parent)
+{
+    setWindowFlags(Qt::SplashScreen);
+    setLayout(new QVBoxLayout);
+    setAutoFillBackground(true);
+    setFrameStyle(QFrame::Box);
+    //setMaximumSize(500, 500);
+    mView = new OverView;
+    layout()->addWidget(mView);
+    QTreeWidget *tree = new QTreeWidget;
+    tree->setColumnCount(1);
+    for (int i = 0; i < 2; ++i) {
+        QTreeWidgetItem *itemi = new QTreeWidgetItem(tree, QStringList(QString("Schematics %1").arg(i)));
+        itemi->setIcon(0, QIcon(":/img/PCB-icon.png"));
+        for (int j = 0; j < 3; ++j) {
+            QTreeWidgetItem *itemj = new QTreeWidgetItem(itemi, QStringList(QString("Scematics %1.%2").arg(i).arg(j)));
+            itemj->setIcon(0, QIcon(":/img/chip-package.png"));
+        }
+    }
+    //tree->insertTopLevelItems(0, items);
+    tree->setAutoFillBackground(false);
+    tree->setHeaderHidden(true);
+    tree->expandAll();
+    tree->setItemsExpandable(false);
+    tree->setRootIsDecorated(false);
+    tree->setFrameStyle(QFrame::NoFrame);
+    // TODO: rempve background, scroll bars and make sure all items are visible
+    layout()->addWidget(tree);
+}
+
+void InsightConnectivityWidget::setBuddyView(QGraphicsView *view)
+{
+    mView->setScene(view->scene());
+}

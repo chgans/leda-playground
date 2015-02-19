@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>splash1.jpg</file>
+        <file>splash3.jpg</file>
+    </qresource>
+</RCC>

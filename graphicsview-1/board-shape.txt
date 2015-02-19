@@ -1,0 +1,42 @@
+Edit mode:
+- end points:
+  - Moving vertex: the end point is moved around, adjacent elements are updated
+  - Mitering to segment: A segment is inserted, it's mid point belongs to the 
+    angle diagonal, the segment is normal to this diagonal, it's endpoints are
+    at the intersection of the adjacent element path with the segment.
+  - Mitering to arc: 
+- mid points:
+  - Moving edge: Path element keep same size/shape, both end points are moved
+    by cursor dx/dy
+  - Breaking edge: the midpoint becomes a new end point, 2 new elements are 
+    inserted on left and right, the type of the new elements is the type of 
+    the element the mid point belongs to.
+  - Incurvating edge: The element being edited becomes an arcTo if it wasn't 
+    already so, the endpoints don't moved, the center of the arc belongs to 
+    the normal at the center point of the original element.
+- Rest of the path: 
+  - Sliding edge: 
+    - LineTo: move the endpoints keeping the line's angle
+    - ArcTo: move the enpoints keeping cord's angle
+    
++ Live snapping when the edited *end* point is align with 90/45 to other end 
+  points, or belongs to the perimeter of the full circle of an arc.
+  
+  
+  Create mode:
+  Shift-space: Cycle through:
+   - Any angle, 
+   - Line 45/90, 
+   - Line 45/90 with arcs (Radius=?), 
+   - Line 90/90 vertical start, 
+   - Line 90/90 vertical start with arcs
+   
+  Control-space: 
+   - Line 45/90 <=> Line 90/45
+   - line 45/90 with arcs <=> line 90/45 with arcs
+   - Line 90/90 vertical start <=> Line 90/90 horizontal start
+   - Line 90/90 vertical start with arcs <=> Line 90/90 horizontal start with arcs
+   
+   
+   http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
+   

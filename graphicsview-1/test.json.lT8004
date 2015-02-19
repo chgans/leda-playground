@@ -1,0 +1,99 @@
+{
+    "producer": "LibreEDA-0.1",
+    "version": "0",
+    "author": "Ch'Gans <chgans@gna.org>",
+    "license": "CC-BY-SA",
+
+    "items": [
+        {
+            "type": "rectangle",
+            "position": [30, -10, 0],
+            "points": [[0, 0], [600, 600]],
+            "radius": 0,
+            "pen": {
+                "width": 2,
+                "color": "#015566",
+                "color-idx": 221,
+                "style": "solid"
+            },
+            "brush": {
+                "color": "#ffffb0",
+                "color-idx": 218
+            },
+            "opacity": 1.0,
+            "locked": 0
+        },
+        {
+            "type": "rectangle",
+            "position": [30, -10, 10],
+            "points": [[0, 0], [60, 60]],
+            "radius": 5,
+            "pen": {
+                "width": 1,
+                "color": "#100000",
+                "style": "solid"
+            },
+            "brush": {
+                "color": "#ffffb0"
+            },
+            "opacity": 0.5,
+            "locked": 0
+        },
+        {
+            "type": "polygon",
+            "position": [-40, -40, 0],
+            "points": [[0, 0], [40, 40], [0, 40], [0, 80]],
+            "pen": {
+                "width": 1,
+                "color": "#0000ff",
+                "style": "solid"
+            },
+            "brush": {
+                "color": "#c0c0c0"
+            },
+            "opacity": 1.0,
+            "locked": 0
+        },
+        {
+            "type": "simple-text",
+            "position": [30, -10, 0],
+            "font": {},
+            "text": "Hello world!",
+            "pen": {
+                "width": 1,
+                "color": "#ff00dd",
+                "style": "solid"
+            },
+            "brush": {
+                "color": "#ddeeff"
+            },
+            "locked": 0,
+            "TODO": "Frame pen, brush, margin, ..."
+        },
+        {
+            "type": "rich-text",
+            "position": [30, -10, 0],
+            "font": {},
+            "pen": {
+                "width": 1,
+                "color": "#ff00dd",
+                "style": "solid"
+            },
+            "brush": {
+                "color": "#ddeeff"
+            },
+            "text": "Hello world!\n\t",
+            "locked": 0,
+            "TODO": "Frame pen, brush, margin, word wrap, ..."
+        },
+        {
+            "type": "port",
+            "x": 30,
+            "y": 0,
+            "length": 30,
+            "orientation": 180,
+            "color": "#ffffff",
+            "locked": 0
+        }
+    ]
+}

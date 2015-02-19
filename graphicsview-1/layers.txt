@@ -1,0 +1,171 @@
+
+
+Physical layers:
+================
+- top overlay (overlay)
+- top solder (solder mask resist or coverlay)
+- [
+    - signal layer (copper)
+    - dielectric (core or prereg)
+    - signal layer (copper)
+   ]
+- bottom solder
+- bottom overlay
+
+These are manage by the Layer stack manager
+
+Layer types:
+ - Overlay
+ - Solder mask, coverlay
+ - Signal
+ - Dielectric
+ - internal plane
+
+Layer material:
+ - Overlay: <NONE>
+ - Solder mask, coverlay: None, Surface material, core, pre-reg
+ - Signal and internal planes: Copper
+ - Dielectric: None, Surface material, core, pre-reg
+
+TBD:
+- solder paste layer, glue spot layer
+- as well components atop a layer, which can be an internal one (embedded component)
+
+Properties:
+ - all:
+   - name
+   - type
+   - material
+   - thickness
+ - Dielectric:
+   - dielectric material (user string)
+   - dielectric constant
+ - Plane
+   - pull back distance
+ - Signal:
+   - orientation: not allowed, top and bottom
+
+
+Design layers and groups:
+=========================
+- Signal layers [1..32]:
+ - Top
+ - Mid[1..30]
+ - Bottom
+- Internal planes [1..32]
+- Other layers [12]
+ - multi-layer
+ - drill guide
+ - keep out
+ - drill drawing
+ - Silkscreen
+  - Top overlay
+  - Bottom overlay
+ - Mask layers
+  - Top paste
+  - Top solder
+  - Bottom solder
+  - Bottom paste
+- Mechanical layers [1..32]
+
+=> 4 groups, 4 32 bits flags?
+
+Layer types:
+============
+- Multi layer
+- Solder Paste mask
+- Silk screen
+- Solder resist mask = Coverlay
+- Signal
+- Drill guide
+- Drill drawing
+- Keep out
+- Mechanical
+
+Layer properties:
+=================
+- Long name
+- User name (Or long name can be changed)
+- Medium name
+- Short name
+- Color (comes from the current palette)
+
+TBD:
+ - long vs user name, the name can come from the physical stack too.
+
+Built-in layer sets:
+====================
+Set of design layers (exclude system layers)
+- All layer set
+- Signal layer set (used SignalLayers.* + OtherLayers.multilayer)
+- Plane layer set  (used InternalPlanes.*)
+- Non-signal layer set (OtherLayers.*, SilkscreenLayers.*, MaskLayers.*)
+- Mechanical layer set (MechanicalLayers.*)
+
+Layer set properties:
+=====================
+- name
+- layer list
+- active layer
+- locked
+- Flip board (bool), aka "View from bottom side"
+
+
+System layers:
+==============
+They maybe scene/view layers or not, these are system colors really not layers
+
+- Extra/System layers/colors
+ - Connection (rat nets)
+ - DRC error markers
+ - Drc details markers
+ - Selections
+ - Visible grid 1 & 2, default grid color small & large
+ - top pad master
+ - bottom pad master
+ - --
+ - highlight color
+ - workspace start color
+ - workspace end color
+ - sheet line color
+ - sheet area color
+ - board line color
+ - board area color
+
+
+
+PCB Library expert:
+- all
+- top
+- inner
+- bottom
+- solder mask top
+- solder mask bottom
+- stencil top
+- stemcil bottom
+- silkscreen top ()
+- silkscreen top label
+- assembly drawing top
+- assembly drawing top label
+- courtyard (include comp ref)
+- body outline (OTL), 0pix pen
+- keep out top
+- keep out all
+- terminals
+- pin numbers
+
++ click on tab to enable/disable, right click to edit color
+
+
+
+See as well:
+http://cladlab.com/electronics/general/altium/altium-tricks-and-standards#pcb-layer-standards
+Mechanical 1 (M1) 	Board outline (it is not recommended to use just the keep-out layer, since that can be used for other things also).
+Mechanical 2 (M2) 	PCB info (manfacturing info, added as text).
+Mechanical 11 (M11) 	Top layer dimensions (paired with M12).
+Mechanical 12 (M12) 	Bottom layer dimensions (paired with M11).
+Mechanical 13 (M13) 	Top layer component body information (3D models and mechanical outlines, paired with M14).
+Mechanical 14 (M14) 	Bottom layer component body information (3D models and mechanical outlines, paired with M13).
+Mechanical 15 (M15) 	Top layer courtyard and assembly information (paired with M16).
+Mechanical 16 (M16) 	Bottom layer courtyard and assembly information (paired with M15).
+

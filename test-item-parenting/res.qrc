@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>component.png</file>
+        <file>footprint.png</file>
+        <file>layout.png</file>
+        <file>symbol.png</file>
+        <file>body.png</file>
+        <file>simu.png</file>
+        <file>package.png</file>
+        <file>sigint.png</file>
+    </qresource>
+</RCC>
