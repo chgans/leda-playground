@@ -98,7 +98,7 @@ void UngroupProxyModel::setSourceModel(QAbstractItemModel * m)
         connect(sourceModel(), SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
     }
 
-    reset();
+    endResetModel();
 }
 
 QModelIndex UngroupProxyModel::mapFromSource(const QModelIndex & source) const
@@ -219,5 +219,5 @@ void UngroupProxyModel::source_dataChanged(QModelIndex tl, QModelIndex br)
 void UngroupProxyModel::source_modelReset()
 {
     d->sourceRootsCounts.clear();
-    reset();
+    endResetModel();
 }

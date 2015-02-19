@@ -1,6 +1,6 @@
 #include "documentmodel.h"
-
-DocumentModel::DocumentModel()
+#if 0
+DocumentModel::DocumentModel(QObject *parent)
 {
 
 }
@@ -10,3 +10,4 @@ DocumentModel::~DocumentModel()
 
 }
 
+#endif

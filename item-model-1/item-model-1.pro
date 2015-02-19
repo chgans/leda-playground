@@ -6,6 +6,8 @@
 
 QT       += core gui
 
+QT += KItemModels KItemViews
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = item-model-1
@@ -13,8 +15,15 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    documentmodel.cpp \
+    libraryproxymodel.cpp \
+    UngroupProxyModel.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    documentmodel.h \
+    documentitems.h \
+    libraryproxymodel.h \
+    UngroupProxyModel.h
 
 FORMS    += mainwindow.ui
