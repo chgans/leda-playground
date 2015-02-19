@@ -1,18 +1,32 @@
 #ifndef LIBRARYDOCUMENTMODEL_H
 #define LIBRARYDOCUMENTMODEL_H
 
-#include <QAbstractItemModel>
+#include <QStandardItemModel>
 
-class LibraryDocumentModel : public QAbstractItemModel
+#include "documentitem.h"
+#include "librarydocumentmodel.h"
+
+class LibraryModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    explicit LibraryDocumentModel(QObject *parent = 0);
+    explicit LibraryModel(QObject *parent = 0):
+        QStandardItemModel(parent)
+    {
 
-signals:
+    }
 
-public slots:
+    void setLibrary(LibraryItem *library)
+    {
+        beginResetModel();
+        QList<QStandardItem *> list;
+        list.append(library);
+        appendRow(list);
+        endResetModel();
+    }
 
+private:
+    LibraryItem *m_library;
 };
 
 #endif // LIBRARYDOCUMENTMODEL_H

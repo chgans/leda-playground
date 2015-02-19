@@ -1,6 +1,2 @@
 #include "librarydocumentmodel.h"
-
-LibraryDocumentModel::LibraryDocumentModel(QObject *parent) :
-    QAbstractItemModel(parent)
-{
-}
+#include "documentitem.h"
