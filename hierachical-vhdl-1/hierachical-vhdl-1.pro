@@ -6,6 +6,8 @@
 
 QT       += core gui testlib
 
+CONFIG += c++11
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = hierachical-vhdl-1
@@ -21,3 +23,6 @@ HEADERS  += mainwindow.h \
     entity.h
 
 FORMS    += mainwindow.ui
+
+OTHER_FILES += \
+    notes.txt
