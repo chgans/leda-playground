@@ -45,15 +45,15 @@ public:
         setChild(3, 0, roItem);
     }
 
+    QString name() const
+    {
+        return child(0, 0)->data(Qt::DisplayRole).toString();
+    }
+
     void setName(const QString &name)
     {
         child(0, 0)->setData(name, Qt::DisplayRole);
         setText(name);
-    }
-
-    QString name() const
-    {
-        return child(0, 0)->data(Qt::DisplayRole).toString();
     }
 
     void setDefaultValue(const QVariant &value)
@@ -83,7 +83,7 @@ public:
 
     void setReadOnly(bool readOnly)
     {
-        child(3, 0)->setData(readOnly);
+        child(3, 0)->setData(readOnly, Qt::DisplayRole);
     }
 };
 
@@ -99,7 +99,7 @@ public:
         setChild(0, 0, name);
         auto ports = new QStandardItem();
         setChild(1, 0, ports);
-        generics->setText("Ports");
+        ports->setText("Ports");
         auto generics = new QStandardItem();
         setChild(2, 0, generics);
         generics->setText("Generics");
@@ -127,13 +127,23 @@ class PackageItem: public IDocumentItem
 public:
     explicit PackageItem()
     {
-        setColumnCount(1);
-        setRowCount(2);
+        setColumnCount(5);
+        setRowCount(1);
         auto name = new QStandardItem();
         name->setData("", Qt::DisplayRole);
         setChild(0, 0, name);
+        // See KAboutPerson/Data
+        auto display = new QStandardItem();
+        name->setData("", Qt::DisplayRole);
+        setChild(1, 0, display);
+        auto author = new QStandardItem();
+        name->setData("", Qt::DisplayRole);
+        setChild(2, 0, author);
+        auto license = new QStandardItem();
+        name->setData("", Qt::DisplayRole);
+        setChild(3, 0, license);
         auto entities = new QStandardItem();
-        setChild(1, 0, entities);
+        setChild(4, 0, entities);
         entities->setText("Entities");
     }
 
@@ -152,9 +162,40 @@ public:
         setText(name);
     }
 
+    QString display() const
+    {
+        return child(1, 0)->data(Qt::DisplayRole).toString();
+    }
+
+    void setDisplay(const QString &name)
+    {
+        child(1, 0)->setData(name, Qt::DisplayRole);
+        setText(name);
+    }
+
+    QString author() const
+    {
+        return child(2, 0)->data(Qt::DisplayRole).toString();
+    }
+
+    void setAuthor(const QString &name)
+    {
+        child(2, 0)->setData(name, Qt::DisplayRole);
+    }
+
+    QString license() const
+    {
+        return child(3, 0)->data(Qt::DisplayRole).toString();
+    }
+
+    void setLicense(const QString &name)
+    {
+        child(3, 0)->setData(name, Qt::DisplayRole);
+    }
+
     void addEntity(EntityItem *entity)
     {
-        child(1, 0)->appendRow(entity);
+        child(4, 0)->appendRow(entity);
     }
 
     virtual int type() const
@@ -163,6 +204,7 @@ public:
     }
 };
 
+/*
 class LibraryItem: public IDocumentItem
 {
 
@@ -219,5 +261,5 @@ public:
         return IDocumentItem::LibraryItemType;
     }
 };
-
+*/
 #endif // DOCUMENTITEM_H

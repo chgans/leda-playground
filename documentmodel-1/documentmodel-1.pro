@@ -16,10 +16,16 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     documentitem.cpp \
-    librarydocumentmodel.cpp
+    librarydocumentmodel.cpp \
+    packageitemform.cpp
 
 HEADERS  += mainwindow.h \
     documentitem.h \
-    librarydocumentmodel.h
+    librarydocumentmodel.h \
+    packageitemform.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    packageitemform.ui
+
+DISTFILES += \
+    README.md

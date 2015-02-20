@@ -6,27 +6,25 @@
 #include "documentitem.h"
 #include "librarydocumentmodel.h"
 
-class LibraryModel : public QStandardItemModel
+class DocumentModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    explicit LibraryModel(QObject *parent = 0):
+    explicit DocumentModel(QObject *parent = 0):
         QStandardItemModel(parent)
     {
 
     }
 
-    void setLibrary(LibraryItem *library)
+    void setDocumentItem(IDocumentItem *item)
     {
         beginResetModel();
-        QList<QStandardItem *> list;
-        list.append(library);
-        appendRow(list);
+        appendRow(item);
         endResetModel();
     }
 
 private:
-    LibraryItem *m_library;
+    IDocumentItem *m_item;
 };
 
 #endif // LIBRARYDOCUMENTMODEL_H

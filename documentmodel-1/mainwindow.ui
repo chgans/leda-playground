@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>494</width>
     <height>300</height>
    </rect>
   </property>
@@ -14,18 +14,9 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
      <widget class="QColumnView" name="columnView"/>
-    </item>
-    <item row="1" column="0">
-     <widget class="QTableView" name="tableView"/>
-    </item>
-    <item row="0" column="1">
-     <widget class="QTreeView" name="treeView"/>
-    </item>
-    <item row="1" column="1">
-     <widget class="QListView" name="listView"/>
     </item>
    </layout>
   </widget>
@@ -34,8 +25,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
-     <height>24</height>
+     <width>494</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
