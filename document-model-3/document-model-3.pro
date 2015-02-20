@@ -9,7 +9,7 @@ CONFIG   += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = documentmodel-1
+TARGET = document-model-3
 TEMPLATE = app
 
 

@@ -6,7 +6,7 @@ SUBDIRS = \
  data-model-1 \
  document-model-1 \
  document-model-2 \
- documentmodel-1 \
+ document-model-3 \
  editor-task-document-1 \
  graphicsview-1 \
  hierachical-vhdl-1 \
