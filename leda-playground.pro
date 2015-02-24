@@ -14,4 +14,5 @@ SUBDIRS = \
  propeditor-1 \
  qgv-item-event \
  splashscreen-1 \
- test-js-1
+ test-js-1 \
+    log-viewer-1
