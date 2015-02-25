@@ -1,0 +1,35 @@
+Qt property as defined by QMetaProperty:
+- name
+- type, typeName, userType
+- is{Enum|Flag}Type
+- is{Readable|Writable|Resetable}
+- isConstant (same value for a given QObject instance)
+- is{Designable|Scriptable}
+- idStored (static vs dynamic value)
+- isFinal (can't be overridden by a derived class)
+- isUser (For QItemDelegate?)
+- propertyIndex
+
+Extension:
+- Default value
+- Physical quantity
+- Default unit
+- Property group
+- Constraint:
+ - Minimum, Maximum, Step (for GUI)
+ - Decimals (for GUI)
+ - Echo mode
+ - Reg exp
+ - ...
+- Icon map (for enum)
+- Documentation (Tool tip, Status tip, What's this)
+- Icon
+
+QtPropertyBrowser (http://doc.qt.digia.com/qq/qq18-propertybrowser.html):
+ QtVariantPropertyManager and QtVariantProperty provide the above mentioned constraints, documentation and icon.
+ 
+=> - Extend QtVariantPropertyManager and QtVariantProperty to support above extension
+   - Choice:
+     - Add a propertyManager() to DocumentObject that construct the right QtVariantPropertyManager
+     - use a factory approach
+     - Extend somehow QMetaProperty
