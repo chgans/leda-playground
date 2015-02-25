@@ -15,7 +15,10 @@ public:
     int columnCount() const;
     QVariant data(int column) const;
     bool setData(int column, const QVariant &value);
-    QVariant headerData(int row) const;
+    const char *propertyName(int row) const;
+    QString propertyNameString(int row) const;
+    int propertyIndex(const char *name);
+    int propertyIndex(const QString &name);
     DocumentObject *parentObject();
     int row();
 

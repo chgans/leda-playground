@@ -26,6 +26,8 @@
 #include <QUndoGroup>
 #include <QUndoView>
 
+#include <QDebug>
+
 MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent),
     m_undoGroup(new QUndoGroup(this)), m_undoView(new QUndoView),
@@ -83,11 +85,14 @@ void MainWindow::onDocumentUrlChanged(const QUrl &url)
     updateWindowTitle();
 }
 
+// TBD: in the "View" class => property browser
 void MainWindow::onObjectSelectionChanged(const QPersistentModelIndex &index)
 {
+    qDebug() << "MainWindow::onObjectSelectionChanged" << index;
     m_browser->setObjectModelIndex(index);
 }
 
+// TBD: in the "View" class => property browser
 void MainWindow::onPropertyValueChanged(const QPersistentModelIndex &index, QtProperty *property,
                                         const QVariant &value, const QVariant &previousValue)
 {

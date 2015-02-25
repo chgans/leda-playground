@@ -12,7 +12,7 @@ public:
     explicit DocumentModel(QObject *parent = 0);
 
     void clear();
-    void setRootObject(DocumentObject *object);
+    //void setRootObject(DocumentObject *object);
 
     DocumentObject *object(const QModelIndex &index) const;
     QModelIndex addProperty(const QModelIndex &index, const QString &name,const QVariant &value);

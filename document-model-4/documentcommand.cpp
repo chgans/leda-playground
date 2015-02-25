@@ -121,6 +121,7 @@ QVariant ChangePropertyValueCommand::propertyValue() const
 
 bool ChangePropertyValueCommand::mergeWith(const DocumentCommand *other)
 {
+    qDebug() << id() << other->id();
     if (id() != other->id())
         return false;
     const ChangePropertyValueCommand *command = static_cast<const ChangePropertyValueCommand*>(other);
@@ -135,12 +136,12 @@ int ChangePropertyValueCommand::id() const
 
 void ChangePropertyValueCommand::undo()
 {
-    qDebug() << "undo" << index() << m_previousValue << m_previousValue;
+    qDebug() << "undo" << index() << m_currentValue << "=>" << m_previousValue;
     model()->changeProperty(index(), m_previousValue);
 }
 
 void ChangePropertyValueCommand::redo()
 {
-    qDebug() << "redo" << index() << m_previousValue << m_currentValue;
+    qDebug() << "redo" << index() << m_previousValue << "=>" << m_currentValue;
     model()->changeProperty(index(), m_currentValue);
 }

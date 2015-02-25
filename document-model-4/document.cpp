@@ -62,7 +62,7 @@ bool Document::open()
 
     DocumentStupidObject *dso = new DocumentStupidObject();
     dso->setStupidProperty(obj.value("stupidProperty").toString());
-    m_model->setRootObject(dso);
+    m_model->addObject(QModelIndex(), dso);
     return true;
 }
 

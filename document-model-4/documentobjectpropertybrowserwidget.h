@@ -43,11 +43,12 @@ private:
     DocumentModel *m_model;
     DocumentObject *m_object;
     QPersistentModelIndex m_objectIndex;
-    QPersistentModelIndex m_propertyIndex;
-    bool m_populating;
+    bool m_updating;
     QtTreePropertyBrowser *m_browser;
     QtVariantPropertyManager *m_manager;
     QtVariantEditorFactory *m_factory;
+    QMap<QtProperty*, int> m_qtPropToColumn;
+    QMap<int, QtProperty*> m_columnToQtProp;
 };
 
 #endif // DOCUMENTOBJECTPROPERTYBROWSERWIDGET_H
