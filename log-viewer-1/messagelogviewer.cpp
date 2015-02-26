@@ -1,4 +1,5 @@
 #include "messagelogviewer.h"
+#include "loggingmodel.h"
 #include "ui_messagelogviewer.h"
 
 // FreeDesktop Icon theme:
@@ -16,11 +17,23 @@ MessageLogViewer::MessageLogViewer(QWidget *parent) :
     ui(new Ui::MessageLogViewer)
 {
     ui->setupUi(this);
-    int i;
-    j = 0;
+    ui->tableView->horizontalHeader()->setStretchLastSection(true);
+    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
 MessageLogViewer::~MessageLogViewer()
 {
     delete ui;
+}
+
+LoggingModel *MessageLogViewer::model()
+{
+    return m_model;
+}
+
+void MessageLogViewer::setModel(LoggingModel *model)
+{
+    m_model = model;
+    ui->tableView->setModel(model);
 }

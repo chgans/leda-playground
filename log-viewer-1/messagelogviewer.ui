@@ -59,7 +59,9 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="edit-clear"/>
+        <iconset theme="edit-clear">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -75,7 +77,9 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="go-previous"/>
+        <iconset theme="go-previous">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -91,7 +95,9 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="go-next"/>
+        <iconset theme="go-next">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -104,7 +110,9 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="dialog-information"/>
+        <iconset theme="dialog-information">
+         <normaloff/>
+        </iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -123,7 +131,9 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="dialog-warning"/>
+        <iconset theme="dialog-warning">
+         <normaloff/>
+        </iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -142,7 +152,9 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="dialog-error"/>
+        <iconset theme="dialog-error">
+         <normaloff/>
+        </iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -161,7 +173,9 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="preferences-system"/>
+        <iconset theme="preferences-system">
+         <normaloff/>
+        </iconset>
        </property>
        <property name="popupMode">
         <enum>QToolButton::InstantPopup</enum>
@@ -180,7 +194,9 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="document-save-as"/>
+        <iconset theme="document-save-as">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -200,7 +216,17 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableView" name="tableView"/>
+    <widget class="QTableView" name="tableView">
+     <property name="showGrid">
+      <bool>false</bool>
+     </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+    </widget>
    </item>
   </layout>
  </widget>

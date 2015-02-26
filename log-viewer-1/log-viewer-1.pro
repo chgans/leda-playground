@@ -15,11 +15,15 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     logcat1.cpp \
-    messagelogviewer.cpp
+    messagelogviewer.cpp \
+    logmessage.cpp \
+    loggingmodel.cpp
 
 HEADERS  += mainwindow.h \
     logcat1.h \
-    messagelogviewer.h
+    messagelogviewer.h \
+    logmessage.h \
+    loggingmodel.h
 
 FORMS    += mainwindow.ui \
     messagelogviewer.ui
