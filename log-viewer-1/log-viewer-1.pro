@@ -32,3 +32,6 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     messagelogviewer.ui
+
+OTHER_FILES += \
+    TODO.md

@@ -11,10 +11,6 @@ class LoggingModel;
 class LoggingSortFilterProxyModel;
 class QMenu;
 
-// TODO:
-// Rename MessageLogViewer to LoggingView
-// Move action stuff into LoggingWidget
-// Add message(Doucle)Clicked() ?
 class MessageLogViewer : public QFrame
 {
     Q_OBJECT
