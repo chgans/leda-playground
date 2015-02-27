@@ -8,7 +8,7 @@ class MainWindow;
 }
 
 class LoggingModel;
-class MessageLogViewer;
+class LoggingWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -23,7 +23,7 @@ public:
 private:
     Ui::MainWindow *ui;
     LoggingModel *m_logModel;
-    MessageLogViewer *m_logViewer;
+    LoggingWidget *m_logViewer;
 };
 
 #endif // MAINWINDOW_H

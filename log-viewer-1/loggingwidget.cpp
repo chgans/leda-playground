@@ -1,13 +1,13 @@
-#include "messagelogviewer.h"
+#include "loggingwidget.h"
 #include "loggingmodel.h"
-#include "ui_messagelogviewer.h"
+#include "ui_loggingwidget.h"
 #include "loggingsortfilterproxymodel.h"
 
 #include <QMenu>
 
-MessageLogViewer::MessageLogViewer(QWidget *parent) :
+LoggingWidget::LoggingWidget(QWidget *parent) :
     QFrame(parent),
-    ui(new Ui::MessageLogViewer),
+    ui(new Ui::LoggingWidget),
     m_model(nullptr),
     m_filterModel(new LoggingSortFilterProxyModel(this)),
     m_categoriesMenu(new QMenu(this))
@@ -36,9 +36,9 @@ MessageLogViewer::MessageLogViewer(QWidget *parent) :
     ui->errorToolButton->setChecked(true);
 
     connect(ui->previousToolButton, &QToolButton::clicked,
-            this, &MessageLogViewer::goToPrevious);
+            this, &LoggingWidget::goToPrevious);
     connect(ui->nextToolButton, &QToolButton::clicked,
-            this, &MessageLogViewer::goToNext);
+            this, &LoggingWidget::goToNext);
 
     connect(m_filterModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(updateNavigationState()));
@@ -53,17 +53,17 @@ MessageLogViewer::MessageLogViewer(QWidget *parent) :
             m_filterModel, SLOT(setFilterFixedString(QString)));
 }
 
-MessageLogViewer::~MessageLogViewer()
+LoggingWidget::~LoggingWidget()
 {
     delete ui;
 }
 
-LoggingModel *MessageLogViewer::model()
+LoggingModel *LoggingWidget::model()
 {
     return m_model;
 }
 
-void MessageLogViewer::setModel(LoggingModel *model)
+void LoggingWidget::setModel(LoggingModel *model)
 {
     if (m_model) {
         m_model->disconnect(this);
@@ -94,12 +94,12 @@ void MessageLogViewer::setModel(LoggingModel *model)
     }
 }
 
-bool MessageLogViewer::canNavigate() const
+bool LoggingWidget::canNavigate() const
 {
     return m_filterModel->rowCount() != 0;
 }
 
-bool MessageLogViewer::canGoToNext() const
+bool LoggingWidget::canGoToNext() const
 {
     if (!canNavigate())
         return false;
@@ -110,7 +110,7 @@ bool MessageLogViewer::canGoToNext() const
     return ui->tableView->currentIndex().row() != m_filterModel->rowCount() - 1;
 }
 
-bool MessageLogViewer::canGoToPrevious() const
+bool LoggingWidget::canGoToPrevious() const
 {
     if (!canNavigate())
         return false;
@@ -121,7 +121,7 @@ bool MessageLogViewer::canGoToPrevious() const
     return ui->tableView->currentIndex().row() != 0;
 }
 
-void MessageLogViewer::goToNext()
+void LoggingWidget::goToNext()
 {
     if (!canNavigate())
         return;
@@ -137,7 +137,7 @@ void MessageLogViewer::goToNext()
 
 }
 
-void MessageLogViewer::goToPrevious()
+void LoggingWidget::goToPrevious()
 {
     if (!canNavigate())
         return;
@@ -152,7 +152,7 @@ void MessageLogViewer::goToPrevious()
     ui->tableView->setCurrentIndex(next);
 }
 
-void MessageLogViewer::updateCategoryList(const QList<const char *> categories)
+void LoggingWidget::updateCategoryList(const QList<const char *> categories)
 {
     m_categoriesMenu->clear();
     foreach (const char *name, categories) {
@@ -165,18 +165,18 @@ void MessageLogViewer::updateCategoryList(const QList<const char *> categories)
     }
 }
 
-void MessageLogViewer::filterCategoriesTriggered(QAction *action)
+void LoggingWidget::filterCategoriesTriggered(QAction *action)
 {
     const char *category = (const char *)action->data().toInt(); // FIXME!
     setCategoryVisibility(category, action->isChecked());
 }
 
-void MessageLogViewer::setCategoryVisibility(const char *categoryName, bool visible)
+void LoggingWidget::setCategoryVisibility(const char *categoryName, bool visible)
 {
     m_filterModel->setFilterIncludesCategoryName(categoryName, visible);
 }
 
-void MessageLogViewer::updateNavigationState()
+void LoggingWidget::updateNavigationState()
 {
     ui->nextToolButton->setEnabled(canGoToNext());
     ui->previousToolButton->setEnabled(canGoToPrevious());

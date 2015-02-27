@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MessageLogViewer</class>
- <widget class="QFrame" name="MessageLogViewer">
+ <class>LoggingWidget</class>
+ <widget class="QFrame" name="LoggingWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -205,6 +205,9 @@
        </property>
        <property name="placeholderText">
         <string>Filter</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

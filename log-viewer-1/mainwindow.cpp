@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "logmessage.h"
 #include "loggingmodel.h"
-#include "messagelogviewer.h"
+#include "loggingwidget.h"
 
 #include <QDockWidget>
 #include <QVBoxLayout>
@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_logModel(new LoggingModel(this)),
-    m_logViewer(new MessageLogViewer)
+    m_logViewer(new LoggingWidget)
 {
     ui->setupUi(this);
 

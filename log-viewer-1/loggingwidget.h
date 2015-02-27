@@ -1,23 +1,23 @@
-#ifndef MESSAGELOGVIEWER_H
-#define MESSAGELOGVIEWER_H
+#ifndef LOGGINGWIDGET_H
+#define LOGGINGWIDGET_H
 
 #include <QFrame>
 
 namespace Ui {
-class MessageLogViewer;
+class LoggingWidget;
 }
 
 class LoggingModel;
 class LoggingSortFilterProxyModel;
 class QMenu;
 
-class MessageLogViewer : public QFrame
+class LoggingWidget : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit MessageLogViewer(QWidget *parent = 0);
-    ~MessageLogViewer();
+    explicit LoggingWidget(QWidget *parent = 0);
+    ~LoggingWidget();
 
     LoggingModel *model();
     void setModel(LoggingModel *model);
@@ -37,10 +37,10 @@ protected:
     void setCategoryVisibility(const char *categoryName, bool visible);
 
 private:
-    Ui::MessageLogViewer *ui;
+    Ui::LoggingWidget *ui;
     LoggingModel *m_model;
     LoggingSortFilterProxyModel *m_filterModel;
     QMenu *m_categoriesMenu;
 };
 
-#endif // MESSAGELOGVIEWER_H
+#endif // LOGGINGWIDGET_H
