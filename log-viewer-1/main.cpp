@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     logcat1 *logc1 = new logcat1(&a);
     logcat2 *logc2 = new logcat2(&a);
-    qInstallMessageHandler(myMessageOutput);
     window = new MainWindow();
+    qInstallMessageHandler(myMessageOutput);
     window->show();
 
     return a.exec();
