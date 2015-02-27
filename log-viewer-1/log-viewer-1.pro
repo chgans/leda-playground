@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+CONFIG += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,13 +18,17 @@ SOURCES += main.cpp\
     logcat1.cpp \
     messagelogviewer.cpp \
     logmessage.cpp \
-    loggingmodel.cpp
+    loggingmodel.cpp \
+    loggingsortfilterproxymodel.cpp \
+    logcat2.cpp
 
 HEADERS  += mainwindow.h \
     logcat1.h \
     messagelogviewer.h \
     logmessage.h \
-    loggingmodel.h
+    loggingmodel.h \
+    loggingsortfilterproxymodel.h \
+    logcat2.h
 
 FORMS    += mainwindow.ui \
     messagelogviewer.ui
