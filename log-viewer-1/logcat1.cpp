@@ -1,7 +1,7 @@
 #include "logcat1.h"
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(log1, "log.1", QtDebugMsg)
+Q_LOGGING_CATEGORY(log1, "log.1")
 
 logcat1::logcat1(QObject *parent) : QObject(parent)
 {
