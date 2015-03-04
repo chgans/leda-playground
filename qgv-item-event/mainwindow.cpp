@@ -2,13 +2,28 @@
 #include "ui_mainwindow.h"
 #include <QTimer>
 
+#include <QGraphicsDropShadowEffect>
+#include <QGraphicsColorizeEffect>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    scene = new QGraphicsScene(this);
-    ui->graphicsView->setScene(scene);
+    m_scene = new GraphicsScene(this);
+    m_scene->setSceneRect(0, 0, 297, 210);
+    ui->graphicsView->setScene(m_scene);
+    m_item = m_scene->addRect(-25, -25, 50, 50);
+    m_item->setPos(103, 52);
+    m_item->setBrush(Qt::darkGreen);
+    m_item->setPen(QPen(Qt::darkRed));
+    m_item->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
+    m_item = m_scene->addRect(-25, -25, 50, 50);
+    m_item->setPos(169, 78);
+    m_item->setBrush(Qt::darkRed);
+    m_item->setPen(QPen(Qt::darkGreen));
+    m_item->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
+
     QTimer *timer = new QTimer(this);
     timer->setSingleShot(true);
     timer->start(0);
@@ -23,6 +38,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
+    /*
     item = new RectItem(0, 0, 100, 100);
     item->setFlag(QGraphicsItem::ItemIsSelectable, true);
     item->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -50,4 +66,5 @@ void MainWindow::init()
     nitem->setTextInteractionFlags(Qt::TextEditorInteraction);
     nitem->setPos(200, 0);
     scene->addItem(nitem);
+    */
 }

@@ -8,13 +8,21 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+CONFIG += c++11
+
 TARGET = qgv-item-event
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    graphicsscene.cpp \
+    graphicsview.cpp \
+    graphicsrectitem.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    graphicsscene.h \
+    graphicsview.h \
+    graphicsrectitem.h
 
 FORMS    += mainwindow.ui

@@ -216,6 +216,7 @@ public:
 
 };
 
+#include "graphicsscene.h"
 
 class MainWindow : public QMainWindow
 {
@@ -229,8 +230,8 @@ private:
     Q_SLOT void init();
 
     Ui::MainWindow *ui;
-    QGraphicsScene *scene;
-    QGraphicsRectItem *item;
+    GraphicsScene *m_scene;
+    QGraphicsRectItem *m_item;
 };
 
 #endif // MAINWINDOW_H
