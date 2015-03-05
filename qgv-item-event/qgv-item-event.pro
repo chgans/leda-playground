@@ -18,11 +18,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     graphicsscene.cpp \
     graphicsview.cpp \
-    graphicsrectitem.cpp
+    graphicsrectitem.cpp \
+    graphicstool.cpp \
+    graphicsselecttool.cpp
 
 HEADERS  += mainwindow.h \
     graphicsscene.h \
     graphicsview.h \
-    graphicsrectitem.h
+    graphicsrectitem.h \
+    graphicstool.h \
+    graphicsselecttool.h
 
 FORMS    += mainwindow.ui

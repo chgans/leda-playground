@@ -226,6 +226,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+protected slots:
+    void onViewContextMenuRequested(QPoint pos);
+    void onViewMouseDoubleClicked(QPoint pos);
+
 private:
     Q_SLOT void init();
 

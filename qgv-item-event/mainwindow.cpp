@@ -1,6 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+#include "graphicsscene.h"
+#include "graphicsview.h"
+#include "graphicsselecttool.h"
+
 #include <QTimer>
+#include <QMessageBox>
 
 #include <QGraphicsDropShadowEffect>
 #include <QGraphicsColorizeEffect>
@@ -10,9 +16,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     m_scene = new GraphicsScene(this);
     m_scene->setSceneRect(0, 0, 297, 210);
+
     ui->graphicsView->setScene(m_scene);
+    ui->graphicsView->scale(2, 2);
+    GraphicsTool *tool = new GraphicsSelectTool(this);
+    ui->graphicsView->setTool(tool);
+
     m_item = m_scene->addRect(-25, -25, 50, 50);
     m_item->setPos(103, 52);
     m_item->setBrush(Qt::darkGreen);
@@ -24,6 +36,11 @@ MainWindow::MainWindow(QWidget *parent) :
     m_item->setPen(QPen(Qt::darkGreen));
     m_item->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
 
+    connect(ui->graphicsView, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(onViewContextMenuRequested(QPoint)));
+    connect(ui->graphicsView, SIGNAL(mouseDoubleClicked(QPoint)),
+            this, SLOT(onViewMouseDoubleClicked(QPoint)));
+
     QTimer *timer = new QTimer(this);
     timer->setSingleShot(true);
     timer->start(0);
@@ -34,6 +51,20 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::onViewContextMenuRequested(QPoint pos)
+{
+    Q_UNUSED(pos);
+    QMenu menu(ui->graphicsView);
+    menu.addAction(QIcon::fromTheme("document-open"), "blah");
+    menu.exec(QCursor::pos());
+}
+
+void MainWindow::onViewMouseDoubleClicked(QPoint pos)
+{
+    Q_UNUSED(pos);
+    QMessageBox::aboutQt(this);
 }
 
 void MainWindow::init()

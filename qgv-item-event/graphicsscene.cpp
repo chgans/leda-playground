@@ -24,7 +24,7 @@ void GraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
     painter->fillRect(rect, QBrush(gradient));
 
     painter->fillRect(sceneRect(), Qt::black);
-
+/*
     QRectF rect2 = rect.intersected(sceneRect());
     qreal left = int(rect2.left()) - (int(rect2.left()) % m_cellSize.width());
     qreal top = int(rect2.top()) - (int(rect2.top()) % m_cellSize.height());
@@ -35,5 +35,6 @@ void GraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
         lines.append(QLineF(rect2.left(), y, rect2.right(), y));
     painter->setPen(QPen(Qt::lightGray, 0, Qt::SolidLine));
     painter->drawLines(lines.data(), lines.size());
+    */
 }
 

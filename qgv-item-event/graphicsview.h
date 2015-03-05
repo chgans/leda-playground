@@ -3,11 +3,25 @@
 
 #include <QGraphicsView>
 
+class GraphicsScene;
+class GraphicsTool;
+
 class GraphicsView : public QGraphicsView
 {
+    Q_OBJECT
+
 public:
     GraphicsView(QWidget *parent);
     ~GraphicsView();
+
+    GraphicsScene *scene();
+    void setScene(GraphicsScene *scene);
+
+    GraphicsTool *tool();
+    void setTool(GraphicsTool *tool);
+
+signals:
+    void mouseDoubleClicked(const QPoint &pos);
 
 protected:
 
@@ -26,13 +40,8 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
-    QGraphicsItem *createPhantomItem(QGraphicsItem *item);
-    QList<QGraphicsItem *> createPhantomItems(QList<QGraphicsItem *> items);
-
 private:
-    struct MouseData;
-    MouseData *m_mouseData;
-
+    GraphicsTool *m_tool;
 };
 
 #endif // GRAPHICSVIEW_H
