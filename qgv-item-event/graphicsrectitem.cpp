@@ -1,4 +1,5 @@
 #include "graphicsrectitem.h"
+#include "graphicscontrolpoint.h"
 #include <QBrush>
 #include <QPen>
 #include <QRectF>
@@ -14,7 +15,7 @@ GraphicsRectItem::~GraphicsRectItem()
 
 }
 
-GraphicsRectItem *GraphicsRectItem::clone()
+QGraphicsItem *GraphicsRectItem::clone()
 {
     GraphicsRectItem *item = new GraphicsRectItem();
     item->setPos(pos());
@@ -24,5 +25,10 @@ GraphicsRectItem *GraphicsRectItem::clone()
     item->setFlags(flags());
     item->setSelected(isSelected());
     return item;
+}
+
+void GraphicsRectItem::controlPointMoved(const GraphicsControlPoint *point)
+{
+
 }
 

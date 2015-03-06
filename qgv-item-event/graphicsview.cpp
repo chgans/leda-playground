@@ -35,6 +35,7 @@ GraphicsView::GraphicsView(QWidget *parent):
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setDragMode(QGraphicsView::NoDrag);
+    setMouseTracking(true);
 }
 
 GraphicsView::~GraphicsView()

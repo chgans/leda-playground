@@ -27,7 +27,7 @@ public slots:
     // GraphicsTool interface
 public:
     virtual QString toolGroup() const;
-    virtual QList<QAction *> actions() const;
+    virtual QAction *action() const;
 };
 
 #endif // GRAPHICSSELECTTOOL_H

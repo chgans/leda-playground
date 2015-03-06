@@ -3,17 +3,24 @@
 
 #include "graphicsscene.h"
 #include "graphicsview.h"
+
 #include "graphicsselecttool.h"
+#include "graphicslinetool.h"
+#include "graphicsrectitem.h"
 
 #include <QTimer>
 #include <QMessageBox>
+#include <QActionGroup>
+#include <QToolBar>
 
 #include <QGraphicsDropShadowEffect>
 #include <QGraphicsColorizeEffect>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_interactiveToolActionGroup(new QActionGroup(this)),
+    m_interactiveToolsToolBar(new QToolBar(this))
 {
     ui->setupUi(this);
 
@@ -21,20 +28,27 @@ MainWindow::MainWindow(QWidget *parent) :
     m_scene->setSceneRect(0, 0, 297, 210);
 
     ui->graphicsView->setScene(m_scene);
-    ui->graphicsView->scale(2, 2);
-    GraphicsTool *tool = new GraphicsSelectTool(this);
-    ui->graphicsView->setTool(tool);
+    ui->graphicsView->scale(4, 4);
 
-    m_item = m_scene->addRect(-25, -25, 50, 50);
-    m_item->setPos(103, 52);
-    m_item->setBrush(Qt::darkGreen);
-    m_item->setPen(QPen(Qt::darkRed));
-    m_item->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
-    m_item = m_scene->addRect(-25, -25, 50, 50);
-    m_item->setPos(169, 78);
-    m_item->setBrush(Qt::darkRed);
-    m_item->setPen(QPen(Qt::darkGreen));
-    m_item->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
+    addTool(new GraphicsSelectTool(this));
+    addTool(new GraphicsLineTool(this));
+    addToolBar(m_interactiveToolsToolBar);
+
+    GraphicsRectItem *item;
+    item = new GraphicsRectItem();
+    item->setRect(-25, -25, 50, 50);
+    item->setPos(103, 52);
+    item->setBrush(Qt::darkGreen);
+    item->setPen(QPen(Qt::darkRed));
+    item->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
+    m_scene->addItem(item);
+    item = new GraphicsRectItem();
+    item->setRect(-25, -25, 50, 50);
+    item->setPos(169, 78);
+    item->setBrush(Qt::darkRed);
+    item->setPen(QPen(Qt::darkGreen));
+    item->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
+    m_scene->addItem(item);
 
     connect(ui->graphicsView, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(onViewContextMenuRequested(QPoint)));
@@ -65,6 +79,35 @@ void MainWindow::onViewMouseDoubleClicked(QPoint pos)
 {
     Q_UNUSED(pos);
     QMessageBox::aboutQt(this);
+}
+
+void MainWindow::addTool(GraphicsTool *tool)
+{
+    bool firstTool = m_interactiveTools.count() == 0;
+    bool firstAction = m_interactiveToolActionGroup->actions().count() == 0;
+    QAction *action = tool->action();
+    action->setCheckable(true);
+    action->setData(QVariant::fromValue<GraphicsTool*>(tool));
+    m_interactiveToolActionGroup->addAction(action);
+    m_interactiveToolsToolBar->addAction(action);
+    if (firstAction) {
+        action->setChecked(true);
+        firstAction = false;
+    }
+    else
+        action->setChecked(false);
+    connect(m_interactiveToolActionGroup, &QActionGroup::triggered,
+            this, [this](QAction *action) {
+        GraphicsTool *tool = action->data().value<GraphicsTool*>();
+        ui->graphicsView->setTool(tool);
+    });
+    connect(tool, &GraphicsTool::finished,
+            this, [this]() {
+        // Todo: activate select tool
+    });
+    m_interactiveTools.append(tool);
+    if (firstTool)
+        ui->graphicsView->setTool(tool);
 }
 
 void MainWindow::init()

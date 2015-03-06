@@ -1,9 +1,14 @@
 #include "graphicstool.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
-#include "graphicsrectitem.h"
+#include "graphicsiteminterface.h"
+#include <QGraphicsItem>
 
 #include <QGraphicsOpacityEffect>
+
+#include <QMouseEvent>
+#include <QKeyEvent>
+#include <QDialog>
 
 GraphicsTool::GraphicsTool(QObject *parent) : QObject(parent)
 {
@@ -52,7 +57,16 @@ void GraphicsTool::mouseDoubleClickEvent(QMouseEvent *event)
 
 void GraphicsTool::keyPressEvent(QKeyEvent *event)
 {
-    Q_UNUSED(event);
+    switch (event->key()) {
+    case Qt::Key_Escape:
+        cancel();
+        break;
+    case Qt::Key_Tab:
+        QDialog *dialog = optionDialog();
+        if (dialog)
+            dialog->exec();
+        break;
+    }
 }
 
 void GraphicsTool::keyReleaseEvent(QKeyEvent *event)
@@ -72,8 +86,9 @@ void GraphicsTool::cancel()
 
 QGraphicsItem *GraphicsTool::createPhantomItem(QGraphicsItem *item)
 {
-    GraphicsRectItem *origItem = static_cast<GraphicsRectItem *>(item);
-    GraphicsRectItem *phantomItem = origItem->clone();
+    GraphicsItemInterface *origItem = dynamic_cast<GraphicsItemInterface *>(item);
+    Q_ASSERT(origItem != nullptr);
+    QGraphicsItem *phantomItem = origItem->clone();
     QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect();
     effect->setEnabled(true);
     phantomItem->setGraphicsEffect(effect);

@@ -20,13 +20,30 @@ SOURCES += main.cpp\
     graphicsview.cpp \
     graphicsrectitem.cpp \
     graphicstool.cpp \
-    graphicsselecttool.cpp
+    graphicsselecttool.cpp \
+    graphicslinetool.cpp \
+    graphicslinetooldialog.cpp \
+    graphicsiteminterface.cpp \
+    graphicslineitem.cpp \
+    graphicscontrolpoint.cpp
 
 HEADERS  += mainwindow.h \
     graphicsscene.h \
     graphicsview.h \
     graphicsrectitem.h \
     graphicstool.h \
-    graphicsselecttool.h
+    graphicsselecttool.h \
+    graphicslinetool.h \
+    graphicslinetooldialog.h \
+    graphicsiteminterface.h \
+    graphicslineitem.h \
+    graphicscontrolpoint.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    graphicslinetooldialog.ui
+
+DISTFILES += \
+    graphics_line.svg
+
+RESOURCES += \
+    qgv-item-event.qrc

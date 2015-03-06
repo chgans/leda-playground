@@ -46,7 +46,7 @@ public:
     virtual QDialog *optionDialog() = 0;
 
     virtual QString toolGroup() const = 0;
-    virtual QList<QAction *> actions() const = 0;
+    virtual QAction *action() const = 0;
 
 signals:
     void finished();
@@ -61,5 +61,7 @@ protected:
 private:
     GraphicsView *m_view;
 };
+
+Q_DECLARE_METATYPE(GraphicsTool*)
 
 #endif // GRAPHICSTOOL_H

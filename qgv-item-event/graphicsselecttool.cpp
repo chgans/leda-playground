@@ -1,15 +1,18 @@
 #include "graphicsselecttool.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
+#include "graphicsiteminterface.h"
+#include "graphicscontrolpoint.h"
 #include <QGraphicsItem>
 #include <QGraphicsEffect>
 
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QRubberBand>
+#include <QAction>
+#include <QDialog>
 
 #include <QDebug>
-#include <QAction>
 
 // Select tool:
 //  Click based:
@@ -31,14 +34,15 @@
 struct GraphicsSelectTool::MouseData {
     enum DragOperation {
         NoDragOperation,
-        SelectOperation,
-        MoveOperation,
-        CloneOperation
+        SelectItemOperation,
+        MoveItemOperation,
+        MoveControlPointOperation,
+        CloneItemOperation
     };
 
     MouseData(QWidget *parent, QPoint p, Qt::MouseButton b, Qt::KeyboardModifiers m,
-              Qt::MouseEventFlags f, QGraphicsItem *i):
-        pos(p), button(b), modifiers(m), flags(f), itemUnderMouse(i),
+              Qt::MouseEventFlags f, QGraphicsItem *i, GraphicsControlPoint *c):
+        pos(p), button(b), modifiers(m), flags(f), itemUnderMouse(i), ctlPoint(c),
         rubberBand(QRubberBand::Rectangle, parent), dragOperation(NoDragOperation)
     {}
 
@@ -49,6 +53,7 @@ struct GraphicsSelectTool::MouseData {
     QGraphicsItem *itemUnderMouse;
     QList<QGraphicsItem *> items;
     QList<QGraphicsItem *> phantomItems;
+    GraphicsControlPoint *ctlPoint;
     QRubberBand rubberBand;
     DragOperation dragOperation;
 };
@@ -68,12 +73,17 @@ void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         Q_ASSERT(m_mouseData == nullptr);
+        QPointF pos = view()->mapToScene(event->pos());
+        QGraphicsItem *gitem = view()->itemAt(event->pos());
+        GraphicsItemInterface *item = dynamic_cast<GraphicsItemInterface *>(gitem);
+        GraphicsControlPoint *ctlPoint = item == nullptr ? nullptr : item->controlPointAt(gitem->mapFromScene(pos));
         m_mouseData = new MouseData(view(),
                                     event->pos(),
                                     event->button(),
                                     event->modifiers(),
                                     event->flags(),
-                                    view()->itemAt(event->pos()));
+                                    gitem,
+                                    ctlPoint);
         event->accept();
     }
     else {
@@ -84,6 +94,27 @@ void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
 void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
 {
     if (!m_mouseData) {
+        // No mouse press yet, Let's give a hint to the user by changing the cursor
+        QGraphicsItem *gitem = view()->itemAt(event->pos());
+        if (gitem != nullptr) {
+            QPointF pos = view()->mapToScene(event->pos());
+            GraphicsItemInterface *item = dynamic_cast<GraphicsItemInterface *>(gitem);
+            GraphicsControlPoint *ctlPoint = item->controlPointAt(gitem->mapFromScene(pos));
+            if (ctlPoint != nullptr) {
+                view()->setCursor(Qt::PointingHandCursor);
+            }
+            else {
+                if (event->modifiers().testFlag(Qt::ControlModifier)) {
+                    view()->setCursor(Qt::DragCopyCursor);
+                }
+                else {
+                    view()->setCursor(Qt::SizeAllCursor);
+                }
+            }
+        }
+        else {
+            view()->setCursor(Qt::ArrowCursor);
+        }
         return;
     }
 
@@ -91,36 +122,43 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
     if (m_mouseData->dragOperation == GraphicsSelectTool::MouseData::NoDragOperation) {
         if (!m_mouseData->itemUnderMouse) {
             // Drag select
-            m_mouseData->dragOperation = GraphicsSelectTool::MouseData::SelectOperation;
+            m_mouseData->dragOperation = GraphicsSelectTool::MouseData::SelectItemOperation;
             scene()->clearSelection();
             m_mouseData->rubberBand.setGeometry(QRect());
             m_mouseData->rubberBand.setVisible(true);
         }
         else {
-            // Move or clone
-            if (!m_mouseData->modifiers.testFlag(Qt::ControlModifier)) {
-                // Move
-                m_mouseData->dragOperation = GraphicsSelectTool::MouseData::MoveOperation;
-                view()->setCursor(Qt::DragMoveCursor);
+            // Move item/control point or clone item
+            if (m_mouseData->ctlPoint != nullptr) {
+                m_mouseData->dragOperation = GraphicsSelectTool::MouseData::MoveControlPointOperation;
+                view()->setCursor(Qt::PointingHandCursor);
+                //ctlPoint->setActive(true);
             }
             else {
-                // Clone
-                m_mouseData->dragOperation = GraphicsSelectTool::MouseData::CloneOperation;
-                view()->setCursor(Qt::DragCopyCursor);
-            }
+                if (!m_mouseData->modifiers.testFlag(Qt::ControlModifier)) {
+                    // Move
+                    m_mouseData->dragOperation = GraphicsSelectTool::MouseData::MoveItemOperation;
+                    view()->setCursor(Qt::DragMoveCursor);
+                }
+                else {
+                    // Clone
+                    m_mouseData->dragOperation = GraphicsSelectTool::MouseData::CloneItemOperation;
+                    view()->setCursor(Qt::DragCopyCursor);
+                }
+                if (!m_mouseData->itemUnderMouse->isSelected()) {
+                    scene()->clearSelection();
+                    m_mouseData->itemUnderMouse->setSelected(true);
+                }
 
-            if (!m_mouseData->itemUnderMouse->isSelected()) {
-                scene()->clearSelection();
-                m_mouseData->itemUnderMouse->setSelected(true);
+                m_mouseData->phantomItems = createPhantomItems(scene()->selectedItems());
             }
-
-            m_mouseData->phantomItems = createPhantomItems(scene()->selectedItems());
         }
     }
 
     switch(m_mouseData->dragOperation) {
-    case GraphicsSelectTool::MouseData::CloneOperation:
-    case GraphicsSelectTool::MouseData::MoveOperation: {
+    case GraphicsSelectTool::MouseData::CloneItemOperation:
+    case GraphicsSelectTool::MouseData::MoveItemOperation:
+    {
         Q_ASSERT(scene()->selectedItems().count() == m_mouseData->phantomItems.count());
         for (int i = 0; i < scene()->selectedItems().count(); i++) {
             QRectF sceneShift = QRectF(view()->mapToScene(m_mouseData->pos),
@@ -131,7 +169,12 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
         }
         break;
     }
-    case GraphicsSelectTool::MouseData::SelectOperation:
+    case GraphicsSelectTool::MouseData::MoveControlPointOperation:
+    {
+        m_mouseData->ctlPoint->setScenePos(view()->mapToScene(event->pos()));
+        break;
+    }
+    case GraphicsSelectTool::MouseData::SelectItemOperation:
     {
         QRect viewRect = QRect(m_mouseData->pos, event->pos()).normalized();
         m_mouseData->rubberBand.setGeometry(viewRect);
@@ -157,14 +200,14 @@ void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
 
     switch(m_mouseData->dragOperation) {
 
-    case GraphicsSelectTool::MouseData::CloneOperation:
+    case GraphicsSelectTool::MouseData::CloneItemOperation:
         foreach (QGraphicsItem *item, m_mouseData->phantomItems) {
             // Use document command stack here
             item->graphicsEffect()->setEnabled(false);
         }
         break;
 
-    case GraphicsSelectTool::MouseData::MoveOperation:
+    case GraphicsSelectTool::MouseData::MoveItemOperation:
         Q_ASSERT(scene()->selectedItems().count() == m_mouseData->phantomItems.count());
         for (int i = 0; i < m_mouseData->phantomItems.count(); i++) {
             // Use document command stack here
@@ -176,7 +219,10 @@ void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
         }
         break;
 
-    case GraphicsSelectTool::MouseData::SelectOperation:
+    case GraphicsSelectTool::MouseData::MoveControlPointOperation:
+        break;
+
+    case GraphicsSelectTool::MouseData::SelectItemOperation:
         break;
 
     case GraphicsSelectTool::MouseData::NoDragOperation:
@@ -228,10 +274,11 @@ void GraphicsSelectTool::cancel()
 
 QString GraphicsSelectTool::toolGroup() const
 {
-    return "main";
+    return "interactive-tools";
 }
 
-QList<QAction *> GraphicsSelectTool::actions() const
+QAction *GraphicsSelectTool::action() const
 {
-    return QList<QAction *>();
+    return  new QAction(QIcon::fromTheme("edit-select"),
+                        "select", nullptr);
 }

@@ -217,6 +217,11 @@ public:
 };
 
 #include "graphicsscene.h"
+#include <QList>
+
+class GraphicsTool;
+class QActionGroup;
+class QToolBar;
 
 class MainWindow : public QMainWindow
 {
@@ -230,12 +235,19 @@ protected slots:
     void onViewContextMenuRequested(QPoint pos);
     void onViewMouseDoubleClicked(QPoint pos);
 
+protected:
+    void addTool(GraphicsTool *tool);
+
 private:
     Q_SLOT void init();
 
     Ui::MainWindow *ui;
     GraphicsScene *m_scene;
     QGraphicsRectItem *m_item;
+
+    QActionGroup *m_interactiveToolActionGroup;
+    QList<GraphicsTool *> m_interactiveTools;
+    QToolBar *m_interactiveToolsToolBar;
 };
 
 #endif // MAINWINDOW_H
