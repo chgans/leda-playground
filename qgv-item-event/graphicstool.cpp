@@ -1,7 +1,7 @@
 #include "graphicstool.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
-#include "graphicsiteminterface.h"
+#include "graphicsobject.h"
 #include <QGraphicsItem>
 
 #include <QGraphicsOpacityEffect>
@@ -86,7 +86,7 @@ void GraphicsTool::cancel()
 
 QGraphicsItem *GraphicsTool::createPhantomItem(QGraphicsItem *item)
 {
-    GraphicsItemInterface *origItem = dynamic_cast<GraphicsItemInterface *>(item);
+    GraphicsObject *origItem = dynamic_cast<GraphicsObject *>(item);
     Q_ASSERT(origItem != nullptr);
     QGraphicsItem *phantomItem = origItem->clone();
     QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect();

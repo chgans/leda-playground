@@ -1,14 +1,17 @@
-#ifndef GRAPHICSLINETOOL_H
-#define GRAPHICSLINETOOL_H
+#ifndef GRAPHICSRECTTOOL_H
+#define GRAPHICSRECTTOOL_H
 
 #include "graphicstool.h"
 
-class GraphicsLineItem;
+class GraphicsRectItem;
 
-class GraphicsLineTool : public GraphicsTool
+class GraphicsRectTool : public GraphicsTool
 {
+    Q_OBJECT
+
 public:
-    GraphicsLineTool(QObject *parent = 0);
+    GraphicsRectTool(QObject *parent);
+
 
     // GraphicsTool interface
 public:
@@ -19,15 +22,17 @@ public:
     virtual QString toolGroup() const;
     virtual QAction *action() const;
 
+    // GraphicsTool interface
 public slots:
     virtual void cancel();
 
 protected:
     void setP1(const QPoint &point);
     void setP2(const QPoint &point);
+
 private:
     int m_state;
-    GraphicsLineItem *m_item;
+    GraphicsRectItem *m_item;
 };
 
-#endif // GRAPHICSLINETOOL_H
+#endif // GRAPHICSRECTTOOL_H

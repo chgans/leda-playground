@@ -1,35 +1,34 @@
-#include "graphicslinetool.h"
+#include "graphicsrecttool.h"
+#include "graphicsrectitem.h"
 #include "graphicslinetooldialog.h"
-#include "graphicslineitem.h"
 #include "graphicscontrolpoint.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
 
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <QAction>
 
-#include <QDebug>
-
-GraphicsLineTool::GraphicsLineTool(QObject *parent):
-    GraphicsTool(parent), m_state(0), m_item(nullptr)
+GraphicsRectTool::GraphicsRectTool(QObject *parent):
+    m_state(0), m_item(nullptr)
 {
 
 }
 
-
-
-void GraphicsLineTool::mousePressEvent(QMouseEvent *event)
+void GraphicsRectTool::mousePressEvent(QMouseEvent *event)
 {
+
     if (m_state == 0) {
         Q_ASSERT(m_item == nullptr);
-        m_item = new GraphicsLineItem();
+        m_item = new GraphicsRectItem();
         m_item->setFlags(QGraphicsItem::ItemIsMovable |
                          QGraphicsItem::ItemIsSelectable);
         QPointF scenePos = view()->mapToScene(event->pos());
         m_item->setPos(scenePos);
         setP1(event->pos());
         setP2(event->pos());
-        m_item->setPen(QPen(Qt::darkMagenta));
+        m_item->setPen(QPen(Qt::darkBlue));
+        m_item->setBrush(QBrush(Qt::darkYellow));
         scene()->addItem(m_item);
         m_state = 1;
     }
@@ -41,7 +40,7 @@ void GraphicsLineTool::mousePressEvent(QMouseEvent *event)
     event->accept();
 }
 
-void GraphicsLineTool::mouseMoveEvent(QMouseEvent *event)
+void GraphicsRectTool::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_state == 1) {
         setP2(event->pos());
@@ -49,30 +48,30 @@ void GraphicsLineTool::mouseMoveEvent(QMouseEvent *event)
     event->accept();
 }
 
-void GraphicsLineTool::mouseReleaseEvent(QMouseEvent *event)
+void GraphicsRectTool::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_state == 1) {
         // TODO: use command stack
     }
 }
 
-QDialog *GraphicsLineTool::optionDialog()
+QDialog *GraphicsRectTool::optionDialog()
 {
     return new GraphicsLineToolDialog();
 }
 
-QString GraphicsLineTool::toolGroup() const
+QString GraphicsRectTool::toolGroup() const
 {
     return "interactive-tools";
 }
 
-QAction *GraphicsLineTool::action() const
+QAction *GraphicsRectTool::action() const
 {
-    return new QAction(QIcon(":/icons/graphicslinetool.svg"),
-                                  "Place a line", nullptr);
+    return new QAction(QIcon(":/icons/graphicsrecttool.svg"),
+                                  "Place a rectangle", nullptr);
 }
 
-void GraphicsLineTool::cancel()
+void GraphicsRectTool::cancel()
 {
     if (m_state == 0) {
         emit finished();
@@ -85,14 +84,14 @@ void GraphicsLineTool::cancel()
     }
 }
 
-void GraphicsLineTool::setP1(const QPoint &point)
+void GraphicsRectTool::setP1(const QPoint &point)
 {
     QPointF pos = m_item->mapFromScene(view()->mapToScene(point));
     m_item->moveControlPoint(0, pos);
 }
 
-void GraphicsLineTool::setP2(const QPoint &point)
+void GraphicsRectTool::setP2(const QPoint &point)
 {
     QPointF pos = m_item->mapFromScene(view()->mapToScene(point));
-    m_item->moveControlPoint(1, pos);
+    m_item->moveControlPoint(4, pos);
 }

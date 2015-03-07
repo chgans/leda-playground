@@ -5,6 +5,7 @@
 
 class GraphicsScene;
 class GraphicsTool;
+class GraphicsObject;
 
 class GraphicsView : public QGraphicsView
 {
@@ -19,6 +20,8 @@ public:
 
     GraphicsTool *tool();
     void setTool(GraphicsTool *tool);
+
+    GraphicsObject *objectAt(const QPoint &pos) const;
 
 signals:
     void mouseDoubleClicked(const QPoint &pos);

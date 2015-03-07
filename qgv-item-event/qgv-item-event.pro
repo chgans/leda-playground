@@ -23,9 +23,10 @@ SOURCES += main.cpp\
     graphicsselecttool.cpp \
     graphicslinetool.cpp \
     graphicslinetooldialog.cpp \
-    graphicsiteminterface.cpp \
     graphicslineitem.cpp \
-    graphicscontrolpoint.cpp
+    graphicscontrolpoint.cpp \
+    graphicsobject.cpp \
+    graphicsrecttool.cpp
 
 HEADERS  += mainwindow.h \
     graphicsscene.h \
@@ -35,15 +36,16 @@ HEADERS  += mainwindow.h \
     graphicsselecttool.h \
     graphicslinetool.h \
     graphicslinetooldialog.h \
-    graphicsiteminterface.h \
     graphicslineitem.h \
-    graphicscontrolpoint.h
+    graphicscontrolpoint.h \
+    graphicsobject.h \
+    graphicsrecttool.h
 
 FORMS    += mainwindow.ui \
     graphicslinetooldialog.ui
 
 DISTFILES += \
-    graphics_line.svg
+    graphicslinetool.svg
 
 RESOURCES += \
     qgv-item-event.qrc

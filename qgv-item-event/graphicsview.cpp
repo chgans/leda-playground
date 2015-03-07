@@ -1,7 +1,8 @@
 #include "graphicsview.h"
 #include "graphicsscene.h"
+#include "graphicsobject.h"
 #include "graphicstool.h"
-#include "graphicsrectitem.h"
+//#include "graphicsrectitem.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsOpacityEffect>
@@ -63,6 +64,11 @@ void GraphicsView::setTool(GraphicsTool *tool)
     m_tool = tool;
     if (m_tool)
         m_tool->setView(this);
+}
+
+GraphicsObject *GraphicsView::objectAt(const QPoint &pos) const
+{
+    return dynamic_cast<GraphicsObject *>(QGraphicsView::itemAt(pos));
 }
 
 void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)

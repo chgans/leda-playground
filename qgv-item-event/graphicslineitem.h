@@ -1,21 +1,27 @@
 #ifndef GRAPHICSLINEITEM_H
 #define GRAPHICSLINEITEM_H
 
-#include <QGraphicsLineItem>
-#include "graphicsiteminterface.h"
+#include "graphicsobject.h"
 
-class GraphicsLineItem : public QGraphicsLineItem, public GraphicsItemInterface
+#include <QPen>
+#include <QLineF>
+
+class GraphicsLineItem : public GraphicsObject
 {
+    Q_OBJECT
+
 public:
     GraphicsLineItem(QGraphicsItem *parent = 0);
 
-    QGraphicsItem *clone();
+    QLineF line() const;
+    void setLine(const QLineF &line);
+    QPen pen() const;
+    void setPen(const QPen &pen);
 
-    void controlPointMoved(const GraphicsControlPoint *point);
-
-private:
-    GraphicsControlPoint *m_ctlPoint1;
-    GraphicsControlPoint *m_ctlPoint2;
+    // GraphicsObject interface
+public:
+    GraphicsObject *clone();
+    void controlPointMoved(GraphicsControlPoint *point);
 
     // QGraphicsItem interface
 public:
@@ -26,6 +32,12 @@ public:
     // QGraphicsItem interface
 protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+
+private:
+    QPen m_pen;
+    QLineF m_line;
+    GraphicsControlPoint *m_ctlPoint1;
+    GraphicsControlPoint *m_ctlPoint2;
 };
 
 #endif // GRAPHICSLINEITEM_H

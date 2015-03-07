@@ -6,7 +6,7 @@
 
 #include "graphicsselecttool.h"
 #include "graphicslinetool.h"
-#include "graphicsrectitem.h"
+#include "graphicsrecttool.h"
 
 #include <QTimer>
 #include <QMessageBox>
@@ -32,23 +32,26 @@ MainWindow::MainWindow(QWidget *parent) :
 
     addTool(new GraphicsSelectTool(this));
     addTool(new GraphicsLineTool(this));
+    addTool(new GraphicsRectTool(this));
     addToolBar(m_interactiveToolsToolBar);
 
+    /*
     GraphicsRectItem *item;
     item = new GraphicsRectItem();
-    item->setRect(-25, -25, 50, 50);
+    item->setRect(QRectF(-25, -25, 50, 50));
     item->setPos(103, 52);
     item->setBrush(Qt::darkGreen);
     item->setPen(QPen(Qt::darkRed));
     item->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
     m_scene->addItem(item);
     item = new GraphicsRectItem();
-    item->setRect(-25, -25, 50, 50);
+    item->setRect(QRectF(-25, -25, 50, 50));
     item->setPos(169, 78);
     item->setBrush(Qt::darkRed);
     item->setPen(QPen(Qt::darkGreen));
     item->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable);
     m_scene->addItem(item);
+    */
 
     connect(ui->graphicsView, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(onViewContextMenuRequested(QPoint)));

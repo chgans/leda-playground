@@ -1,7 +1,7 @@
 #include "graphicsselecttool.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
-#include "graphicsiteminterface.h"
+#include "graphicsobject.h"
 #include "graphicscontrolpoint.h"
 #include <QGraphicsItem>
 #include <QGraphicsEffect>
@@ -41,7 +41,7 @@ struct GraphicsSelectTool::MouseData {
     };
 
     MouseData(QWidget *parent, QPoint p, Qt::MouseButton b, Qt::KeyboardModifiers m,
-              Qt::MouseEventFlags f, QGraphicsItem *i, GraphicsControlPoint *c):
+              Qt::MouseEventFlags f, GraphicsObject *i, int c):
         pos(p), button(b), modifiers(m), flags(f), itemUnderMouse(i), ctlPoint(c),
         rubberBand(QRubberBand::Rectangle, parent), dragOperation(NoDragOperation)
     {}
@@ -50,10 +50,10 @@ struct GraphicsSelectTool::MouseData {
     Qt::MouseButton button;
     Qt::KeyboardModifiers modifiers;
     Qt::MouseEventFlags flags;
-    QGraphicsItem *itemUnderMouse;
+    GraphicsObject *itemUnderMouse;
     QList<QGraphicsItem *> items;
     QList<QGraphicsItem *> phantomItems;
-    GraphicsControlPoint *ctlPoint;
+    int ctlPoint;
     QRubberBand rubberBand;
     DragOperation dragOperation;
 };
@@ -73,16 +73,19 @@ void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         Q_ASSERT(m_mouseData == nullptr);
-        QPointF pos = view()->mapToScene(event->pos());
-        QGraphicsItem *gitem = view()->itemAt(event->pos());
-        GraphicsItemInterface *item = dynamic_cast<GraphicsItemInterface *>(gitem);
-        GraphicsControlPoint *ctlPoint = item == nullptr ? nullptr : item->controlPointAt(gitem->mapFromScene(pos));
+        QPointF scenePos = view()->mapToScene(event->pos());
+        GraphicsObject *item = view()->objectAt(event->pos());
+        int ctlPoint = -1;
+        if (item != nullptr) {
+            QPointF itemPos = item->mapFromScene(scenePos);
+            ctlPoint = item->controlPointNear(itemPos);
+        }
         m_mouseData = new MouseData(view(),
                                     event->pos(),
                                     event->button(),
                                     event->modifiers(),
                                     event->flags(),
-                                    gitem,
+                                    item,
                                     ctlPoint);
         event->accept();
     }
@@ -97,10 +100,11 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
         // No mouse press yet, Let's give a hint to the user by changing the cursor
         QGraphicsItem *gitem = view()->itemAt(event->pos());
         if (gitem != nullptr) {
-            QPointF pos = view()->mapToScene(event->pos());
-            GraphicsItemInterface *item = dynamic_cast<GraphicsItemInterface *>(gitem);
-            GraphicsControlPoint *ctlPoint = item->controlPointAt(gitem->mapFromScene(pos));
-            if (ctlPoint != nullptr) {
+            QPointF scenePos = view()->mapToScene(event->pos());
+            GraphicsObject *item = view()->objectAt(event->pos());
+            QPointF itemPos = item->mapFromScene(scenePos);
+            int ctlPoint = item->controlPointNear(itemPos);
+            if (ctlPoint != -1) {
                 view()->setCursor(Qt::PointingHandCursor);
             }
             else {
@@ -129,7 +133,7 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
         }
         else {
             // Move item/control point or clone item
-            if (m_mouseData->ctlPoint != nullptr) {
+            if (m_mouseData->ctlPoint != -1) {
                 m_mouseData->dragOperation = GraphicsSelectTool::MouseData::MoveControlPointOperation;
                 view()->setCursor(Qt::PointingHandCursor);
                 //ctlPoint->setActive(true);
@@ -171,7 +175,10 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
     }
     case GraphicsSelectTool::MouseData::MoveControlPointOperation:
     {
-        m_mouseData->ctlPoint->setScenePos(view()->mapToScene(event->pos()));
+        GraphicsObject *obj = m_mouseData->itemUnderMouse;
+        QPointF scenePos = view()->mapToScene(event->pos());
+        QPointF itemPos = obj->mapFromScene(scenePos);
+        obj->moveControlPoint(m_mouseData->ctlPoint, itemPos);
         break;
     }
     case GraphicsSelectTool::MouseData::SelectItemOperation:

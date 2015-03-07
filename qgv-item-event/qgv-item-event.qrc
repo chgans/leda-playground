@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
-        <file>graphics_line.svg</file>
+        <file>graphicslinetool.svg</file>
+        <file>graphicsrecttool.svg</file>
     </qresource>
 </RCC>
