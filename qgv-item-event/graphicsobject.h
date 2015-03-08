@@ -7,13 +7,15 @@
 #include <QPainterPath>
 #include <QVector>
 
-class GraphicsControlPoint;
+#include "graphicscontrolpoint.h"
+
 class QGraphicsItem;
 class QPainter;
 class QStyleOptionGraphicsItem;
 class QWidget;
 
 // TODO: add properties
+// TODO: AbstractPath and AbstractShape (allow to morph between AbstractXYZ impl)
 
 class GraphicsObject: public QGraphicsObject
 {
@@ -25,17 +27,18 @@ public:
     virtual GraphicsObject *clone() = 0;
 
     // TODO: add radius
-    int controlPointNear(const QPointF &pos);
-
-    void moveControlPoint(int idx, const QPointF &pos);
+    const GraphicsControlPoint *controlPointNear(const QPointF &pos);
+    QVector<const GraphicsControlPoint *> controlPoints() const;
+    void moveControlPoint(const GraphicsControlPoint *point, const QPointF &pos);
 
 protected:
     void cloneTo(GraphicsObject *dst);
 
-    void addControlPoint(GraphicsControlPoint *point);
-    QVector<GraphicsControlPoint *> controlPoints() const;
+    const GraphicsControlPoint *addControlPoint(GraphicsControlPoint::Role role, const QPointF &pos);
+
+
     //void setControlPoints(const QVector<GraphicsControlPoint*> points);
-    void moveControlPointSilently(int idx, const QPointF &pos);
+    void moveControlPointSilently(const GraphicsControlPoint *point, const QPointF &pos);
     virtual void paintControlPoints(QPainter *painter,
                                     const QStyleOptionGraphicsItem *option,
                                     QWidget *widget) const;
@@ -43,7 +46,7 @@ protected:
     QRectF controlPointsBoundingRect() const;
     QPainterPath controlPointsShape() const;
 
-    virtual void controlPointMoved(GraphicsControlPoint *point) = 0;
+    virtual void controlPointMoved(const GraphicsControlPoint *point) = 0;
 
 private:
     QVector<GraphicsControlPoint *> m_controlPoints;

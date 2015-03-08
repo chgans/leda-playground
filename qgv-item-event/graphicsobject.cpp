@@ -13,15 +13,21 @@ GraphicsObject::~GraphicsObject()
 }
 
 // TODO: const GraphicsControlPoint *addControlPoint(int id, const QPointF &pos);
-void GraphicsObject::addControlPoint(GraphicsControlPoint *point)
+const GraphicsControlPoint *GraphicsObject::addControlPoint(GraphicsControlPoint::Role role, const QPointF &pos)
 {
+    GraphicsControlPoint *point = new GraphicsControlPoint(role, pos);
     m_controlPoints.append(point);
+    return point;
 }
 
 // TODO: QList<const GraphicsControlPoint *> GraphicsObject::controlPoints() const
-QVector<GraphicsControlPoint *> GraphicsObject::controlPoints() const
+QVector<const GraphicsControlPoint *> GraphicsObject::controlPoints() const
 {
-    return m_controlPoints;
+    QVector<const GraphicsControlPoint *> result;
+    foreach (GraphicsControlPoint *point, m_controlPoints) {
+        result << const_cast<GraphicsControlPoint *>(point);
+    }
+    return result;
 }
 
 // TODO: remove
@@ -36,27 +42,28 @@ void GraphicsObject::setControlPoints(const QVector<GraphicsControlPoint *> poin
 // TODO: private + GraphicsTool as friend?
 // Pos is in item coordinate
 // TODO:
-int GraphicsObject::controlPointNear(const QPointF &pos)
+const GraphicsControlPoint *GraphicsObject::controlPointNear(const QPointF &pos)
 {
     for (int i = 0; i < m_controlPoints.count(); i++) {
         if (m_controlPoints[i]->shape().contains(pos)) {
-            return i;
+            return m_controlPoints[i];
         }
     }
-    return -1;
+    return nullptr;
 }
 
-void GraphicsObject::moveControlPoint(int idx, const QPointF &pos)
+void GraphicsObject::moveControlPoint(const GraphicsControlPoint *point, const QPointF &pos)
 {
-    moveControlPointSilently(idx, pos);
-    controlPointMoved(m_controlPoints[idx]);
+    moveControlPointSilently(point, pos);
+    controlPointMoved(point);
 }
 
 
-void GraphicsObject::moveControlPointSilently(int idx, const QPointF &pos)
+void GraphicsObject::moveControlPointSilently(const GraphicsControlPoint *point, const QPointF &pos)
 {
-    Q_ASSERT(idx >=0 && idx < m_controlPoints.count());
-    m_controlPoints.value(idx)->setPos(pos);
+    GraphicsControlPoint *p = const_cast<GraphicsControlPoint *>(point);
+    Q_ASSERT(m_controlPoints.contains(p));
+    p->setPos(pos);
 }
 
 void GraphicsObject::cloneTo(GraphicsObject *dst)
@@ -64,9 +71,9 @@ void GraphicsObject::cloneTo(GraphicsObject *dst)
     dst->setPos(pos());
     dst->setFlags(flags());
     dst->setSelected(isSelected());
-    foreach (GraphicsControlPoint *other, controlPoints()) {
+    foreach (GraphicsControlPoint *other, m_controlPoints) {
         // FIXME: dst.moveControlPoint(idx, pos);
-        dst->addControlPoint(other->clone(dst));
+        //dst->addControlPoint(other->clone(dst));
     }
 }
 

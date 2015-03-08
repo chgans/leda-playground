@@ -73,6 +73,10 @@ GraphicsObject *GraphicsView::objectAt(const QPoint &pos) const
 
 void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
 {
+    QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
+    gradient.setColorAt(0, Qt::darkGray);
+    gradient.setColorAt(1, Qt::lightGray);
+    painter->fillRect(rect, QBrush(gradient));
     QGraphicsView::drawBackground(painter, rect);
 }
 

@@ -20,6 +20,8 @@ private:
     struct MouseData;
     MouseData *m_mouseData;
 
+    void updateCursor(QMouseEvent *event);
+
     // GraphicsTool interface
 public slots:
     virtual void cancel();

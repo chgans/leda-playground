@@ -12,42 +12,46 @@ class QWidget;
 class GraphicsControlPoint
 {
 public:
-    /*
     enum Role {
         MoveRole = 0,
         VSizeRole,
         HSizeRole,
         BDiagSizeRole,
-        FDiagDizeRole,
+        FDiagSizeRole,
         RotateRole,
         ShearRole,
         MarkRole
     };
 
-    QCursor roleToCursor(Role role) const;
-    GCP(Role role, const QPointF &pos = QPointF);
+    GraphicsControlPoint(Role role = MoveRole, const QPointF &pos = QPointF());
+    GraphicsControlPoint(const GraphicsControlPoint &other);
 
     // Draw a line between this GraphicsControlPoint and other GraphicsControlPoint
-    void link(int otherId);
-    QList<int> links() const;
-*/
-    GraphicsControlPoint(GraphicsObject *parent, const QPointF &pos = QPointF());
+    void addLink(GraphicsControlPoint *other);
+    void removeLink(GraphicsControlPoint *other);
+    // return a list of GraphicsControlPoint this GraphicsControlPoint has been explicitely linked to
+    // (no retro link!)
+    QList<GraphicsControlPoint *> links() const;
 
-public:
+    QCursor cursor() const;
+
+    QVariant data() const;
+    void setData(const QVariant &data);
+
     QRectF boundingRect() const;
     QPainterPath shape() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) const;
     QPointF pos() const;
     void setPos(const QPointF &pos);
-    //void setScenePos(const QPointF &pos);
-
-    GraphicsControlPoint *clone(GraphicsObject *parent);
 
 private:
-    //friend class GraphicsObject;
-    GraphicsObject *m_parent;
-    QRectF m_rect;
+    QCursor roleToCursor(Role role) const;
+    //GraphicsObject *m_parent;
+    Role m_role;
     QPointF m_pos;
+    QRectF m_rect;
+    QVariant m_data;
+    QList<GraphicsControlPoint*> m_links;
 };
 
 #endif // GRAPHICSCONTROLPOINT_H

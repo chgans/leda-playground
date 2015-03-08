@@ -7,13 +7,10 @@
 #include <QDebug>
 
 GraphicsLineItem::GraphicsLineItem(QGraphicsItem *parent):
-    GraphicsObject(parent),
-    m_ctlPoint1(new GraphicsControlPoint(this)),
-    m_ctlPoint2(new GraphicsControlPoint(this))
+    GraphicsObject(parent)
 {
-    addControlPoint(m_ctlPoint1);
-    addControlPoint(m_ctlPoint2);
-    //setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+    m_ctlPoint1 = addControlPoint(GraphicsControlPoint::MoveRole, QPointF(0, 0));
+    m_ctlPoint2 = addControlPoint(GraphicsControlPoint::MoveRole, QPointF(0, 0));
 }
 
 QLineF GraphicsLineItem::line() const
@@ -48,7 +45,7 @@ GraphicsObject *GraphicsLineItem::clone()
     return item;
 }
 
-void GraphicsLineItem::controlPointMoved(GraphicsControlPoint *point)
+void GraphicsLineItem::controlPointMoved(const GraphicsControlPoint *point)
 {
     if (point == m_ctlPoint1) {
         prepareGeometryChange();

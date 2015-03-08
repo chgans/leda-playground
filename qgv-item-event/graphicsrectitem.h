@@ -2,8 +2,11 @@
 #define GRAPHICSRECTITEM_H
 
 #include  "graphicsobject.h"
+#include "graphicscontrolpoint.h"
 
 #include <QVector>
+#include <QMap>
+
 #include <QPen>
 #include <QBrush>
 
@@ -25,17 +28,30 @@ public:
     void setBrush(const QBrush &brush);
 
 private:
-    void updateControlPointsSilently();
-
+    enum CtlPointId {
+        TopLeft = 0,
+        Top,
+        TopRight,
+        Right,
+        BottomRight,
+        Bottom,
+        BottomLeft,
+        Left,
+        NbControlPoint
+    };
     QRectF m_rect;
     QPen m_pen;
     QBrush m_brush;
-    //QVector<const GraphicsControlPoint *> m_ctlPoints;
+    QMap<const GraphicsControlPoint *, CtlPointId> m_ctlPointToId;
+    QMap<CtlPointId, const GraphicsControlPoint *> m_idToCtlPoint;
+    void addControlPoint(CtlPointId pointId, GraphicsControlPoint::Role role);
+    void updateControlPointsSilently();
+
 
     // GraphicsObject interface
 public:
     virtual GraphicsObject *clone();
-    void controlPointMoved(GraphicsControlPoint *point);
+    void controlPointMoved(const GraphicsControlPoint *point);
 
     // QGraphicsItem interface
 public:

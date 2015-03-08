@@ -41,7 +41,7 @@ struct GraphicsSelectTool::MouseData {
     };
 
     MouseData(QWidget *parent, QPoint p, Qt::MouseButton b, Qt::KeyboardModifiers m,
-              Qt::MouseEventFlags f, GraphicsObject *i, int c):
+              Qt::MouseEventFlags f, GraphicsObject *i, const GraphicsControlPoint *c):
         pos(p), button(b), modifiers(m), flags(f), itemUnderMouse(i), ctlPoint(c),
         rubberBand(QRubberBand::Rectangle, parent), dragOperation(NoDragOperation)
     {}
@@ -53,7 +53,7 @@ struct GraphicsSelectTool::MouseData {
     GraphicsObject *itemUnderMouse;
     QList<QGraphicsItem *> items;
     QList<QGraphicsItem *> phantomItems;
-    int ctlPoint;
+    const GraphicsControlPoint *ctlPoint;
     QRubberBand rubberBand;
     DragOperation dragOperation;
 };
@@ -75,7 +75,7 @@ void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
         Q_ASSERT(m_mouseData == nullptr);
         QPointF scenePos = view()->mapToScene(event->pos());
         GraphicsObject *item = view()->objectAt(event->pos());
-        int ctlPoint = -1;
+        const GraphicsControlPoint * ctlPoint = nullptr;
         if (item != nullptr) {
             QPointF itemPos = item->mapFromScene(scenePos);
             ctlPoint = item->controlPointNear(itemPos);
@@ -87,6 +87,7 @@ void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
                                     event->flags(),
                                     item,
                                     ctlPoint);
+        updateCursor(event);
         event->accept();
     }
     else {
@@ -98,27 +99,10 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
 {
     if (!m_mouseData) {
         // No mouse press yet, Let's give a hint to the user by changing the cursor
-        QGraphicsItem *gitem = view()->itemAt(event->pos());
-        if (gitem != nullptr) {
-            QPointF scenePos = view()->mapToScene(event->pos());
-            GraphicsObject *item = view()->objectAt(event->pos());
-            QPointF itemPos = item->mapFromScene(scenePos);
-            int ctlPoint = item->controlPointNear(itemPos);
-            if (ctlPoint != -1) {
-                view()->setCursor(Qt::PointingHandCursor);
-            }
-            else {
-                if (event->modifiers().testFlag(Qt::ControlModifier)) {
-                    view()->setCursor(Qt::DragCopyCursor);
-                }
-                else {
-                    view()->setCursor(Qt::SizeAllCursor);
-                }
-            }
-        }
-        else {
-            view()->setCursor(Qt::ArrowCursor);
-        }
+        // TODO: review the concept, use an updateCursor() function
+        updateCursor(event);
+#if 1
+#endif
         return;
     }
 
@@ -133,21 +117,21 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
         }
         else {
             // Move item/control point or clone item
-            if (m_mouseData->ctlPoint != -1) {
+            if (m_mouseData->ctlPoint != nullptr) {
                 m_mouseData->dragOperation = GraphicsSelectTool::MouseData::MoveControlPointOperation;
-                view()->setCursor(Qt::PointingHandCursor);
+                //view()->setCursor(Qt::PointingHandCursor);
                 //ctlPoint->setActive(true);
             }
             else {
                 if (!m_mouseData->modifiers.testFlag(Qt::ControlModifier)) {
                     // Move
                     m_mouseData->dragOperation = GraphicsSelectTool::MouseData::MoveItemOperation;
-                    view()->setCursor(Qt::DragMoveCursor);
+                    //view()->setCursor(Qt::DragMoveCursor);
                 }
                 else {
                     // Clone
                     m_mouseData->dragOperation = GraphicsSelectTool::MouseData::CloneItemOperation;
-                    view()->setCursor(Qt::DragCopyCursor);
+                    //view()->setCursor(Qt::DragCopyCursor);
                 }
                 if (!m_mouseData->itemUnderMouse->isSelected()) {
                     scene()->clearSelection();
@@ -202,7 +186,6 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
 void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_mouseData == nullptr) {
-        return;
     }
 
     switch(m_mouseData->dragOperation) {
@@ -212,6 +195,7 @@ void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
             // Use document command stack here
             item->graphicsEffect()->setEnabled(false);
         }
+        view()->setCursor(Qt::SizeAllCursor);
         break;
 
     case GraphicsSelectTool::MouseData::MoveItemOperation:
@@ -224,6 +208,7 @@ void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
             item->setPos(phantomItem->pos());
             delete phantomItem;
         }
+        view()->setCursor(Qt::SizeAllCursor);
         break;
 
     case GraphicsSelectTool::MouseData::MoveControlPointOperation:
@@ -249,10 +234,12 @@ void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
                 item->setSelected(!wasSelected);
                 event->accept();
             }
+            view()->setCursor(Qt::SizeAllCursor);
         }
         else { // Not a drag, No item under mouse
             scene()->clearSelection();
             event->accept();
+            view()->setCursor(Qt::ArrowCursor);
         }
         break;
 
@@ -260,7 +247,6 @@ void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
         break;
     }
 
-    view()->setCursor(Qt::ArrowCursor);
     delete m_mouseData;
     m_mouseData = nullptr;
 }
@@ -273,6 +259,37 @@ void GraphicsSelectTool::mouseDoubleClickEvent(QMouseEvent *event)
 QDialog *GraphicsSelectTool::optionDialog()
 {
     return nullptr;
+}
+
+void GraphicsSelectTool::updateCursor(QMouseEvent *event)
+{
+    if (!m_mouseData) {
+        // No key pressed yet
+        GraphicsObject *item = view()->objectAt(event->pos());
+        if (item != nullptr) {
+            QPointF scenePos = view()->mapToScene(event->pos());
+            QPointF itemPos = item->mapFromScene(scenePos);
+            const GraphicsControlPoint *ctlPoint = item->controlPointNear(itemPos);
+            if (ctlPoint != nullptr) {
+                view()->setCursor(ctlPoint->cursor());
+            }
+            else {
+                if (event->modifiers().testFlag(Qt::ControlModifier)) {
+                    view()->setCursor(Qt::DragCopyCursor);
+                }
+                else {
+                    view()->setCursor(Qt::SizeAllCursor);
+                }
+            }
+        }
+        else {
+            // No item under mouse
+            view()->setCursor(Qt::ArrowCursor);
+        }
+    }
+    else {
+
+    }
 }
 
 void GraphicsSelectTool::cancel()

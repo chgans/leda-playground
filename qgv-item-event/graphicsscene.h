@@ -14,9 +14,6 @@ protected:
 
 private:
 
-    // The size of the cells in the grid.
-    QSize m_cellSize;
-
 };
 
 #endif // GRAPHICSSCENE_H

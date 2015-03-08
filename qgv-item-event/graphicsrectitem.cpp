@@ -6,33 +6,19 @@
 #include <QRectF>
 #include <QPainter>
 
-enum ControlPointRole {
-    TopLeft = 0,
-    Top,
-    TopRight,
-    Right,
-    BottomRight,
-    Bottom,
-    BottomLeft,
-    Left,
-    NbControlPointRoles
-};
-
 // TODO: forbid objects to have write access to control points
 
 GraphicsRectItem::GraphicsRectItem(QGraphicsItem *parent):
-    GraphicsObject(parent)
+    GraphicsObject(parent), m_rect(QRectF(0, 0, 0, 0))
 {
-    m_rect = QRectF(0, 0, 0, 0);
-    addControlPoint(new GraphicsControlPoint(this, QPointF(0, 0)));
-    addControlPoint(new GraphicsControlPoint(this, QPointF(0, 0)));
-    addControlPoint(new GraphicsControlPoint(this, QPointF(0, 0)));
-    addControlPoint(new GraphicsControlPoint(this, QPointF(0, 0)));
-    addControlPoint(new GraphicsControlPoint(this, QPointF(0, 0)));
-    addControlPoint(new GraphicsControlPoint(this, QPointF(0, 0)));
-    addControlPoint(new GraphicsControlPoint(this, QPointF(0, 0)));
-    addControlPoint(new GraphicsControlPoint(this, QPointF(0, 0)));
-    Q_ASSERT(controlPoints().count() == NbControlPointRoles);
+    addControlPoint(TopLeft, GraphicsControlPoint::FDiagSizeRole);
+    addControlPoint(Top, GraphicsControlPoint::VSizeRole);
+    addControlPoint(TopRight, GraphicsControlPoint::BDiagSizeRole);
+    addControlPoint(Right, GraphicsControlPoint::HSizeRole);
+    addControlPoint(BottomRight, GraphicsControlPoint::FDiagSizeRole);
+    addControlPoint(Bottom, GraphicsControlPoint::VSizeRole);
+    addControlPoint(BottomLeft, GraphicsControlPoint::BDiagSizeRole);
+    addControlPoint(Left, GraphicsControlPoint::HSizeRole);
 }
 
 GraphicsRectItem::~GraphicsRectItem()
@@ -73,19 +59,29 @@ void GraphicsRectItem::setBrush(const QBrush &brush)
     m_brush = brush;
 }
 
+void GraphicsRectItem::addControlPoint(GraphicsRectItem::CtlPointId pointId, GraphicsControlPoint::Role role)
+{
+    const GraphicsControlPoint *point = GraphicsObject::addControlPoint(role,
+                                                                    QPointF(0, 0));
+    m_ctlPointToId[point] = pointId;
+    m_idToCtlPoint[pointId] = point;
+
+}
+
 void GraphicsRectItem::updateControlPointsSilently()
 {
     m_rect = m_rect.normalized();
     qreal midX = m_rect.right()-m_rect.width()/2.0;
     qreal midY = m_rect.bottom()-m_rect.height()/2.0;
-    moveControlPointSilently(TopLeft, m_rect.topLeft());
-    moveControlPointSilently(Top, QPointF(midX, m_rect.top()));
-    moveControlPointSilently(TopRight, m_rect.topRight());
-    moveControlPointSilently(Right, QPointF(m_rect.right(), midY));
-    moveControlPointSilently(BottomRight, m_rect.bottomRight());
-    moveControlPointSilently(Bottom, QPointF(midX, m_rect.bottom()));
-    moveControlPointSilently(BottomLeft, m_rect.bottomLeft());
-    moveControlPointSilently(Left, QPointF(m_rect.left(), midY));
+
+    moveControlPointSilently(m_idToCtlPoint[TopLeft], m_rect.topLeft());
+    moveControlPointSilently(m_idToCtlPoint[Top], QPointF(midX, m_rect.top()));
+    moveControlPointSilently(m_idToCtlPoint[TopRight], m_rect.topRight());
+    moveControlPointSilently(m_idToCtlPoint[Right], QPointF(m_rect.right(), midY));
+    moveControlPointSilently(m_idToCtlPoint[BottomRight], m_rect.bottomRight());
+    moveControlPointSilently(m_idToCtlPoint[Bottom], QPointF(midX, m_rect.bottom()));
+    moveControlPointSilently(m_idToCtlPoint[BottomLeft], m_rect.bottomLeft());
+    moveControlPointSilently(m_idToCtlPoint[Left], QPointF(m_rect.left(), midY));
 }
 
 GraphicsObject *GraphicsRectItem::clone()
@@ -98,12 +94,12 @@ GraphicsObject *GraphicsRectItem::clone()
     return item;
 }
 
-void GraphicsRectItem::controlPointMoved(GraphicsControlPoint *point)
+void GraphicsRectItem::controlPointMoved(const GraphicsControlPoint *point)
 {
-    ControlPointRole pos = ControlPointRole(controlPoints().indexOf(point));
-    Q_ASSERT (pos >= 0 && pos < NbControlPointRoles);
+    Q_ASSERT(m_ctlPointToId.contains(point));
+    CtlPointId id = m_ctlPointToId[point];
     prepareGeometryChange();
-    switch (pos) {
+    switch (id) {
     case TopLeft:
         m_rect.setTopLeft(point->pos());
         break;
