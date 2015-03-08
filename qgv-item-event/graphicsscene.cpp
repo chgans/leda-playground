@@ -1,4 +1,6 @@
 #include "graphicsscene.h"
+#include "graphicsobject.h"
+#include "graphicscontrolpoint.h"
 
 #include <QPainter>
 
@@ -10,6 +12,17 @@ GraphicsScene::GraphicsScene(QObject *parent):
 GraphicsScene::~GraphicsScene()
 {
 
+}
+
+QList<GraphicsObject *> GraphicsScene::selectedObjects()
+{
+    QList<GraphicsObject *> objects;
+    foreach (QGraphicsItem *item, selectedItems()) {
+        GraphicsObject *object = dynamic_cast<GraphicsObject *>(item);
+        if (object != nullptr)
+            objects.append(object);
+    }
+    return objects;
 }
 
 void GraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)

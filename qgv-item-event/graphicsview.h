@@ -6,6 +6,7 @@
 class GraphicsScene;
 class GraphicsTool;
 class GraphicsObject;
+class GraphicsControlPoint;
 
 class GraphicsView : public QGraphicsView
 {
@@ -22,6 +23,26 @@ public:
     void setTool(GraphicsTool *tool);
 
     GraphicsObject *objectAt(const QPoint &pos) const;
+    const GraphicsControlPoint *handleAt(const QPoint &pos) const;
+
+    const GraphicsControlPoint *handleUnderMouse() const;
+    GraphicsObject *objectUnderMouse() const;
+    QPoint mousePosition() const;
+
+signals:
+    void leftMouseButtonPressed();
+    void leftMouseButtonReleased();
+    void ctlKeyPressed();
+    void ctlKeyReleased();
+    void majKeyPressed();
+    void majKeyReleased();
+    void escKeyPressed();
+    void escKeyReleased();
+    void hoverItemEntered();
+    void hoverItemLeft();
+    void hoverHandleEntered();
+    void hoverHandleLeft();
+    void mouseMoved();
 
 signals:
     void mouseDoubleClicked(const QPoint &pos);
@@ -45,6 +66,8 @@ protected:
 
 private:
     GraphicsTool *m_tool;
+    GraphicsObject *m_objectUnderMouse;
+    const GraphicsControlPoint *m_handleUnderMouse;
 };
 
 #endif // GRAPHICSVIEW_H

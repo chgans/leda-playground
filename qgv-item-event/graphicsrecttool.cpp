@@ -95,3 +95,12 @@ void GraphicsRectTool::setP2(const QPoint &point)
     QPointF pos = m_item->mapFromScene(view()->mapToScene(point));
     m_item->moveControlPoint(m_item->controlPoints()[4], pos);
 }
+
+
+void GraphicsRectTool::activate()
+{
+}
+
+void GraphicsRectTool::desactivate()
+{
+}

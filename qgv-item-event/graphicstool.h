@@ -30,7 +30,7 @@ public:
 
     GraphicsView *view();
     GraphicsScene *scene();
-    void setView(GraphicsView *view);
+    virtual void setView(GraphicsView *view);
 
     // TODO: split interactive vs non-interactive
     virtual void mousePressEvent(QMouseEvent *event);
@@ -47,6 +47,9 @@ public:
 
     virtual QString toolGroup() const = 0;
     virtual QAction *action() const = 0;
+
+    virtual void activate() = 0;
+    virtual void desactivate() = 0;
 
 signals:
     void finished();

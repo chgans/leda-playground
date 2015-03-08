@@ -42,7 +42,7 @@ void GraphicsObject::setControlPoints(const QVector<GraphicsControlPoint *> poin
 // TODO: private + GraphicsTool as friend?
 // Pos is in item coordinate
 // TODO:
-const GraphicsControlPoint *GraphicsObject::controlPointNear(const QPointF &pos)
+const GraphicsControlPoint *GraphicsObject::controlPointNear(const QPointF &pos) const
 {
     for (int i = 0; i < m_controlPoints.count(); i++) {
         if (m_controlPoints[i]->shape().contains(pos)) {

@@ -27,7 +27,7 @@ public:
     virtual GraphicsObject *clone() = 0;
 
     // TODO: add radius
-    const GraphicsControlPoint *controlPointNear(const QPointF &pos);
+    const GraphicsControlPoint *controlPointNear(const QPointF &pos) const;
     QVector<const GraphicsControlPoint *> controlPoints() const;
     void moveControlPoint(const GraphicsControlPoint *point, const QPointF &pos);
 

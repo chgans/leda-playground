@@ -28,6 +28,11 @@ protected:
 private:
     int m_state;
     GraphicsLineItem *m_item;
+
+    // GraphicsTool interface
+public:
+    virtual void activate();
+    virtual void desactivate();
 };
 
 #endif // GRAPHICSLINETOOL_H

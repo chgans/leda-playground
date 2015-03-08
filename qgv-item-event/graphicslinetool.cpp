@@ -96,3 +96,12 @@ void GraphicsLineTool::setP2(const QPoint &point)
     QPointF pos = m_item->mapFromScene(view()->mapToScene(point));
     m_item->moveControlPoint(m_item->controlPoints()[1], pos);
 }
+
+
+void GraphicsLineTool::activate()
+{
+}
+
+void GraphicsLineTool::desactivate()
+{
+}

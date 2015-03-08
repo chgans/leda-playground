@@ -10,7 +10,9 @@
 #include <QKeyEvent>
 #include <QDialog>
 
-GraphicsTool::GraphicsTool(QObject *parent) : QObject(parent)
+GraphicsTool::GraphicsTool(QObject *parent) :
+    QObject(parent),
+    m_view(nullptr)
 {
 
 }

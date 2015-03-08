@@ -22,9 +22,7 @@ public:
     virtual QString toolGroup() const;
     virtual QAction *action() const;
 
-    // GraphicsTool interface
-public slots:
-    virtual void cancel();
+
 
 protected:
     void setP1(const QPoint &point);
@@ -33,6 +31,15 @@ protected:
 private:
     int m_state;
     GraphicsRectItem *m_item;
+
+    // GraphicsTool interface
+public slots:
+    virtual void cancel();
+
+    // GraphicsTool interface
+public:
+    virtual void activate();
+    virtual void desactivate();
 };
 
 #endif // GRAPHICSRECTTOOL_H
