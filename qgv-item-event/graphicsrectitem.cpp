@@ -10,7 +10,7 @@
 
 // TODO: forbid objects to have write access to control points
 
-GraphicsRectItem::GraphicsRectItem(QGraphicsItem *parent):
+GraphicsRectItem::GraphicsRectItem(GraphicsObject *parent):
     GraphicsObject(parent), m_rect(QRectF(0, 0, 0, 0)),
     m_dirty(true)
 {

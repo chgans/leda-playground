@@ -10,7 +10,7 @@
 #include <QAction>
 
 GraphicsRectTool::GraphicsRectTool(QObject *parent):
-    m_state(0), m_item(nullptr)
+    GraphicsTool(parent), m_state(0), m_item(nullptr)
 {
 
 }
@@ -50,6 +50,7 @@ void GraphicsRectTool::mouseMoveEvent(QMouseEvent *event)
 
 void GraphicsRectTool::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
     if (m_state == 1) {
         // TODO: use command stack
     }

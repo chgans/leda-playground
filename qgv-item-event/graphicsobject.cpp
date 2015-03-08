@@ -3,7 +3,7 @@
 
 #include <QDebug>
 
-GraphicsObject::GraphicsObject(QGraphicsItem *parent):
+GraphicsObject::GraphicsObject(GraphicsObject *parent):
     QGraphicsObject(parent),
     m_controlPointsDirty(true)
 {
@@ -80,6 +80,8 @@ void GraphicsObject::cloneTo(GraphicsObject *dst)
     foreach (GraphicsControlPoint *other, m_controlPoints) {
         // FIXME: dst.moveControlPoint(idx, pos);
         //dst->addControlPoint(other->clone(dst));
+        Q_UNUSED(other);
+        Q_UNUSED(dst);
     }
 }
 

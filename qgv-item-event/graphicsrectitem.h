@@ -17,7 +17,7 @@ class GraphicsRectItem : public GraphicsObject
     Q_OBJECT
 
 public:
-    GraphicsRectItem(QGraphicsItem *parent = 0);
+    GraphicsRectItem(GraphicsObject *parent = 0);
     ~GraphicsRectItem();
 
     QRectF rect() const;

@@ -7,6 +7,7 @@
 #include "graphicsselecttool.h"
 #include "graphicslinetool.h"
 #include "graphicsrecttool.h"
+#include "graphicsbeziertool.h"
 
 #include <QTimer>
 #include <QMessageBox>
@@ -33,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     addTool(new GraphicsSelectTool(this));
     addTool(new GraphicsLineTool(this));
     addTool(new GraphicsRectTool(this));
+    addTool(new GraphicsBezierTool(this));
     addToolBar(m_interactiveToolsToolBar);
 
     /*
@@ -90,7 +92,7 @@ void MainWindow::addTool(GraphicsTool *tool)
     bool firstAction = m_interactiveToolActionGroup->actions().count() == 0;
     QAction *action = tool->action();
     action->setCheckable(true);
-    action->setData(QVariant::fromValue<GraphicsTool*>(tool));
+    action->setData(QVariant::fromValue<GraphicsTool *>(tool));
     m_interactiveToolActionGroup->addAction(action);
     m_interactiveToolsToolBar->addAction(action);
     if (firstAction) {

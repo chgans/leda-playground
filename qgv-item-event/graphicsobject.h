@@ -21,7 +21,7 @@ class GraphicsObject: public QGraphicsObject
 {
     Q_OBJECT
 public:
-    GraphicsObject(QGraphicsItem *parent = 0);
+    GraphicsObject(GraphicsObject *parent = 0);
     virtual ~GraphicsObject();
 
     virtual GraphicsObject *clone() = 0;

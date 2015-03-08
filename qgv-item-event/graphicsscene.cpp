@@ -27,6 +27,6 @@ QList<GraphicsObject *> GraphicsScene::selectedObjects()
 
 void GraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
 {
-    painter->fillRect(sceneRect(), Qt::black);
+    painter->fillRect(sceneRect().intersected(rect), Qt::black);
 }
 

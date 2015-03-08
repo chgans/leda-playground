@@ -164,6 +164,8 @@ void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
             break;
         case MoveHandle:
             Q_ASSERT(handle != nullptr);
+            m_item = object;
+            m_items = scene()->selectedObjects();
             m_handle = handle;
             break;
         default:
@@ -239,6 +241,7 @@ void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
             m_phantomItems.clear();
         }
         m_items.clear();
+        m_item = nullptr;
         break;
     case CloneItem:
         for (int i = 0; i < m_items.count(); i++) {
@@ -246,7 +249,10 @@ void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
         }
         m_phantomItems.clear();
         m_items.clear();
+        m_item = nullptr;
         break;
+    case MoveHandle:
+        m_handle = nullptr;
     }
 
     m_state = HintState;

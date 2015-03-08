@@ -11,7 +11,7 @@ class GraphicsLineItem : public GraphicsObject
     Q_OBJECT
 
 public:
-    GraphicsLineItem(QGraphicsItem *parent = 0);
+    GraphicsLineItem(GraphicsObject *parent = 0);
 
     QLineF line() const;
     void setLine(const QLineF &line);

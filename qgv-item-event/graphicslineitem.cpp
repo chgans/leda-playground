@@ -6,7 +6,7 @@
 
 #include <QDebug>
 
-GraphicsLineItem::GraphicsLineItem(QGraphicsItem *parent):
+GraphicsLineItem::GraphicsLineItem(GraphicsObject *parent):
     GraphicsObject(parent)
 {
     m_ctlPoint1 = addControlPoint(GraphicsControlPoint::MoveRole, QPointF(0, 0));

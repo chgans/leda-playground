@@ -51,6 +51,7 @@ void GraphicsLineTool::mouseMoveEvent(QMouseEvent *event)
 
 void GraphicsLineTool::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
     if (m_state == 1) {
         // TODO: use command stack
     }
