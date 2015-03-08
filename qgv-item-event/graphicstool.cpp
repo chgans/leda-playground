@@ -86,11 +86,9 @@ void GraphicsTool::cancel()
 
 }
 
-QGraphicsItem *GraphicsTool::createPhantomItem(QGraphicsItem *item)
+GraphicsObject *GraphicsTool::createPhantomItem(GraphicsObject *item)
 {
-    GraphicsObject *origItem = dynamic_cast<GraphicsObject *>(item);
-    Q_ASSERT(origItem != nullptr);
-    QGraphicsItem *phantomItem = origItem->clone();
+    GraphicsObject *phantomItem = item->clone();
     QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect();
     effect->setEnabled(true);
     phantomItem->setGraphicsEffect(effect);
@@ -99,10 +97,10 @@ QGraphicsItem *GraphicsTool::createPhantomItem(QGraphicsItem *item)
     return phantomItem;
 }
 
-QList<QGraphicsItem *> GraphicsTool::createPhantomItems(QList<QGraphicsItem *> items)
+QList<GraphicsObject *> GraphicsTool::createPhantomItems(const QList<GraphicsObject *> &items)
 {
-    QList<QGraphicsItem *> phantomItems;
-    foreach (QGraphicsItem *item, items) {
+    QList<GraphicsObject *> phantomItems;
+    foreach (GraphicsObject *item, items) {
         phantomItems.append(createPhantomItem(item));
     }
     return phantomItems;

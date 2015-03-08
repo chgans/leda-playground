@@ -6,7 +6,7 @@
 
 class GraphicsView;
 class GraphicsScene;
-class QGraphicsItem;
+class GraphicsObject;
 
 class QMouseEvent;
 class QKeyEvent;
@@ -58,8 +58,8 @@ public slots:
     virtual void cancel();
 
 protected:
-    QGraphicsItem *createPhantomItem(QGraphicsItem *item);
-    QList<QGraphicsItem *> createPhantomItems(QList<QGraphicsItem *> items);
+    GraphicsObject *createPhantomItem(GraphicsObject *item);
+    QList<GraphicsObject *> createPhantomItems(const QList<GraphicsObject *> &items);
 
 private:
     GraphicsView *m_view;

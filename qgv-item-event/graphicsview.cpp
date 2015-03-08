@@ -128,7 +128,7 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
 void GraphicsView::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        qDebug() << "leftMouseButtonPressed";
+        //qDebug() << "leftMouseButtonPressed";
         emit leftMouseButtonPressed();
     }
 
@@ -146,28 +146,28 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
 void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     if (objectUnderMouse() && !m_objectUnderMouse) {
-        qDebug() << "hoverItemEntered";
+        //qDebug() << "hoverItemEntered";
         m_objectUnderMouse = objectUnderMouse();
         emit hoverItemEntered();
         if (event->modifiers().testFlag(Qt::ControlModifier))
             emit ctlKeyPressed();
     }
     if (!objectUnderMouse() && m_objectUnderMouse) {
-        qDebug() << "hoverItemLeft";
+        //qDebug() << "hoverItemLeft";
         emit hoverItemLeft();
         if (event->modifiers().testFlag(Qt::ControlModifier))
             emit ctlKeyPressed();
         m_objectUnderMouse = nullptr;
     }
     if (handleUnderMouse() && !m_handleUnderMouse) {
-        qDebug() << "hoverHandleEntered";
+        //qDebug() << "hoverHandleEntered";
         m_handleUnderMouse = handleUnderMouse();
         if (event->modifiers().testFlag(Qt::ControlModifier))
             emit ctlKeyPressed();
         emit hoverHandleEntered();
     }
     if (!handleUnderMouse() && m_handleUnderMouse) {
-        qDebug() << "hoverHandleLeft";
+        //qDebug() << "hoverHandleLeft";
         emit hoverHandleLeft();
         if (event->modifiers().testFlag(Qt::ControlModifier))
             emit ctlKeyPressed();
@@ -175,7 +175,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
     }
 
     if (event->buttons().testFlag(Qt::LeftButton)) {
-        qDebug() << "mouseMoved";
+        //qDebug() << "mouseMoved";
         emit mouseMoved();
     }
 
@@ -188,7 +188,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        qDebug() << "leftMouseButtonReleased";
+        //qDebug() << "leftMouseButtonReleased";
         emit leftMouseButtonReleased();
     }
 

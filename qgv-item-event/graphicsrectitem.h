@@ -46,7 +46,11 @@ private:
     QMap<CtlPointId, const GraphicsControlPoint *> m_idToCtlPoint;
     void addControlPoint(CtlPointId pointId, GraphicsControlPoint::Role role);
     void updateControlPointsSilently();
-
+    mutable QRectF m_boundingRect;
+    mutable QPainterPath m_shape;
+    mutable bool m_dirty;
+    void updateGeometry() const;
+    void markDirty();
 
     // GraphicsObject interface
 public:

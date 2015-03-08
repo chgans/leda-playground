@@ -1,8 +1,11 @@
 #include "graphicsobject.h"
 #include "graphicscontrolpoint.h"
 
+#include <QDebug>
+
 GraphicsObject::GraphicsObject(QGraphicsItem *parent):
-    QGraphicsObject(parent)
+    QGraphicsObject(parent),
+    m_controlPointsDirty(true)
 {
 
 }
@@ -17,6 +20,7 @@ const GraphicsControlPoint *GraphicsObject::addControlPoint(GraphicsControlPoint
 {
     GraphicsControlPoint *point = new GraphicsControlPoint(role, pos);
     m_controlPoints.append(point);
+    markControlPointsDirty();
     return point;
 }
 
@@ -61,6 +65,7 @@ void GraphicsObject::moveControlPoint(const GraphicsControlPoint *point, const Q
 
 void GraphicsObject::moveControlPointSilently(const GraphicsControlPoint *point, const QPointF &pos)
 {
+    markControlPointsDirty();
     GraphicsControlPoint *p = const_cast<GraphicsControlPoint *>(point);
     Q_ASSERT(m_controlPoints.contains(p));
     p->setPos(pos);
@@ -69,6 +74,7 @@ void GraphicsObject::moveControlPointSilently(const GraphicsControlPoint *point,
 void GraphicsObject::cloneTo(GraphicsObject *dst)
 {
     dst->setPos(pos());
+    dst->setZValue(zValue());
     dst->setFlags(flags());
     dst->setSelected(isSelected());
     foreach (GraphicsControlPoint *other, m_controlPoints) {
@@ -97,11 +103,9 @@ QVector<GraphicsControlPoint *> GraphicsObject::cloneControlPoints(const Graphic
 
 QRectF GraphicsObject::controlPointsBoundingRect() const
 {
-    QRectF boundingRect;
-    foreach (const GraphicsControlPoint *point, m_controlPoints) {
-        boundingRect |= point->boundingRect();
-    }
-    return boundingRect;
+    if (m_controlPointsDirty)
+        updateControlPointsGeometry();
+    return m_controlPointsBoundingRect;
 }
 
 QPainterPath GraphicsObject::controlPointsShape() const
@@ -111,6 +115,25 @@ QPainterPath GraphicsObject::controlPointsShape() const
         path.addPath(point->shape());
     }
     return path;
+}
+
+void GraphicsObject::updateControlPointsGeometry() const
+{
+    m_controlPointsBoundingRect = QRectF();
+    foreach (const GraphicsControlPoint *point, m_controlPoints) {
+        m_controlPointsBoundingRect |= point->boundingRect();
+    }
+    m_controlPointsPath = QPainterPath();
+    foreach (const GraphicsControlPoint *point, m_controlPoints) {
+        m_controlPointsPath |= point->shape();
+    }
+    m_controlPointsDirty = false;
+}
+
+void GraphicsObject::markControlPointsDirty()
+{
+    prepareGeometryChange();
+    m_controlPointsDirty = true;
 }
 
 

@@ -50,6 +50,11 @@ protected:
 
 private:
     QVector<GraphicsControlPoint *> m_controlPoints;
+    mutable bool m_controlPointsDirty;
+    mutable QRectF m_controlPointsBoundingRect;
+    mutable QPainterPath m_controlPointsPath;
+    void updateControlPointsGeometry() const;
+    void markControlPointsDirty();
 };
 
 #endif // GRAPHICSOBJECT_H

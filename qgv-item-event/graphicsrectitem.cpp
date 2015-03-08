@@ -6,10 +6,13 @@
 #include <QRectF>
 #include <QPainter>
 
+#include <QDebug>
+
 // TODO: forbid objects to have write access to control points
 
 GraphicsRectItem::GraphicsRectItem(QGraphicsItem *parent):
-    GraphicsObject(parent), m_rect(QRectF(0, 0, 0, 0))
+    GraphicsObject(parent), m_rect(QRectF(0, 0, 0, 0)),
+    m_dirty(true)
 {
     addControlPoint(TopLeft, GraphicsControlPoint::FDiagSizeRole);
     addControlPoint(Top, GraphicsControlPoint::VSizeRole);
@@ -33,8 +36,8 @@ QRectF GraphicsRectItem::rect() const
 
 void GraphicsRectItem::setRect(const QRectF &rect)
 {
-    prepareGeometryChange();
     m_rect = rect;
+    markDirty();
 }
 
 QPen GraphicsRectItem::pen() const
@@ -44,8 +47,8 @@ QPen GraphicsRectItem::pen() const
 
 void GraphicsRectItem::setPen(const QPen &pen)
 {
-    prepareGeometryChange();
     m_pen = pen;
+    markDirty();
 }
 
 QBrush GraphicsRectItem::brush() const
@@ -55,8 +58,8 @@ QBrush GraphicsRectItem::brush() const
 
 void GraphicsRectItem::setBrush(const QBrush &brush)
 {
-    prepareGeometryChange(); // needed?
     m_brush = brush;
+    markDirty(); // needed?
 }
 
 void GraphicsRectItem::addControlPoint(GraphicsRectItem::CtlPointId pointId, GraphicsControlPoint::Role role)
@@ -65,7 +68,6 @@ void GraphicsRectItem::addControlPoint(GraphicsRectItem::CtlPointId pointId, Gra
                                                                     QPointF(0, 0));
     m_ctlPointToId[point] = pointId;
     m_idToCtlPoint[pointId] = point;
-
 }
 
 void GraphicsRectItem::updateControlPointsSilently()
@@ -84,6 +86,29 @@ void GraphicsRectItem::updateControlPointsSilently()
     moveControlPointSilently(m_idToCtlPoint[Left], QPointF(m_rect.left(), midY));
 }
 
+void GraphicsRectItem::updateGeometry() const
+{
+
+    QPainterPath path;
+    path.addRect(m_rect);
+    if (isSelected())
+        path += controlPointsShape();
+    m_shape = path;
+
+    QRectF rect = m_shape.boundingRect();
+    if (isSelected())
+        rect |= controlPointsBoundingRect();
+    m_boundingRect = rect.adjusted(-5, -5, +5, +5);
+
+    m_dirty = false;
+}
+
+void GraphicsRectItem::markDirty()
+{
+    prepareGeometryChange();
+    m_dirty = true;
+}
+
 GraphicsObject *GraphicsRectItem::clone()
 {
     GraphicsRectItem *item = new GraphicsRectItem();
@@ -98,7 +123,6 @@ void GraphicsRectItem::controlPointMoved(const GraphicsControlPoint *point)
 {
     Q_ASSERT(m_ctlPointToId.contains(point));
     CtlPointId id = m_ctlPointToId[point];
-    prepareGeometryChange();
     switch (id) {
     case TopLeft:
         m_rect.setTopLeft(point->pos());
@@ -127,27 +151,22 @@ void GraphicsRectItem::controlPointMoved(const GraphicsControlPoint *point)
     default:
         break;
     }
-
     updateControlPointsSilently();
+    markDirty();
 }
 
 QRectF GraphicsRectItem::boundingRect() const
 {
-    QRectF rect = shape().boundingRect();
-    if (isSelected())
-        rect |= controlPointsBoundingRect();
-    return rect.adjusted(-5, -5, +5, +5);
-
+    if (m_dirty)
+        updateGeometry();
+    return m_boundingRect;
 }
 
 QPainterPath GraphicsRectItem::shape() const
 {
-    QPainterPath path;
-    path.addRect(m_rect);
-    if (isSelected())
-       path |= controlPointsShape();
-    return path;
-
+    if (m_dirty)
+        updateGeometry();
+    return m_shape;
 }
 
 void GraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -164,7 +183,8 @@ void GraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 QVariant GraphicsRectItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     // Notify the scene that shape() and boudingRect() changed
-    if (change == QGraphicsItem::ItemSelectedHasChanged)
-        prepareGeometryChange();
+    if (change == QGraphicsItem::ItemSelectedHasChanged) {
+        markDirty();
+    }
     return value;
 }

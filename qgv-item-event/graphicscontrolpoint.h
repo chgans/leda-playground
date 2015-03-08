@@ -52,6 +52,8 @@ private:
     QRectF m_rect;
     QVariant m_data;
     QList<GraphicsControlPoint*> m_links;
+    QPainterPath m_shape;
+    QRectF m_boudingRect;
 };
 
 #endif // GRAPHICSCONTROLPOINT_H

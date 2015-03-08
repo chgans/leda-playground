@@ -27,7 +27,7 @@ void GraphicsRectTool::mousePressEvent(QMouseEvent *event)
         m_item->setPos(scenePos);
         setP1(event->pos());
         setP2(event->pos());
-        m_item->setPen(QPen(Qt::darkBlue));
+        m_item->setPen(QPen(QBrush(Qt::darkBlue), 0));
         m_item->setBrush(QBrush(Qt::darkYellow));
         scene()->addItem(m_item);
         m_state = 1;

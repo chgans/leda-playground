@@ -13,7 +13,6 @@
 GraphicsControlPoint::GraphicsControlPoint(GraphicsControlPoint::Role role, const QPointF &pos):
     m_role(role), m_pos(pos), m_rect(QRectF(-2, -2, 2, 2))
 {
-
 }
 
 /* FIXME:
@@ -62,13 +61,13 @@ void GraphicsControlPoint::setData(const QVariant &data)
 
 QRectF GraphicsControlPoint::boundingRect() const
 {
-    return shape().boundingRect();
+    return shape().boundingRect().adjusted(-1, -1, 1, 1);
 }
 
 QPainterPath GraphicsControlPoint::shape() const
 {
     QPainterPath path;
-    path.addEllipse(m_rect); // FIXME: add half pen size
+    path.addEllipse(m_rect);
     return path;
 }
 
@@ -78,8 +77,8 @@ void GraphicsControlPoint::paint(QPainter *painter,
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
-    painter->setPen(QPen(QBrush(Qt::white), 0));
-    painter->setBrush(QBrush(Qt::red));
+    painter->setPen(QPen(QBrush(Qt::darkYellow), 0));
+    painter->setBrush(QBrush(Qt::darkRed));
     painter->drawEllipse(m_rect);
 }
 
@@ -91,7 +90,6 @@ QPointF GraphicsControlPoint::pos() const
 void GraphicsControlPoint::setPos(const QPointF &pos)
 {
     m_rect.moveCenter(pos);
-    qDebug() << this << pos;
 }
 
 QCursor GraphicsControlPoint::roleToCursor(GraphicsControlPoint::Role role) const

@@ -37,6 +37,8 @@
 
 GraphicsSelectTool::GraphicsSelectTool(QObject *parent):
     GraphicsTool(parent),
+    m_state(HintState),
+    m_operation(DragSelect),
     m_mousePressPosition(QPoint(0, 0)),
     m_item(nullptr),
     m_handle(nullptr),
@@ -49,6 +51,46 @@ GraphicsSelectTool::~GraphicsSelectTool()
 
 }
 
+void GraphicsSelectTool::updateCursor(QMouseEvent *event)
+{
+    const GraphicsControlPoint *handle = view()->handleUnderMouse();
+    GraphicsObject *object = view()->objectUnderMouse();
+    if (handle != nullptr) {
+        m_handle = handle;
+        setOperation(MoveHandle);
+    }
+    else if (object != nullptr) {
+        if (event->modifiers().testFlag(Qt::ControlModifier))
+            setOperation(CloneItem);
+        else
+            setOperation(MoveItem);
+    }
+    else
+        setOperation(DragSelect);
+}
+
+void GraphicsSelectTool::setOperation(GraphicsSelectTool::Operation operation)
+{
+    m_operation = operation;
+    switch (operation) {
+    case DragSelect:
+        view()->setCursor(Qt::ArrowCursor);
+        break;
+    case MoveItem:
+        view()->setCursor(Qt::SizeAllCursor);
+        break;
+    case MoveHandle:
+        Q_ASSERT(m_handle != nullptr);
+        view()->setCursor(m_handle->cursor());
+        break;
+    case CloneItem:
+        view()->setCursor(Qt::DragCopyCursor);
+        break;
+    default:
+        break;
+    }
+}
+
 QDialog *GraphicsSelectTool::optionDialog()
 {
     return nullptr;
@@ -56,135 +98,10 @@ QDialog *GraphicsSelectTool::optionDialog()
 
 void GraphicsSelectTool::activate()
 {
-    m_stateMachine->start();
 }
 
 void GraphicsSelectTool::desactivate()
 {
-    m_stateMachine->stop();
-}
-
-void GraphicsSelectTool::handleMouseMove()
-{
-    if (m_dragSelectState->active()) {
-        QRect viewRect = QRect(m_mousePressPosition, view()->mousePosition()).normalized();
-        m_rubberBand->setGeometry(viewRect);
-        qDebug() << "Rubberband" << viewRect;
-        QPainterPath path;
-        path.addPolygon(view()->mapToScene(viewRect));
-        view()->scene()->setSelectionArea(path, Qt::IntersectsItemShape);
-    }
-    else if (m_moveItemState->active()) {
-
-    }
-    else if (m_cloneItemState->active()) {
-
-    }
-    else if (m_moveHandleState->active()) {
-
-    }
-}
-
-void GraphicsSelectTool::buildStateMachine()
-{
-    m_stateMachine = new QStateMachine(this);
-    m_topState = new QState(QState::ParallelStates);
-    m_topState->addTransition(view(), SIGNAL(escKeyReleased()), m_topState);
-    m_stateMachine->addState(m_topState);
-    m_stateMachine->setInitialState(m_topState);
-
-    m_operationStateGroup = new QState(m_topState);
-    m_dragSelectState = new QState(m_operationStateGroup);
-    m_operationStateGroup->setInitialState(m_dragSelectState);
-    m_moveItemState = new QState(m_operationStateGroup);
-    m_cloneItemState = new QState(m_operationStateGroup);
-    m_moveHandleState = new QState(m_operationStateGroup);
-
-    m_dragSelectState->addTransition(view(), SIGNAL(hoverItemEntered()), m_moveItemState);
-    m_moveItemState->addTransition(view(), SIGNAL(hoverItemLeft()), m_dragSelectState);
-    m_dragSelectState->addTransition(view(), SIGNAL(hoverHandleEntered()), m_moveHandleState);
-    m_moveItemState->addTransition(view(), SIGNAL(hoverHandleLeft()), m_dragSelectState);
-    m_moveItemState->addTransition(view(), SIGNAL(ctlKeyPressed()), m_cloneItemState);
-    m_cloneItemState->addTransition(view(), SIGNAL(ctlKeyReleased()), m_moveItemState);
-    m_dragSelectState->addTransition(view(), SIGNAL(hoverHandleEntered()), m_moveHandleState);
-    m_moveHandleState->addTransition(view(), SIGNAL(hoverHandleLeft()), m_dragSelectState);
-
-    m_stageStateGroup = new QState(m_topState);
-    m_maybeState = new QState(m_stageStateGroup);
-    m_stageStateGroup->setInitialState(m_maybeState);
-    m_confirmedState = new QState(m_stageStateGroup);
-    m_startedState = new QState(m_stageStateGroup);
-    m_startedTransition = new QSignalTransition;
-
-    m_maybeState->addTransition(view(), SIGNAL(leftMouseButtonPressed()), m_confirmedState);
-    m_confirmedState->addTransition(view(), SIGNAL(mouseMoved()), m_startedState);
-    m_startedTransition->setSenderObject(view());
-    m_startedTransition->setSignal(SIGNAL(mouseMoved()));
-    m_startedState->addTransition(m_startedTransition);
-    m_startedState->addTransition(view(), SIGNAL(leftMouseButtonReleased()), m_maybeState);
-    m_startedState->addTransition(view(), SIGNAL(escKeyReleased()), m_maybeState);
-
-    connect(m_dragSelectState, &QState::entered,
-            this, [this]() {
-        qDebug() << "Drag select";
-        view()->setCursor(Qt::ArrowCursor);
-    });
-    connect(m_dragSelectState, &QState::exited,
-            this, [this]() {
-    });
-    connect(m_moveItemState, &QState::entered,
-            this, [this]() {
-        qDebug() << "Move item";
-        view()->setCursor(Qt::SizeAllCursor);
-        m_item = view()->objectUnderMouse();
-        m_items = scene()->selectedObjects();
-    });
-    connect(m_cloneItemState, &QState::entered,
-            this, [this]() {
-        qDebug() << "Clone item";
-        view()->setCursor(Qt::DragCopyCursor);
-    });
-    connect(m_moveHandleState, &QState::entered,
-            this, [this]() {
-        qDebug() << "Move handle";
-        m_handle = view()->handleUnderMouse();
-        view()->setCursor(m_handle->cursor());
-    });
-    connect(m_maybeState, &QState::entered,
-            this, [this]() {
-        qDebug() << "Maybe";
-    });
-    connect(m_confirmedState, &QState::entered,
-            this, [this]() {
-        qDebug() << "Confirmed";
-       m_mousePressPosition = view()->mousePosition();
-    });
-    connect(m_startedState, &QState::entered,
-            this, [this]() {
-        qDebug() << "Started";
-    });
-
-    connect(m_confirmedState, &QState::entered,
-            this, [this]() {
-        if (m_dragSelectState->active()) {
-            m_rubberBand->setGeometry(QRect(m_mousePressPosition, m_mousePressPosition));
-            m_rubberBand->setVisible(true);
-        }
-    });
-    connect(m_startedState, &QState::exited,
-            this, [this]() {
-        if (m_dragSelectState->active())
-            m_rubberBand->setVisible(false);
-    });
-    connect(m_startedState, &QState::entered,
-            this, &GraphicsSelectTool::handleMouseMove);
-    connect(m_startedTransition, &QSignalTransition::triggered,
-            this, &GraphicsSelectTool::handleMouseMove);
-}
-
-void GraphicsSelectTool::destroyStateMachine()
-{
-    delete m_stateMachine;
 }
 
 void GraphicsSelectTool::cancel()
@@ -194,12 +111,12 @@ void GraphicsSelectTool::cancel()
 void GraphicsSelectTool::setView(GraphicsView *other)
 {
     if (view()) {
-        destroyStateMachine();
+        //destroyStateMachine();
         m_rubberBand->setParent(nullptr);
     }
     GraphicsTool::setView(other);
     if (other) {
-        buildStateMachine();
+        //buildStateMachine();
         m_rubberBand->setParent(view());
     }
 }
@@ -213,4 +130,145 @@ QAction *GraphicsSelectTool::action() const
 {
     return  new QAction(QIcon::fromTheme("edit-select"),
                         "select", nullptr);
+}
+
+
+void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton)
+        return;
+
+    if (m_state == HintState) {
+        const GraphicsControlPoint *handle = view()->handleUnderMouse();
+        GraphicsObject *object = view()->objectUnderMouse();
+        m_mousePressPosition = event->pos();
+        switch (m_operation) {
+        case DragSelect:
+            if (!event->modifiers().testFlag(Qt::ShiftModifier))
+                scene()->clearSelection();
+            m_rubberBand->setGeometry(QRect(m_mousePressPosition, m_mousePressPosition));
+            m_rubberBand->show();
+            break;
+        case MoveItem:
+        case CloneItem:
+            Q_ASSERT(object != nullptr);
+            if (event->modifiers().testFlag(Qt::ShiftModifier)) {
+                object->setSelected(!object->isSelected());
+            }
+            else if (!object->isSelected()) {
+                scene()->clearSelection();
+                object->setSelected(true);
+            }
+            m_item = object;
+            m_items = scene()->selectedObjects();
+            break;
+        case MoveHandle:
+            Q_ASSERT(handle != nullptr);
+            m_handle = handle;
+            break;
+        default:
+            break;
+        }
+        m_state = OperationState;
+    }
+    event->accept();
+}
+
+void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_state == HintState) {
+        updateCursor(event);
+    }
+    else {
+        switch (m_operation) {
+        case DragSelect: {
+            QRect viewRect = QRect(m_mousePressPosition, event->pos()).normalized();
+            m_rubberBand->setGeometry(viewRect);
+            QPainterPath path;
+            path.addPolygon(view()->mapToScene(viewRect));
+            foreach (QGraphicsItem *item, scene()->items(path)) {
+                item->setSelected(true);
+            }
+            break;
+        }
+        case MoveItem:
+        case CloneItem: {
+            if (m_phantomItems.count() == 0) {
+                m_phantomItems = createPhantomItems(m_items);
+            }
+            Q_ASSERT(m_items.count() == m_phantomItems.count());
+            QRectF sceneShift = QRectF(view()->mapToScene(m_mousePressPosition),
+                                       view()->mapToScene(event->pos()));
+            sceneShift.moveTopLeft(QPointF(0, 0));
+            //qDebug() << event->pos() << m_mousePressPosition << viewVector << sceneVector;
+            for (int i = 0; i < m_items.count(); i++) {
+                QPointF itemPos = m_items[i]->pos() + sceneShift.bottomRight();
+                m_phantomItems[i]->setPos(itemPos);
+            }
+            break;
+        }
+        case MoveHandle: {
+            QPointF scenePos = view()->mapToScene(event->pos());
+            QPointF itemPos = m_item->mapFromScene(scenePos);
+            m_item->moveControlPoint(m_handle, itemPos);
+            break;
+        }
+        default:
+            qDebug() << "Unknown state";
+        }
+    }
+    event->accept();
+}
+
+void GraphicsSelectTool::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton)
+        return;
+
+    switch (m_operation) {
+    case DragSelect:
+        m_rubberBand->hide();
+        break;
+    case MoveItem:
+        if (m_phantomItems.count() > 0) {
+            for (int i = 0; i < m_items.count(); i++) {
+                m_items[i]->setPos(m_phantomItems[i]->pos());
+                scene()->removeItem(m_phantomItems[i]);
+                delete m_phantomItems[i];
+            }
+            m_phantomItems.clear();
+        }
+        m_items.clear();
+        break;
+    case CloneItem:
+        for (int i = 0; i < m_items.count(); i++) {
+            m_phantomItems[i]->setGraphicsEffect(nullptr);
+        }
+        m_phantomItems.clear();
+        m_items.clear();
+        break;
+    }
+
+    m_state = HintState;
+
+    updateCursor(event);
+    event->accept();
+}
+
+void GraphicsSelectTool::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Control) {
+        if (m_operation == MoveItem && m_state == HintState)
+            setOperation(CloneItem);
+    }
+    event->accept();
+}
+
+void GraphicsSelectTool::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Control) {
+        if (m_operation == CloneItem && m_state == HintState)
+            setOperation(MoveItem);
+    }
+    event->accept();
 }
