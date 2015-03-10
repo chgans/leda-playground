@@ -48,7 +48,7 @@ private:
     QCursor roleToCursor(Role role) const;
     //GraphicsObject *m_parent;
     Role m_role;
-    QPointF m_pos;
+    //QPointF m_pos;
     QRectF m_rect;
     QVariant m_data;
     QList<GraphicsControlPoint*> m_links;

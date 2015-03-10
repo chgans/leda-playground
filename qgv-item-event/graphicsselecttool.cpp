@@ -55,7 +55,7 @@ void GraphicsSelectTool::updateCursor(QMouseEvent *event)
 {
     const GraphicsControlPoint *handle = view()->handleUnderMouse();
     GraphicsObject *object = view()->objectUnderMouse();
-    if (handle != nullptr) {
+    if (handle != nullptr && object != nullptr && object->isSelected()) {
         m_handle = handle;
         setOperation(MoveHandle);
     }

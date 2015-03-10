@@ -20,6 +20,7 @@ void GraphicsRectTool::mousePressEvent(QMouseEvent *event)
 
     if (m_state == 0) {
         Q_ASSERT(m_item == nullptr);
+        scene()->clearSelection();
         m_item = new GraphicsRectItem();
         m_item->setFlags(QGraphicsItem::ItemIsMovable |
                          QGraphicsItem::ItemIsSelectable);
@@ -34,6 +35,7 @@ void GraphicsRectTool::mousePressEvent(QMouseEvent *event)
     }
     else if (m_state == 1) {
         setP2(event->pos());
+        m_item->setSelected(true);
         m_item = nullptr;
         m_state = 0;
     }
@@ -53,6 +55,7 @@ void GraphicsRectTool::mouseReleaseEvent(QMouseEvent *event)
     Q_UNUSED(event);
     if (m_state == 1) {
         // TODO: use command stack
+
     }
 }
 

@@ -91,14 +91,18 @@ void GraphicsRectItem::updateGeometry() const
 
     QPainterPath path;
     path.addRect(m_rect);
-    if (isSelected())
-        path += controlPointsShape();
-    m_shape = path;
+    if (isSelected()) {
+        m_shape = (path + controlPointsShape()).simplified();
+    }
+    else
+        m_shape = path;
 
     QRectF rect = m_shape.boundingRect();
     if (isSelected())
         rect |= controlPointsBoundingRect();
-    m_boundingRect = rect.adjusted(-5, -5, +5, +5);
+
+    qreal extra = pen().widthF()/2.0;
+    m_boundingRect = rect.adjusted(-extra, -extra, +extra, +extra);
 
     m_dirty = false;
 }

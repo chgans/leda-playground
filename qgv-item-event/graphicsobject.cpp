@@ -112,11 +112,9 @@ QRectF GraphicsObject::controlPointsBoundingRect() const
 
 QPainterPath GraphicsObject::controlPointsShape() const
 {
-    QPainterPath path;
-    foreach (const GraphicsControlPoint *point, m_controlPoints) {
-        path.addPath(point->shape());
-    }
-    return path;
+    if (m_controlPointsDirty)
+        updateControlPointsGeometry();
+    return m_controlPointsPath;
 }
 
 void GraphicsObject::updateControlPointsGeometry() const

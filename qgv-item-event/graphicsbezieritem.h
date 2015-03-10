@@ -15,6 +15,11 @@ public:
     QPen pen() const;
     void setPen(const QPen &pen);
 
+    void addPoint(const QPointF &pos);
+    void removePoint(int index);
+    QList<QPointF> points() const;
+    int pointCount() const;
+
 private:
     QPen m_pen;
     QLineF m_line;
@@ -24,6 +29,10 @@ private:
     mutable bool m_dirty;
     void markDirty();
     void updateGeometry() const;
+
+    QList<const GraphicsControlPoint *> m_nodeHandles;
+    QList<const GraphicsControlPoint *> m_startHandles;
+    QList<const GraphicsControlPoint *> m_endHandles;
 
     // QGraphicsItem interface
 public:

@@ -11,8 +11,9 @@
 // TODO: dynamic size and customisable colors
 
 GraphicsControlPoint::GraphicsControlPoint(GraphicsControlPoint::Role role, const QPointF &pos):
-    m_role(role), m_pos(pos), m_rect(QRectF(-2, -2, 2, 2))
+    m_role(role), m_rect(QRectF(-5.0, -5.0, 5.0, 5.0))
 {
+    setPos(pos);
 }
 
 /* FIXME:
@@ -20,7 +21,7 @@ GraphicsControlPoint::GraphicsControlPoint(GraphicsControlPoint::Role role, cons
  *  - data
  */
 GraphicsControlPoint::GraphicsControlPoint(const GraphicsControlPoint &other):
-    m_role(other.m_role), m_pos(other.m_pos), m_rect(other.m_rect)
+    m_role(other.m_role), m_rect(other.m_rect)
 {
 
 }
@@ -61,7 +62,7 @@ void GraphicsControlPoint::setData(const QVariant &data)
 
 QRectF GraphicsControlPoint::boundingRect() const
 {
-    return shape().boundingRect().adjusted(-1, -1, 1, 1);
+    return shape().boundingRect().adjusted(-1.0, -1.0, 1.0, 1.0);
 }
 
 QPainterPath GraphicsControlPoint::shape() const
@@ -108,17 +109,4 @@ QCursor GraphicsControlPoint::roleToCursor(GraphicsControlPoint::Role role) cons
     }
 }
 
-#if 0
-void GraphicsControlPoint::setScenePos(const QPointF &pos)
-{
-    setPos(m_parent->mapFromScene(pos));
-}
-
-GraphicsControlPoint *GraphicsControlPoint::clone(GraphicsObject *parent)
-{
-    GraphicsControlPoint *other = new GraphicsControlPoint(parent);
-    other->m_pos = m_pos;
-    other->m_rect = m_rect;
-}
-#endif
 

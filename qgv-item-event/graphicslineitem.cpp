@@ -7,7 +7,7 @@
 #include <QDebug>
 
 GraphicsLineItem::GraphicsLineItem(GraphicsObject *parent):
-    GraphicsObject(parent)
+    GraphicsObject(parent), m_dirty(true)
 {
     m_ctlPoint1 = addControlPoint(GraphicsControlPoint::MoveRole, QPointF(0, 0));
     m_ctlPoint2 = addControlPoint(GraphicsControlPoint::MoveRole, QPointF(0, 0));
@@ -20,9 +20,8 @@ QLineF GraphicsLineItem::line() const
 
 void GraphicsLineItem::setLine(const QLineF &line)
 {
-    prepareGeometryChange();
     m_line = line;
-    qDebug() << m_line;
+    markDirty();
 }
 
 QPen GraphicsLineItem::pen() const
@@ -32,8 +31,8 @@ QPen GraphicsLineItem::pen() const
 
 void GraphicsLineItem::setPen(const QPen &pen)
 {
-    prepareGeometryChange();
     m_pen = pen;
+    markDirty();
 }
 
 GraphicsObject *GraphicsLineItem::clone()
@@ -47,35 +46,27 @@ GraphicsObject *GraphicsLineItem::clone()
 
 void GraphicsLineItem::controlPointMoved(const GraphicsControlPoint *point)
 {
+    markDirty();
     if (point == m_ctlPoint1) {
-        prepareGeometryChange();
         m_line.setP1(point->pos());
     }
     else {
-        prepareGeometryChange();
         m_line.setP2(point->pos());
     }
 }
 
 QRectF GraphicsLineItem::boundingRect() const
 {
-    return shape().boundingRect();
+    if (m_dirty)
+        updateGeometry();
+    return m_boundingRect;
 }
 
 QPainterPath GraphicsLineItem::shape() const
 {
-    QPainterPath path;
-    QPainterPathStroker stroker;
-    stroker.setWidth(m_pen.widthF());
-    stroker.setCapStyle(m_pen.capStyle());
-    stroker.setJoinStyle(m_pen.joinStyle());
-    stroker.setMiterLimit(m_pen.miterLimit());
-    path.moveTo(m_line.p1());
-    path.lineTo(m_line.p2());
-    path = stroker.createStroke(path);
-    if (!isSelected())
-        path |= controlPointsShape();
-    return path;
+    if (m_dirty)
+        updateGeometry();
+    return m_shape;
 }
 
 void GraphicsLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -92,6 +83,38 @@ QVariant GraphicsLineItem::itemChange(QGraphicsItem::GraphicsItemChange change, 
 {
     // Notify the scene that shape() and boudingRect() changed
     if (change == QGraphicsItem::ItemSelectedHasChanged)
-        prepareGeometryChange();
+        markDirty();
     return value;
+}
+
+void GraphicsLineItem::markDirty()
+{
+    prepareGeometryChange();
+    m_dirty = true;
+}
+
+void GraphicsLineItem::updateGeometry() const
+{
+    QPainterPath path;
+    QPainterPathStroker stroker;
+    stroker.setWidth(m_pen.widthF());
+    stroker.setCapStyle(m_pen.capStyle());
+    stroker.setJoinStyle(m_pen.joinStyle());
+    stroker.setMiterLimit(m_pen.miterLimit());
+
+    path.moveTo(m_line.p1());
+    path.lineTo(m_line.p2());
+
+    if (isSelected()) {
+        path = stroker.createStroke(path);
+        m_shape = (path + controlPointsShape()).simplified();
+    }
+    else
+        m_shape = stroker.createStroke(path);
+
+    QRectF rect = m_shape.boundingRect();
+    qreal extra = pen().widthF()/2.0;
+    m_boundingRect = rect.adjusted(-extra, -extra, +extra, +extra);
+
+    m_dirty = false;
 }

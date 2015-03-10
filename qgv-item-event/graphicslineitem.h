@@ -34,6 +34,12 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
+    mutable QPainterPath m_shape;
+    mutable QRectF m_boundingRect;
+    mutable bool m_dirty;
+    void markDirty();
+    void updateGeometry() const;
+
     QPen m_pen;
     QLineF m_line;
     const GraphicsControlPoint *m_ctlPoint1;
