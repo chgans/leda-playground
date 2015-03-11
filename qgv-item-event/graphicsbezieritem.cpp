@@ -4,13 +4,13 @@
 #include "graphicscontrolpoint.h"
 
 #include <QPainter>
-
+#include <QStyleOptionGraphicsItem>
 #include <QDebug>
 
 GraphicsBezierItem::GraphicsBezierItem(GraphicsObject *parent):
     GraphicsObject(parent)
 {
-
+    setFlag(QGraphicsItem::ItemUsesExtendedStyleOption, true);
 }
 
 QPainterPath GraphicsBezierItem::path() const
@@ -21,7 +21,8 @@ QPainterPath GraphicsBezierItem::path() const
 void GraphicsBezierItem::setPath(const QPainterPath &path)
 {
     m_path = path;
-    markDirty();
+    setShapeDirty();
+    setBoundingRectDirty();
 }
 
 QPen GraphicsBezierItem::pen() const
@@ -32,7 +33,8 @@ QPen GraphicsBezierItem::pen() const
 void GraphicsBezierItem::setPen(const QPen &pen)
 {
     m_pen = pen;
-    markDirty();
+    setShapeDirty();
+    setBoundingRectDirty();
 }
 
 void GraphicsBezierItem::addPoint(const QPointF &pos)
@@ -42,12 +44,15 @@ void GraphicsBezierItem::addPoint(const QPointF &pos)
     if (m_path.elementCount() == 0) {
         const GraphicsControlPoint *node = addControlPoint(GraphicsControlPoint::MoveRole,
                                                            pos);
-        m_nodeHandles.append(node);
+        m_handleToElementIndex[node] = 0;
         m_path.moveTo(node->pos());
     }
-    else if (m_path.currentPosition() != pos) {
-        QPointF c1Pos = m_path.currentPosition();// + QPointF (1, 1);
-        QPointF c2Pos = pos;// + QPointF (1, 1);
+    else if (!(qFuzzyCompare(m_path.currentPosition().x(), pos.x()) &&
+               qFuzzyCompare(m_path.currentPosition().x(), pos.x()))) {
+        int elementIndex = m_path.elementCount();
+
+        QPointF c1Pos = m_path.currentPosition();
+        QPointF c2Pos = pos;
         const GraphicsControlPoint *c1 = addControlPoint(GraphicsControlPoint::MoveRole,
                                                          c1Pos);
         const GraphicsControlPoint *c2 = addControlPoint(GraphicsControlPoint::MoveRole,
@@ -55,17 +60,19 @@ void GraphicsBezierItem::addPoint(const QPointF &pos)
         const GraphicsControlPoint *node = addControlPoint(GraphicsControlPoint::MoveRole,
                                                            pos);
 
-        m_startHandles.append(c1);
-        m_endHandles.append(c2);
-        m_nodeHandles.append(node);
+        m_handleToElementIndex[c1] = elementIndex++;
+        m_handleToElementIndex[c2] = elementIndex++;
+        m_handleToElementIndex[node] = elementIndex++;
+
         m_path.cubicTo(c1->pos(), c2->pos(), node->pos());
     }
     else {
         qWarning() << QString("Cannot add a cubic bezier to pos [%1, %2] which is equal to current pos")
                       .arg(pos.x()).arg(pos.y());
     }
-    qDebug() << m_path << controlPoints().count();
-    markDirty();
+    //qDebug() << m_path << controlPoints().count();
+    setShapeDirty();
+    setBoundingRectDirty();
 }
 
 void GraphicsBezierItem::removePoint(int index)
@@ -84,16 +91,17 @@ void GraphicsBezierItem::removePoint(int index)
             path.moveTo(m_path.elementAt(3).x, m_path.elementAt(3).y);
         }
         m_path = path;
-        removeControlPoint(0);
+        m_handleToElementIndex.remove(removeControlPoint(0));
     }
     else if (index == nbPoints - 1) {
         m_path = copyPath(m_path, 0, index - 1);
-        removeControlPoint(3*index);
-        removeControlPoint(3*index - 1);
-        removeControlPoint(3*index - 2);
+        m_handleToElementIndex.remove(removeControlPoint(3*index));
+        m_handleToElementIndex.remove(removeControlPoint(3*index - 1));
+        m_handleToElementIndex.remove(removeControlPoint(3*index - 2));
     }
-    qDebug() << m_path;
-    markDirty();
+    //qDebug() << m_path;
+    setShapeDirty();
+    setBoundingRectDirty();
 }
 
 QPainterPath GraphicsBezierItem::copyPath(const QPainterPath &src, int first, int last)
@@ -114,7 +122,7 @@ QPainterPath GraphicsBezierItem::copyPath(const QPainterPath &src, int first, in
             i+= 3;
         }
     }
-    qDebug() << dst;
+    //qDebug() << dst;
     return dst;
 }
 
@@ -144,14 +152,37 @@ int GraphicsBezierItem::pointCount() const
     return count;
 }
 
-void GraphicsBezierItem::markDirty()
+void GraphicsBezierItem::setBoundingRectDirty()
 {
     prepareGeometryChange();
-    m_dirty = true;
+    m_boundingRectIsDirty = true;
 }
 
-void GraphicsBezierItem::updateGeometry() const
+void GraphicsBezierItem::computeBoundingRect() const
 {
+    qDebug() << __PRETTY_FUNCTION__;
+    if (isSelected()) {
+        // FIXME: get the real extra
+        qreal extra = 2.5;
+        m_boundingRect = m_path.controlPointRect().adjusted(-extra, -extra, +extra, +extra);
+    }
+    else {
+        qreal extra = pen().widthF()/2.0;
+        m_boundingRect = m_path.boundingRect().adjusted(-extra, -extra, +extra, +extra);
+    }
+
+    m_boundingRectIsDirty = false;
+}
+
+void GraphicsBezierItem::setShapeDirty()
+{
+    m_shapeIsDirty = true;
+}
+
+// TBD: Do we really need to include the handle path in shape?
+void GraphicsBezierItem::computeShape() const
+{
+    qDebug() << __PRETTY_FUNCTION__;
     QPainterPathStroker stroker;
     stroker.setWidth(m_pen.widthF());
     stroker.setCapStyle(m_pen.capStyle());
@@ -160,39 +191,48 @@ void GraphicsBezierItem::updateGeometry() const
     if (isSelected()) {
         QPainterPath path;
         path = stroker.createStroke(m_path);
-        m_shape = (path + controlPointsShape()).simplified();
+        m_shape = (path + controlPointsShape()).simplified(); // Performance killer!
     }
     else
         m_shape = stroker.createStroke(m_path);
 
-    QRectF rect = m_shape.boundingRect();
-    qreal extra = pen().widthF()/2.0;
-    m_boundingRect = rect.adjusted(-extra, -extra, +extra, +extra);
-
-    m_dirty = false;
+    m_shapeIsDirty = false;
 }
 
 QRectF GraphicsBezierItem::boundingRect() const
 {
-    if (m_dirty)
-        updateGeometry();
+    if (m_boundingRectIsDirty)
+        computeBoundingRect();
     return m_boundingRect;
 }
 
 QPainterPath GraphicsBezierItem::shape() const
 {
-    if (m_dirty)
-        updateGeometry();
+    if (m_shapeIsDirty)
+        computeShape();
     return m_shape;
 }
 
 void GraphicsBezierItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    // TBD: exposedRect seems to be always equal boudingRect()
+    // http://thesmithfam.org/blog/2007/02/03/qt-improving-qgraphicsview-performance/
+    if (!shape().intersects(option->exposedRect))
+        return;
+
+    // From same web page
+    painter->setClipRect(option->exposedRect);
+
     painter->setPen(pen());
     painter->setBrush(Qt::NoBrush);
     painter->drawPath(m_path);
-    if (isSelected())
+    if (isSelected()) {
+        painter->save();
         paintControlPoints(painter, option, widget);
+        painter->restore();
+        painter->setPen(QPen(Qt::white, 0, Qt::DashLine));
+        painter->drawRect(m_boundingRect);
+    }
 }
 
 GraphicsObject *GraphicsBezierItem::clone()
@@ -211,40 +251,30 @@ GraphicsObject *GraphicsBezierItem::clone()
 void GraphicsBezierItem::controlPointMoved(const GraphicsControlPoint *point)
 {
     Q_ASSERT(m_path.elementCount() == controlPoints().count());
+    Q_ASSERT(m_handleToElementIndex.contains(point));
 
-#if 1
-    // FIXME
-    for (int i = 0; i < m_nodeHandles.count(); i++) {
-        if (point == m_nodeHandles.value(i)) {
-            m_path.setElementPositionAt(3*i, point->pos().x(), point->pos().y());
-            qDebug() << point << 3*i << point->pos();
-            markDirty();
-            return;
-        }
-    }
-    for (int i = 0; i < m_startHandles.count(); i++) {
-        if (point == m_startHandles.value(i)) {
-            m_path.setElementPositionAt(3*i+1, point->pos().x(), point->pos().y());
-            markDirty();
-            return;
-        }
-    }
-    for (int i = 0; i < m_endHandles.count(); i++) {
-        if (point == m_endHandles.value(i)) {
-            m_path.setElementPositionAt(3*i+2, point->pos().x(), point->pos().y());
-            markDirty();
-            return;
-        }
-    }
-#endif
+    int elementIndex = m_handleToElementIndex.value(point);
+    m_path.setElementPositionAt(elementIndex, point->pos().x(), point->pos().y());
+
+    if (!isSelected())
+        return;
+
+    QRectF r = point->boundingRect();
+    r.moveCenter(point->pos());
+    setShapeDirty();
+    if (!m_boundingRect.contains(r))
+        setBoundingRectDirty();
 }
 
 
 QVariant GraphicsBezierItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-    // Notify the scene that shape() and boudingRect() changed
+    qDebug() << change;
+
+    // Notify the scene that boudingRect() changed
     if (change == QGraphicsItem::ItemSelectedHasChanged) {
-        markDirty();
+        setShapeDirty();
+        setBoundingRectDirty();
     }
     return value;
 }

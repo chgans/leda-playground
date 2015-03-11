@@ -24,15 +24,18 @@ private:
     QPen m_pen;
     QLineF m_line;
     QPainterPath m_path;
-    mutable QRectF m_boundingRect;
-    mutable QPainterPath m_shape;
-    mutable bool m_dirty;
-    void markDirty();
-    void updateGeometry() const;
 
-    QList<const GraphicsControlPoint *> m_nodeHandles;
-    QList<const GraphicsControlPoint *> m_startHandles;
-    QList<const GraphicsControlPoint *> m_endHandles;
+    void setBoundingRectDirty();
+    void computeBoundingRect() const;
+    mutable bool m_boundingRectIsDirty;
+    mutable QRectF m_boundingRect;
+
+    void setShapeDirty();
+    void computeShape() const;
+    mutable bool m_shapeIsDirty;
+    mutable QPainterPath m_shape;
+
+    QMap<const GraphicsControlPoint *, int> m_handleToElementIndex;
 
     QPainterPath copyPath(const QPainterPath &src, int first, int last);
     // QGraphicsItem interface

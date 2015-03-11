@@ -50,7 +50,7 @@ QPointF GraphicsBezierTool::mapFromItem(const QPointF &pos)
 
 void GraphicsBezierTool::setState(GraphicsBezierTool::State state)
 {
-    qDebug() << m_state << "=>" << state;
+    //qDebug() << m_state << "=>" << state;
     m_state = state;
 }
 
@@ -129,11 +129,11 @@ void GraphicsBezierTool::mouseReleaseEvent(QMouseEvent *event)
     case FirstPoint:
         m_item = new GraphicsBezierItem();
         m_item->setPos(mapToScene(event->pos()));
-        m_item->setPen(QPen(QBrush(Qt::darkCyan), 2));
+        m_item->setPen(QPen(QBrush(Qt::darkCyan), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         m_item->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemIsMovable);
         m_item->setPos(mapToScene(m_nodePos));
         m_item->addPoint(mapToItem(m_nodePos));
-        m_item->setSelected(true);
+        //m_item->setSelected(true);
         scene()->addItem(m_item);
         m_insertPointOnMouseMove = true;
         break;
