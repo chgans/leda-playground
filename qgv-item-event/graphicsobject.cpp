@@ -12,16 +12,23 @@ GraphicsObject::GraphicsObject(GraphicsObject *parent):
 
 GraphicsObject::~GraphicsObject()
 {
-
+    qDeleteAll(m_controlPoints);
 }
 
 // TODO: const GraphicsControlPoint *addControlPoint(int id, const QPointF &pos);
 const GraphicsControlPoint *GraphicsObject::addControlPoint(GraphicsControlPoint::Role role, const QPointF &pos)
 {
+    qDebug() << "Ctl points" << controlPoints().count() << "=>" << controlPoints().count() + 1;
     GraphicsControlPoint *point = new GraphicsControlPoint(role, pos);
     m_controlPoints.append(point);
     markControlPointsDirty();
     return point;
+}
+
+const GraphicsControlPoint *GraphicsObject::removeControlPoint(int index)
+{
+    Q_ASSERT(index < m_controlPoints.count());
+    m_controlPoints.removeAt(index);
 }
 
 // TODO: QList<const GraphicsControlPoint *> GraphicsObject::controlPoints() const

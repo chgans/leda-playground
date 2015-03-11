@@ -12,7 +12,10 @@
 #include <QDebug>
 
 GraphicsBezierTool::GraphicsBezierTool(QObject *parent):
-    GraphicsTool(parent), m_state(NotStarted), m_item(nullptr)
+    GraphicsTool(parent),
+    m_state(NotStarted),
+    m_item(nullptr),
+    m_insertPointOnMouseMove(false)
 {
 
 }
@@ -77,8 +80,8 @@ void GraphicsBezierTool::mousePressEvent(QMouseEvent *event)
 
 void GraphicsBezierTool::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!event->buttons().testFlag(Qt::LeftButton)) {
-        return;
+    if (event->buttons().testFlag(Qt::LeftButton)) {
+        return; // Do nothing if dragging
     }
 
     switch (m_state) {
@@ -86,13 +89,22 @@ void GraphicsBezierTool::mouseMoveEvent(QMouseEvent *event)
         // Nothing to do
         break;
     case FirstPoint:
-        // User is dragging, record the new pos
         m_nodePos = event->pos();
+        if (m_insertPointOnMouseMove) { // TODO: check for minimum view distance, 10 pixels?
+            m_item->addPoint(mapToItem(m_nodePos));
+            m_insertPointOnMouseMove = false;
+            setState(MidPoints);
+        }
         break;
     case MidPoints: {
-        int idx = 1 + m_item->pointCount()*3;
+        m_nodePos = event->pos();
+        if (m_insertPointOnMouseMove) { // Same as above
+            m_item->addPoint(mapToItem(m_nodePos));
+            m_insertPointOnMouseMove = false;
+        }
+        int idx = m_item->controlPoints().count() - 1;
         const GraphicsControlPoint *p = m_item->controlPoints().value(idx);
-        m_item->moveControlPoint(p, mapToItem(event->pos()));
+        m_item->moveControlPoint(p, mapToItem(m_nodePos));
         break;
     }
     default:
@@ -121,18 +133,17 @@ void GraphicsBezierTool::mouseReleaseEvent(QMouseEvent *event)
         m_item->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemIsMovable);
         m_item->setPos(mapToScene(m_nodePos));
         m_item->addPoint(mapToItem(m_nodePos));
+        m_item->setSelected(true);
         scene()->addItem(m_item);
-        m_nodePos += QPoint(1, 1);
-        setState(MidPoints);
-        // Go through!
+        m_insertPointOnMouseMove = true;
+        break;
     case MidPoints:
-        m_item->addPoint(mapToItem(m_nodePos));
+        m_insertPointOnMouseMove = true;
         break;
     case LastPoint:
-        if (m_item) {
-            m_item->setSelected(true);
-            m_item = nullptr;
-        }
+        //m_item->removePoint(m_item->pointCount()-1);
+        m_item->setSelected(true);
+        m_item = nullptr;
         setState(NotStarted);
         break;
     default:
@@ -156,8 +167,11 @@ void GraphicsBezierTool::mouseDoubleClickEvent(QMouseEvent *event)
         scene()->removeItem(m_item);
         delete m_item;
         m_item = nullptr;
+        setState(NotStarted);
         break;
     case MidPoints:
+        // TODO: check the edge case when user just double click:
+        // => only 2 points with almost same pos
         setState(LastPoint);
         break;
     default:

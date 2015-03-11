@@ -35,6 +35,7 @@ protected:
     void cloneTo(GraphicsObject *dst);
 
     const GraphicsControlPoint *addControlPoint(GraphicsControlPoint::Role role, const QPointF &pos);
+    const GraphicsControlPoint *removeControlPoint(int index);
 
 
     //void setControlPoints(const QVector<GraphicsControlPoint*> points);

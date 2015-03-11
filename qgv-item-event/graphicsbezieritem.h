@@ -34,6 +34,7 @@ private:
     QList<const GraphicsControlPoint *> m_startHandles;
     QList<const GraphicsControlPoint *> m_endHandles;
 
+    QPainterPath copyPath(const QPainterPath &src, int first, int last);
     // QGraphicsItem interface
 public:
     virtual QRectF boundingRect() const;

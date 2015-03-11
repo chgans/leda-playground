@@ -37,18 +37,17 @@ void GraphicsBezierItem::setPen(const QPen &pen)
 
 void GraphicsBezierItem::addPoint(const QPointF &pos)
 {
+    Q_ASSERT(m_path.elementCount() == controlPoints().count());
+
     if (m_path.elementCount() == 0) {
         const GraphicsControlPoint *node = addControlPoint(GraphicsControlPoint::MoveRole,
                                                            pos);
         m_nodeHandles.append(node);
         m_path.moveTo(node->pos());
-        m_nodeHandles.append(node);
-        m_path.moveTo(pos);
     }
-    else {
-        qDebug() << m_path.currentPosition() << pos;
-        QPointF c1Pos = m_path.currentPosition() + QPointF (10, 10);
-        QPointF c2Pos = pos + QPointF (10, 10);
+    else if (m_path.currentPosition() != pos) {
+        QPointF c1Pos = m_path.currentPosition();// + QPointF (1, 1);
+        QPointF c2Pos = pos;// + QPointF (1, 1);
         const GraphicsControlPoint *c1 = addControlPoint(GraphicsControlPoint::MoveRole,
                                                          c1Pos);
         const GraphicsControlPoint *c2 = addControlPoint(GraphicsControlPoint::MoveRole,
@@ -61,15 +60,62 @@ void GraphicsBezierItem::addPoint(const QPointF &pos)
         m_nodeHandles.append(node);
         m_path.cubicTo(c1->pos(), c2->pos(), node->pos());
     }
-    qDebug() << m_path;
+    else {
+        qWarning() << QString("Cannot add a cubic bezier to pos [%1, %2] which is equal to current pos")
+                      .arg(pos.x()).arg(pos.y());
+    }
+    qDebug() << m_path << controlPoints().count();
     markDirty();
 }
 
 void GraphicsBezierItem::removePoint(int index)
 {
-    QPainterPath path;
-    markDirty();
+    int nbElt = m_path.elementCount();
+    int nbPoints = pointCount();
+    int eltIndex = index*3;
 
+    Q_ASSERT(nbElt > 0);
+    Q_ASSERT(index < nbPoints);
+    Q_ASSERT(m_path.elementCount() == controlPoints().count());
+
+    QPainterPath path;
+    if (index == 0) {
+        if (m_path.elementCount() > 1) {
+            path.moveTo(m_path.elementAt(3).x, m_path.elementAt(3).y);
+        }
+        m_path = path;
+        removeControlPoint(0);
+    }
+    else if (index == nbPoints - 1) {
+        m_path = copyPath(m_path, 0, index - 1);
+        removeControlPoint(3*index);
+        removeControlPoint(3*index - 1);
+        removeControlPoint(3*index - 2);
+    }
+    qDebug() << m_path;
+    markDirty();
+}
+
+QPainterPath GraphicsBezierItem::copyPath(const QPainterPath &src, int first, int last)
+{
+    QPainterPath dst;
+    int i = first;
+    while (i <= (last*3)) {
+        if (i == 0) {
+            QPainterPath::Element elt = src.elementAt(i);
+            dst.moveTo(elt.x, elt.y);
+            i++;
+        }
+        else {
+            QPainterPath::Element c1 = src.elementAt(i);
+            QPainterPath::Element c2 = src.elementAt(i+1);
+            QPainterPath::Element pt = src.elementAt(i+2);
+            dst.cubicTo(c1.x, c1.y, c2.x, c2.y, pt.x, pt.y);
+            i+= 3;
+        }
+    }
+    qDebug() << dst;
+    return dst;
 }
 
 QList<QPointF> GraphicsBezierItem::points() const
@@ -81,7 +127,7 @@ QList<QPointF> GraphicsBezierItem::points() const
     while (i < count) {
         elt = m_path.elementAt(i);
         result.append(QPointF(elt.x, elt.y));
-        if (i>1)
+        if (i > 0)
             i += 3;
         else
             i++;
@@ -93,8 +139,8 @@ int GraphicsBezierItem::pointCount() const
 {
     if (m_path.elementCount() < 2)
         return m_path.elementCount();
-    int count = (m_path.elementCount() - 1) / 3;
-    qDebug() << "Count" << count;
+    int count = 1 + (m_path.elementCount() - 1) / 3;
+    //qDebug() << "Count" << count;
     return count;
 }
 
@@ -158,13 +204,20 @@ GraphicsObject *GraphicsBezierItem::clone()
     return item;
 }
 
+// TODO:
+// - when moving a node, move ctl points as well
+// - ctl points can be symetric, move one -> move the other
+// - use moveControlPoint(), beware of infinite recursion
 void GraphicsBezierItem::controlPointMoved(const GraphicsControlPoint *point)
 {
+    Q_ASSERT(m_path.elementCount() == controlPoints().count());
+
 #if 1
     // FIXME
     for (int i = 0; i < m_nodeHandles.count(); i++) {
         if (point == m_nodeHandles.value(i)) {
             m_path.setElementPositionAt(3*i, point->pos().x(), point->pos().y());
+            qDebug() << point << 3*i << point->pos();
             markDirty();
             return;
         }
