@@ -256,14 +256,10 @@ void GraphicsBezierItem::controlPointMoved(const GraphicsControlPoint *point)
     int elementIndex = m_handleToElementIndex.value(point);
     m_path.setElementPositionAt(elementIndex, point->pos().x(), point->pos().y());
 
-    if (!isSelected())
-        return;
-
     QRectF r = point->boundingRect();
     r.moveCenter(point->pos());
     setShapeDirty();
-    if (!m_boundingRect.contains(r))
-        setBoundingRectDirty();
+    setBoundingRectDirty();
 }
 
 
