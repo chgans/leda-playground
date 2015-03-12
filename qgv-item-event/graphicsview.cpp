@@ -39,6 +39,8 @@ GraphicsView::GraphicsView(QWidget *parent):
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setDragMode(QGraphicsView::NoDrag);
     setMouseTracking(true);
+    //setStyleSheet("QGraphicsView {background: qradialgradient(cx:0.5, cy:0.5, fx:0.5, fy:0.5, radius: 0.5, stop:0 white, stop:1 gray)}");
+    setStyleSheet("QGraphicsView {background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1.2, stop:0 gray, stop:1 white)}");
 }
 
 GraphicsView::~GraphicsView()
@@ -104,10 +106,6 @@ QPoint GraphicsView::mousePosition() const
 
 void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
 {
-    QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
-    gradient.setColorAt(0, Qt::darkGray);
-    gradient.setColorAt(1, Qt::lightGray);
-    painter->fillRect(rect, QBrush(gradient));
     QGraphicsView::drawBackground(painter, rect);
 }
 
