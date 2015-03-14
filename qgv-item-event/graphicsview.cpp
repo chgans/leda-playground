@@ -5,6 +5,7 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsOpacityEffect>
+#include <QGLWidget>
 
 #include <QMouseEvent>
 #include <QMessageBox>
@@ -32,7 +33,9 @@ GraphicsView::GraphicsView(QWidget *parent):
     m_tool(nullptr),
     m_objectUnderMouse(nullptr),
     m_handleUnderMouse(nullptr)
-{
+{    
+    setViewport(new QGLWidget);
+
     // The widget emits the QWidget::customContextMenuRequested() signal
     setContextMenuPolicy(Qt::CustomContextMenu);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
