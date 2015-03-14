@@ -7,7 +7,7 @@
 #include <QPainterPath>
 #include <QVector>
 
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 
 class QGraphicsItem;
 class QPainter;
@@ -27,35 +27,35 @@ public:
     virtual GraphicsObject *clone() = 0;
 
     // TODO: add radius
-    const GraphicsControlPoint *controlPointNear(const QPointF &pos) const;
-    QVector<const GraphicsControlPoint *> controlPoints() const;
-    void moveControlPoint(const GraphicsControlPoint *point, const QPointF &pos);
+    const GraphicsHandle *HandleNear(const QPointF &pos) const;
+    QVector<const GraphicsHandle *> handles() const;
+    void moveHandle(const GraphicsHandle *handle, const QPointF &pos);
 
 protected:
     void cloneTo(GraphicsObject *dst);
 
-    const GraphicsControlPoint *addControlPoint(GraphicsControlPoint::Role role, const QPointF &pos);
-    const GraphicsControlPoint *removeControlPoint(int index);
+    const GraphicsHandle *addHandle(GraphicsHandle::Role role, const QPointF &pos);
+    const GraphicsHandle *removeHandle(int index);
 
 
-    //void setControlPoints(const QVector<GraphicsControlPoint*> points);
-    void moveControlPointSilently(const GraphicsControlPoint *point, const QPointF &pos);
-    virtual void paintControlPoints(QPainter *painter,
+    //void setHandles(const QVector<GraphicsHandle*> handles);
+    void moveHandleSilently(const GraphicsHandle *handle, const QPointF &pos);
+    virtual void paintHandles(QPainter *painter,
                                     const QStyleOptionGraphicsItem *option,
                                     QWidget *widget) const;
-    //QVector<GraphicsControlPoint *> cloneControlPoints(const GraphicsObject *parent) const;
-    QRectF controlPointsBoundingRect() const;
-    QPainterPath controlPointsShape() const;
+    //QVector<GraphicsHandle *> cloneHandles(const GraphicsObject *parent) const;
+    QRectF handlesBoundingRect() const;
+    QPainterPath handlesShape() const;
 
-    virtual void controlPointMoved(const GraphicsControlPoint *point) = 0;
+    virtual void handleMoved(const GraphicsHandle *handle) = 0;
 
 private:
-    QVector<GraphicsControlPoint *> m_controlPoints;
-    mutable bool m_controlPointsDirty;
-    mutable QRectF m_controlPointsBoundingRect;
-    mutable QPainterPath m_controlPointsPath;
-    void updateControlPointsGeometry() const;
-    void markControlPointsDirty();
+    QVector<GraphicsHandle *> m_handles;
+    mutable bool m_handlesDirty;
+    mutable QRectF m_handlesBoundingRect;
+    mutable QPainterPath m_handlesPath;
+    void updateHandlesGeometry() const;
+    void markHandlesDirty();
 };
 
 #endif // GRAPHICSOBJECT_H

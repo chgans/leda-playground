@@ -28,7 +28,7 @@ private:
     void setState(State state);
     GraphicsBezierItem *m_item;
     QPoint m_nodePos;
-    bool m_insertPointOnMouseMove = true;
+    bool m_insertHandleOnMouseMove = true;
 
     // GraphicsTool interface
 public:

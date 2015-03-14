@@ -1,5 +1,5 @@
 #include "graphicslineitem.h"
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 
 #include <QPainter>
 #include <QPen>
@@ -9,8 +9,8 @@
 GraphicsLineItem::GraphicsLineItem(GraphicsObject *parent):
     GraphicsObject(parent), m_dirty(true)
 {
-    m_ctlPoint1 = addControlPoint(GraphicsControlPoint::MoveRole, QPointF(0, 0));
-    m_ctlPoint2 = addControlPoint(GraphicsControlPoint::MoveRole, QPointF(0, 0));
+    m_handle1 = addHandle(GraphicsHandle::MoveRole, QPointF(0, 0));
+    m_handle2 = addHandle(GraphicsHandle::MoveRole, QPointF(0, 0));
 }
 
 QLineF GraphicsLineItem::line() const
@@ -44,14 +44,14 @@ GraphicsObject *GraphicsLineItem::clone()
     return item;
 }
 
-void GraphicsLineItem::controlPointMoved(const GraphicsControlPoint *point)
+void GraphicsLineItem::handleMoved(const GraphicsHandle *handle)
 {
     markDirty();
-    if (point == m_ctlPoint1) {
-        m_line.setP1(point->pos());
+    if (handle == m_handle1) {
+        m_line.setP1(handle->pos());
     }
     else {
-        m_line.setP2(point->pos());
+        m_line.setP2(handle->pos());
     }
 }
 
@@ -74,7 +74,7 @@ void GraphicsLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setPen(m_pen);
     painter->drawLine(line());
     if (isSelected())
-        paintControlPoints(painter, option, widget);
+        paintHandles(painter, option, widget);
 }
 
 // FIXME: optimisation, make sure shape() and boudingRect() don't change
@@ -107,7 +107,7 @@ void GraphicsLineItem::updateGeometry() const
 
     if (isSelected()) {
         path = stroker.createStroke(path);
-        m_shape = (path + controlPointsShape()).simplified();
+        m_shape = (path + handlesShape()).simplified();
     }
     else
         m_shape = stroker.createStroke(path);

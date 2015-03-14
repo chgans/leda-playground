@@ -1,7 +1,7 @@
 #include "graphicslinetool.h"
 #include "graphicslinetooldialog.h"
 #include "graphicslineitem.h"
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
 
@@ -86,16 +86,16 @@ void GraphicsLineTool::cancel()
     }
 }
 
-void GraphicsLineTool::setP1(const QPoint &point)
+void GraphicsLineTool::setP1(const QPoint &handlePos)
 {
-    QPointF pos = m_item->mapFromScene(view()->mapToScene(point));
-    m_item->moveControlPoint(m_item->controlPoints()[0], pos);
+    QPointF pos = m_item->mapFromScene(view()->mapToScene(handlePos));
+    m_item->moveHandle(m_item->handles()[0], pos);
 }
 
-void GraphicsLineTool::setP2(const QPoint &point)
+void GraphicsLineTool::setP2(const QPoint &handlePos)
 {
-    QPointF pos = m_item->mapFromScene(view()->mapToScene(point));
-    m_item->moveControlPoint(m_item->controlPoints()[1], pos);
+    QPointF pos = m_item->mapFromScene(view()->mapToScene(handlePos));
+    m_item->moveHandle(m_item->handles()[1], pos);
 }
 
 

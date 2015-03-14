@@ -24,11 +24,11 @@ SOURCES += main.cpp\
     graphicslinetool.cpp \
     graphicslinetooldialog.cpp \
     graphicslineitem.cpp \
-    graphicscontrolpoint.cpp \
     graphicsobject.cpp \
     graphicsrecttool.cpp \
     graphicsbezieritem.cpp \
-    graphicsbeziertool.cpp
+    graphicsbeziertool.cpp \
+    graphicshandle.cpp
 
 HEADERS  += mainwindow.h \
     graphicsscene.h \
@@ -39,11 +39,11 @@ HEADERS  += mainwindow.h \
     graphicslinetool.h \
     graphicslinetooldialog.h \
     graphicslineitem.h \
-    graphicscontrolpoint.h \
     graphicsobject.h \
     graphicsrecttool.h \
     graphicsbezieritem.h \
-    graphicsbeziertool.h
+    graphicsbeziertool.h \
+    graphicshandle.h
 
 FORMS    += mainwindow.ui \
     graphicslinetooldialog.ui

@@ -2,7 +2,7 @@
 #include "graphicsscene.h"
 #include "graphicsview.h"
 #include "graphicsobject.h"
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 #include <QGraphicsItem>
 #include <QGraphicsEffect>
 
@@ -53,7 +53,7 @@ GraphicsSelectTool::~GraphicsSelectTool()
 
 void GraphicsSelectTool::updateCursor(QMouseEvent *event)
 {
-    const GraphicsControlPoint *handle = view()->handleUnderMouse();
+    const GraphicsHandle *handle = view()->handleUnderMouse();
     GraphicsObject *object = view()->objectUnderMouse();
     if (handle != nullptr && object != nullptr && object->isSelected()) {
         m_handle = handle;
@@ -139,7 +139,7 @@ void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
         return;
 
     if (m_state == HintState) {
-        const GraphicsControlPoint *handle = view()->handleUnderMouse();
+        const GraphicsHandle *handle = view()->handleUnderMouse();
         GraphicsObject *object = view()->objectUnderMouse();
         m_mousePressPosition = event->pos();
         switch (m_operation) {
@@ -212,7 +212,7 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
         case MoveHandle: {
             QPointF scenePos = view()->mapToScene(event->pos());
             QPointF itemPos = m_item->mapFromScene(scenePos);
-            m_item->moveControlPoint(m_handle, itemPos);
+            m_item->moveHandle(m_handle, itemPos);
             break;
         }
         default:

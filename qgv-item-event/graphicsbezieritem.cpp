@@ -1,7 +1,7 @@
 #include "graphicsbezieritem.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
@@ -39,10 +39,10 @@ void GraphicsBezierItem::setPen(const QPen &pen)
 
 void GraphicsBezierItem::addPoint(const QPointF &pos)
 {
-    Q_ASSERT(m_path.elementCount() == controlPoints().count());
+    Q_ASSERT(m_path.elementCount() == handles().count());
 
     if (m_path.elementCount() == 0) {
-        const GraphicsControlPoint *node = addControlPoint(GraphicsControlPoint::MoveRole,
+        const GraphicsHandle *node = addHandle(GraphicsHandle::MoveRole,
                                                            pos);
         m_handleToElementIndex[node] = 0;
         m_path.moveTo(node->pos());
@@ -53,11 +53,11 @@ void GraphicsBezierItem::addPoint(const QPointF &pos)
 
         QPointF c1Pos = m_path.currentPosition();
         QPointF c2Pos = pos;
-        const GraphicsControlPoint *c1 = addControlPoint(GraphicsControlPoint::MoveRole,
+        const GraphicsHandle *c1 = addHandle(GraphicsHandle::MoveRole,
                                                          c1Pos);
-        const GraphicsControlPoint *c2 = addControlPoint(GraphicsControlPoint::MoveRole,
+        const GraphicsHandle *c2 = addHandle(GraphicsHandle::MoveRole,
                                                          c2Pos);
-        const GraphicsControlPoint *node = addControlPoint(GraphicsControlPoint::MoveRole,
+        const GraphicsHandle *node = addHandle(GraphicsHandle::MoveRole,
                                                            pos);
 
         m_handleToElementIndex[c1] = elementIndex++;
@@ -70,7 +70,7 @@ void GraphicsBezierItem::addPoint(const QPointF &pos)
         qWarning() << QString("Cannot add a cubic bezier to pos [%1, %2] which is equal to current pos")
                       .arg(pos.x()).arg(pos.y());
     }
-    //qDebug() << m_path << controlPoints().count();
+    //qDebug() << m_path << handles().count();
     setShapeDirty();
     setBoundingRectDirty();
 }
@@ -83,7 +83,7 @@ void GraphicsBezierItem::removePoint(int index)
 
     Q_ASSERT(nbElt > 0);
     Q_ASSERT(index < nbPoints);
-    Q_ASSERT(m_path.elementCount() == controlPoints().count());
+    Q_ASSERT(m_path.elementCount() == handles().count());
 
     QPainterPath path;
     if (index == 0) {
@@ -91,13 +91,13 @@ void GraphicsBezierItem::removePoint(int index)
             path.moveTo(m_path.elementAt(3).x, m_path.elementAt(3).y);
         }
         m_path = path;
-        m_handleToElementIndex.remove(removeControlPoint(0));
+        m_handleToElementIndex.remove(removeHandle(0));
     }
     else if (index == nbPoints - 1) {
         m_path = copyPath(m_path, 0, index - 1);
-        m_handleToElementIndex.remove(removeControlPoint(3*index));
-        m_handleToElementIndex.remove(removeControlPoint(3*index - 1));
-        m_handleToElementIndex.remove(removeControlPoint(3*index - 2));
+        m_handleToElementIndex.remove(removeHandle(3*index));
+        m_handleToElementIndex.remove(removeHandle(3*index - 1));
+        m_handleToElementIndex.remove(removeHandle(3*index - 2));
     }
     //qDebug() << m_path;
     setShapeDirty();
@@ -191,7 +191,7 @@ void GraphicsBezierItem::computeShape() const
     if (isSelected()) {
         QPainterPath path;
         path = stroker.createStroke(m_path);
-        m_shape = (path + controlPointsShape()).simplified(); // Performance killer!
+        m_shape = (path + handlesShape()).simplified(); // Performance killer!
     }
     else
         m_shape = stroker.createStroke(m_path);
@@ -228,7 +228,7 @@ void GraphicsBezierItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     painter->drawPath(m_path);
     if (isSelected()) {
         painter->save();
-        paintControlPoints(painter, option, widget);
+        paintHandles(painter, option, widget);
         painter->restore();
         painter->setPen(QPen(Qt::white, 0, Qt::DashLine));
         painter->drawRect(m_boundingRect);
@@ -247,10 +247,10 @@ GraphicsObject *GraphicsBezierItem::clone()
 // TODO:
 // - when moving a node, move ctl points as well
 // - ctl points can be symetric, move one -> move the other
-// - use moveControlPoint(), beware of infinite recursion
-void GraphicsBezierItem::controlPointMoved(const GraphicsControlPoint *point)
+// - use moveHandle(), beware of infinite recursion
+void GraphicsBezierItem::handleMoved(const GraphicsHandle *point)
 {
-    Q_ASSERT(m_path.elementCount() == controlPoints().count());
+    Q_ASSERT(m_path.elementCount() == handles().count());
     Q_ASSERT(m_handleToElementIndex.contains(point));
 
     int elementIndex = m_handleToElementIndex.value(point);

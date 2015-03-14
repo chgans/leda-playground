@@ -1,5 +1,5 @@
 #include "graphicsobject.h"
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 
 #include <QStyleOptionGraphicsItem>
 #include <QPainterPathStroker>
@@ -10,7 +10,7 @@
 
 // TODO: dynamic size and customisable colors
 
-GraphicsControlPoint::GraphicsControlPoint(GraphicsControlPoint::Role role, const QPointF &pos):
+GraphicsHandle::GraphicsHandle(GraphicsHandle::Role role, const QPointF &pos):
     m_role(role), m_rect(QRectF(-5.0, -5.0, 5.0, 5.0))
 {
     setPos(pos);
@@ -20,59 +20,59 @@ GraphicsControlPoint::GraphicsControlPoint(GraphicsControlPoint::Role role, cons
  *  - links
  *  - data
  */
-GraphicsControlPoint::GraphicsControlPoint(const GraphicsControlPoint &other):
+GraphicsHandle::GraphicsHandle(const GraphicsHandle &other):
     m_role(other.m_role), m_rect(other.m_rect)
 {
 
 }
 
 // TBD: avoid duplicate?
-void GraphicsControlPoint::addLink(GraphicsControlPoint *other)
+void GraphicsHandle::addLink(GraphicsHandle *other)
 {
     m_links.append(other);
 }
 
-void GraphicsControlPoint::removeLink(GraphicsControlPoint *other)
+void GraphicsHandle::removeLink(GraphicsHandle *other)
 {
     int idx = m_links.indexOf(other);
     if (idx > 0)
         m_links.takeAt(idx);
 }
 
-QList<GraphicsControlPoint *> GraphicsControlPoint::links() const
+QList<GraphicsHandle *> GraphicsHandle::links() const
 {
     return m_links;
 }
 
-QCursor GraphicsControlPoint::cursor() const
+QCursor GraphicsHandle::cursor() const
 {
     return roleToCursor(m_role);
 }
 
-QVariant GraphicsControlPoint::data() const
+QVariant GraphicsHandle::data() const
 {
     return m_data;
 }
 
-void GraphicsControlPoint::setData(const QVariant &data)
+void GraphicsHandle::setData(const QVariant &data)
 {
     m_data = data;
 }
 
 
-QRectF GraphicsControlPoint::boundingRect() const
+QRectF GraphicsHandle::boundingRect() const
 {
     return shape().boundingRect().adjusted(-1.0, -1.0, 1.0, 1.0);
 }
 
-QPainterPath GraphicsControlPoint::shape() const
+QPainterPath GraphicsHandle::shape() const
 {
     QPainterPath path;
     path.addEllipse(m_rect);
     return path;
 }
 
-void GraphicsControlPoint::paint(QPainter *painter,
+void GraphicsHandle::paint(QPainter *painter,
                                  const QStyleOptionGraphicsItem *option,
                                  QWidget *widget) const
 {
@@ -83,17 +83,17 @@ void GraphicsControlPoint::paint(QPainter *painter,
     painter->drawEllipse(m_rect);
 }
 
-QPointF GraphicsControlPoint::pos() const
+QPointF GraphicsHandle::pos() const
 {
     return m_rect.center();
 }
 
-void GraphicsControlPoint::setPos(const QPointF &pos)
+void GraphicsHandle::setPos(const QPointF &pos)
 {
     m_rect.moveCenter(pos);
 }
 
-QCursor GraphicsControlPoint::roleToCursor(GraphicsControlPoint::Role role) const
+QCursor GraphicsHandle::roleToCursor(GraphicsHandle::Role role) const
 {
     switch (role)
     {

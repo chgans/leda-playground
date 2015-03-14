@@ -1,83 +1,83 @@
 #include "graphicsobject.h"
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 
 #include <QDebug>
 
 GraphicsObject::GraphicsObject(GraphicsObject *parent):
     QGraphicsObject(parent),
-    m_controlPointsDirty(true)
+    m_handlesDirty(true)
 {
 
 }
 
 GraphicsObject::~GraphicsObject()
 {
-    qDeleteAll(m_controlPoints);
+    qDeleteAll(m_handles);
 }
 
-// TODO: const GraphicsControlPoint *addControlPoint(int id, const QPointF &pos);
-const GraphicsControlPoint *GraphicsObject::addControlPoint(GraphicsControlPoint::Role role, const QPointF &pos)
+// TODO: const GraphicsHandle *addHandle(int id, const QPointF &pos);
+const GraphicsHandle *GraphicsObject::addHandle(GraphicsHandle::Role role, const QPointF &pos)
 {
-    //qDebug() << "Ctl points" << controlPoints().count() << "=>" << controlPoints().count() + 1;
-    GraphicsControlPoint *point = new GraphicsControlPoint(role, pos);
-    m_controlPoints.append(point);
-    markControlPointsDirty();
-    return point;
+    //qDebug() << "Handles" << Handles().count() << "=>" << Handles().count() + 1;
+    GraphicsHandle *handle = new GraphicsHandle(role, pos);
+    m_handles.append(handle);
+    markHandlesDirty();
+    return handle;
 }
 
-const GraphicsControlPoint *GraphicsObject::removeControlPoint(int index)
+const GraphicsHandle *GraphicsObject::removeHandle(int index)
 {
-    Q_ASSERT(index < m_controlPoints.count());
-    const GraphicsControlPoint *point = m_controlPoints.value(index);
-    m_controlPoints.removeAt(index);
-    delete point;
-    return point;
+    Q_ASSERT(index < m_handles.count());
+    const GraphicsHandle *handle = m_handles.value(index);
+    m_handles.removeAt(index);
+    delete handle;
+    return handle;
 }
 
-// TODO: QList<const GraphicsControlPoint *> GraphicsObject::controlPoints() const
-QVector<const GraphicsControlPoint *> GraphicsObject::controlPoints() const
+// TODO: QList<const GraphicsHandle *> GraphicsObject::Handles() const
+QVector<const GraphicsHandle *> GraphicsObject::handles() const
 {
-    QVector<const GraphicsControlPoint *> result;
-    foreach (GraphicsControlPoint *point, m_controlPoints) {
-        result << const_cast<GraphicsControlPoint *>(point);
+    QVector<const GraphicsHandle *> result;
+    foreach (GraphicsHandle *handle, m_handles) {
+        result << const_cast<GraphicsHandle *>(handle);
     }
     return result;
 }
 
 // TODO: remove
 /*
-void GraphicsObject::setControlPoints(const QVector<GraphicsControlPoint *> points)
+void GraphicsObject::setHandles(const QVector<GraphicsHandle *> handles)
 {
-    qDeleteAll(m_controlPoints);
-    m_controlPoints = points;
+    qDeleteAll(m_Handles);
+    m_Handles = handles;
 }
 */
 
 // TODO: private + GraphicsTool as friend?
 // Pos is in item coordinate
 // TODO:
-const GraphicsControlPoint *GraphicsObject::controlPointNear(const QPointF &pos) const
+const GraphicsHandle *GraphicsObject::HandleNear(const QPointF &pos) const
 {
-    for (int i = 0; i < m_controlPoints.count(); i++) {
-        if (m_controlPoints[i]->shape().contains(pos)) {
-            return m_controlPoints[i];
+    for (int i = 0; i < m_handles.count(); i++) {
+        if (m_handles[i]->shape().contains(pos)) {
+            return m_handles[i];
         }
     }
     return nullptr;
 }
 
-void GraphicsObject::moveControlPoint(const GraphicsControlPoint *point, const QPointF &pos)
+void GraphicsObject::moveHandle(const GraphicsHandle *handle, const QPointF &pos)
 {
-    moveControlPointSilently(point, pos);
-    controlPointMoved(point);
+    moveHandleSilently(handle, pos);
+    handleMoved(handle);
 }
 
 
-void GraphicsObject::moveControlPointSilently(const GraphicsControlPoint *point, const QPointF &pos)
+void GraphicsObject::moveHandleSilently(const GraphicsHandle *handle, const QPointF &pos)
 {
-    markControlPointsDirty();
-    GraphicsControlPoint *p = const_cast<GraphicsControlPoint *>(point);
-    Q_ASSERT(m_controlPoints.contains(p));
+    markHandlesDirty();
+    GraphicsHandle *p = const_cast<GraphicsHandle *>(handle);
+    Q_ASSERT(m_handles.contains(p));
     p->setPos(pos);
 }
 
@@ -87,63 +87,63 @@ void GraphicsObject::cloneTo(GraphicsObject *dst)
     dst->setZValue(zValue());
     dst->setFlags(flags());
     dst->setSelected(isSelected());
-    foreach (GraphicsControlPoint *other, m_controlPoints) {
-        // FIXME: dst.moveControlPoint(idx, pos);
-        //dst->addControlPoint(other->clone(dst));
+    foreach (GraphicsHandle *other, m_handles) {
+        // FIXME: dst.moveHandle(idx, pos);
+        //dst->addHandle(other->clone(dst));
         Q_UNUSED(other);
         Q_UNUSED(dst);
     }
 }
 
-void GraphicsObject::paintControlPoints(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) const
+void GraphicsObject::paintHandles(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) const
 {
-    foreach (const GraphicsControlPoint *point, m_controlPoints) {
-        point->paint(painter, option, widget);
+    foreach (const GraphicsHandle *handle, m_handles) {
+        handle->paint(painter, option, widget);
     }
 }
 
 #if 0
-QVector<GraphicsControlPoint *> GraphicsObject::cloneControlPoints(const GraphicsObject *parent) const
+QVector<GraphicsHandle *> GraphicsObject::cloneHandles(const GraphicsObject *parent) const
 {
-    QVector<GraphicsControlPoint *> result;
-    foreach (GraphicsControlPoint *point, m_controlPoints) {
-        result.append(point->clone(nullptr));
+    QVector<GraphicsHandle *> result;
+    foreach (GraphicsHandle *handle, m_handles) {
+        result.append(handle->clone(nullptr));
     }
     return result;
 }
 #endif
 
-QRectF GraphicsObject::controlPointsBoundingRect() const
+QRectF GraphicsObject::handlesBoundingRect() const
 {
-    if (m_controlPointsDirty)
-        updateControlPointsGeometry();
-    return m_controlPointsBoundingRect;
+    if (m_handlesDirty)
+        updateHandlesGeometry();
+    return m_handlesBoundingRect;
 }
 
-QPainterPath GraphicsObject::controlPointsShape() const
+QPainterPath GraphicsObject::handlesShape() const
 {
-    if (m_controlPointsDirty)
-        updateControlPointsGeometry();
-    return m_controlPointsPath;
+    if (m_handlesDirty)
+        updateHandlesGeometry();
+    return m_handlesPath;
 }
 
-void GraphicsObject::updateControlPointsGeometry() const
+void GraphicsObject::updateHandlesGeometry() const
 {
-    m_controlPointsBoundingRect = QRectF();
-    foreach (const GraphicsControlPoint *point, m_controlPoints) {
-        m_controlPointsBoundingRect |= point->boundingRect();
+    m_handlesBoundingRect = QRectF();
+    foreach (const GraphicsHandle *handle, m_handles) {
+        m_handlesBoundingRect |= handle->boundingRect();
     }
-    m_controlPointsPath = QPainterPath();
-    foreach (const GraphicsControlPoint *point, m_controlPoints) {
-        m_controlPointsPath |= point->shape();
+    m_handlesPath = QPainterPath();
+    foreach (const GraphicsHandle *handle, m_handles) {
+        m_handlesPath |= handle->shape();
     }
-    m_controlPointsDirty = false;
+    m_handlesDirty = false;
 }
 
-void GraphicsObject::markControlPointsDirty()
+void GraphicsObject::markHandlesDirty()
 {
     prepareGeometryChange();
-    m_controlPointsDirty = true;
+    m_handlesDirty = true;
 }
 
 

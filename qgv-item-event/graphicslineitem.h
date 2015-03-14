@@ -21,7 +21,7 @@ public:
     // GraphicsObject interface
 public:
     GraphicsObject *clone();
-    void controlPointMoved(const GraphicsControlPoint *point);
+    void handleMoved(const GraphicsHandle *handle);
 
     // QGraphicsItem interface
 public:
@@ -42,8 +42,8 @@ private:
 
     QPen m_pen;
     QLineF m_line;
-    const GraphicsControlPoint *m_ctlPoint1;
-    const GraphicsControlPoint *m_ctlPoint2;
+    const GraphicsHandle *m_handle1;
+    const GraphicsHandle *m_handle2;
 };
 
 #endif // GRAPHICSLINEITEM_H

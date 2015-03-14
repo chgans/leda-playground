@@ -6,7 +6,7 @@
 #include <QPoint>
 
 class GraphicsObject;
-class GraphicsControlPoint;
+class GraphicsHandle;
 
 class QRubberBand;
 
@@ -37,7 +37,7 @@ private:
     GraphicsObject *m_item;
     QList<GraphicsObject *> m_items;
     QList<GraphicsObject *> m_phantomItems;
-    const GraphicsControlPoint *m_handle;
+    const GraphicsHandle *m_handle;
     QRubberBand *m_rubberBand;
 
     void updateCursor(QMouseEvent *event);

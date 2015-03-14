@@ -1,5 +1,5 @@
-#ifndef GRAPHICSCONTROLPOINT_H
-#define GRAPHICSCONTROLPOINT_H
+#ifndef GRAPHICSHANDLE_H
+#define GRAPHICSHANDLE_H
 
 #include <QRectF>
 #include <QPainterPath>
@@ -9,7 +9,7 @@ class QStyleOptionGraphicsItem;
 class QPainter;
 class QWidget;
 
-class GraphicsControlPoint
+class GraphicsHandle
 {
 public:
     enum Role {
@@ -23,15 +23,15 @@ public:
         MarkRole
     };
 
-    GraphicsControlPoint(Role role = MoveRole, const QPointF &pos = QPointF());
-    GraphicsControlPoint(const GraphicsControlPoint &other);
+    GraphicsHandle(Role role = MoveRole, const QPointF &pos = QPointF());
+    GraphicsHandle(const GraphicsHandle &other);
 
-    // Draw a line between this GraphicsControlPoint and other GraphicsControlPoint
-    void addLink(GraphicsControlPoint *other);
-    void removeLink(GraphicsControlPoint *other);
-    // return a list of GraphicsControlPoint this GraphicsControlPoint has been explicitely linked to
+    // Draw a line between this GraphicsHandle and other GraphicsHandle
+    void addLink(GraphicsHandle *other);
+    void removeLink(GraphicsHandle *other);
+    // return a list of GraphicsHandle this GraphicsHandle has been explicitely linked to
     // (no retro link!)
-    QList<GraphicsControlPoint *> links() const;
+    QList<GraphicsHandle *> links() const;
 
     QCursor cursor() const;
 
@@ -51,9 +51,9 @@ private:
     //QPointF m_pos;
     QRectF m_rect;
     QVariant m_data;
-    QList<GraphicsControlPoint*> m_links;
+    QList<GraphicsHandle*> m_links;
     QPainterPath m_shape;
     QRectF m_boudingRect;
 };
 
-#endif // GRAPHICSCONTROLPOINT_H
+#endif // GRAPHICSHANDLE_H

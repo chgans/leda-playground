@@ -35,7 +35,7 @@ private:
     mutable bool m_shapeIsDirty;
     mutable QPainterPath m_shape;
 
-    QMap<const GraphicsControlPoint *, int> m_handleToElementIndex;
+    QMap<const GraphicsHandle *, int> m_handleToElementIndex;
 
     QPainterPath copyPath(const QPainterPath &src, int first, int last);
     // QGraphicsItem interface
@@ -50,7 +50,7 @@ public:
 
     // GraphicsObject interface
 protected:
-    virtual void controlPointMoved(const GraphicsControlPoint *point);
+    virtual void handleMoved(const GraphicsHandle *point);
 
     // QGraphicsItem interface
 protected:

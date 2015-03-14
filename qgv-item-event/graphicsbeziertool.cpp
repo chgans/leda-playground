@@ -1,6 +1,6 @@
 #include "graphicsbeziertool.h"
 #include "graphicsbezieritem.h"
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 #include "graphicsview.h"
 #include "graphicsscene.h"
 
@@ -15,7 +15,7 @@ GraphicsBezierTool::GraphicsBezierTool(QObject *parent):
     GraphicsTool(parent),
     m_state(NotStarted),
     m_item(nullptr),
-    m_insertPointOnMouseMove(false)
+    m_insertHandleOnMouseMove(false)
 {
 
 }
@@ -90,21 +90,21 @@ void GraphicsBezierTool::mouseMoveEvent(QMouseEvent *event)
         break;
     case FirstPoint:
         m_nodePos = event->pos();
-        if (m_insertPointOnMouseMove) { // TODO: check for minimum view distance, 10 pixels?
+        if (m_insertHandleOnMouseMove) { // TODO: check for minimum view distance, 10 pixels?
             m_item->addPoint(mapToItem(m_nodePos));
-            m_insertPointOnMouseMove = false;
+            m_insertHandleOnMouseMove = false;
             setState(MidPoints);
         }
         break;
     case MidPoints: {
         m_nodePos = event->pos();
-        if (m_insertPointOnMouseMove) { // Same as above
+        if (m_insertHandleOnMouseMove) { // Same as above
             m_item->addPoint(mapToItem(m_nodePos));
-            m_insertPointOnMouseMove = false;
+            m_insertHandleOnMouseMove = false;
         }
-        int idx = m_item->controlPoints().count() - 1;
-        const GraphicsControlPoint *p = m_item->controlPoints().value(idx);
-        m_item->moveControlPoint(p, mapToItem(m_nodePos));
+        int idx = m_item->handles().count() - 1;
+        const GraphicsHandle *p = m_item->handles().value(idx);
+        m_item->moveHandle(p, mapToItem(m_nodePos));
         break;
     }
     default:
@@ -135,10 +135,10 @@ void GraphicsBezierTool::mouseReleaseEvent(QMouseEvent *event)
         m_item->addPoint(mapToItem(m_nodePos));
         //m_item->setSelected(true);
         scene()->addItem(m_item);
-        m_insertPointOnMouseMove = true;
+        m_insertHandleOnMouseMove = true;
         break;
     case MidPoints:
-        m_insertPointOnMouseMove = true;
+        m_insertHandleOnMouseMove = true;
         break;
     case LastPoint:
         //m_item->removePoint(m_item->pointCount()-1);

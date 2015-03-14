@@ -1,5 +1,5 @@
 #include "graphicsrectitem.h"
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 
 #include <QBrush>
 #include <QPen>
@@ -8,20 +8,20 @@
 
 #include <QDebug>
 
-// TODO: forbid objects to have write access to control points
+// TODO: forbid objects to have write access to handles
 
 GraphicsRectItem::GraphicsRectItem(GraphicsObject *parent):
     GraphicsObject(parent), m_rect(QRectF(0, 0, 0, 0)),
     m_dirty(true)
 {
-    addControlPoint(TopLeft, GraphicsControlPoint::FDiagSizeRole);
-    addControlPoint(Top, GraphicsControlPoint::VSizeRole);
-    addControlPoint(TopRight, GraphicsControlPoint::BDiagSizeRole);
-    addControlPoint(Right, GraphicsControlPoint::HSizeRole);
-    addControlPoint(BottomRight, GraphicsControlPoint::FDiagSizeRole);
-    addControlPoint(Bottom, GraphicsControlPoint::VSizeRole);
-    addControlPoint(BottomLeft, GraphicsControlPoint::BDiagSizeRole);
-    addControlPoint(Left, GraphicsControlPoint::HSizeRole);
+    addHandle(TopLeft, GraphicsHandle::FDiagSizeRole);
+    addHandle(Top, GraphicsHandle::VSizeRole);
+    addHandle(TopRight, GraphicsHandle::BDiagSizeRole);
+    addHandle(Right, GraphicsHandle::HSizeRole);
+    addHandle(BottomRight, GraphicsHandle::FDiagSizeRole);
+    addHandle(Bottom, GraphicsHandle::VSizeRole);
+    addHandle(BottomLeft, GraphicsHandle::BDiagSizeRole);
+    addHandle(Left, GraphicsHandle::HSizeRole);
 }
 
 GraphicsRectItem::~GraphicsRectItem()
@@ -62,27 +62,27 @@ void GraphicsRectItem::setBrush(const QBrush &brush)
     markDirty(); // needed?
 }
 
-void GraphicsRectItem::addControlPoint(GraphicsRectItem::CtlPointId pointId, GraphicsControlPoint::Role role)
+void GraphicsRectItem::addHandle(GraphicsRectItem::HandleId handleId, GraphicsHandle::Role role)
 {
-    const GraphicsControlPoint *point = GraphicsObject::addControlPoint(role,
+    const GraphicsHandle *handle = GraphicsObject::addHandle(role,
                                                                     QPointF(0, 0));
-    m_ctlPointToId[point] = pointId;
-    m_idToCtlPoint[pointId] = point;
+    m_handleToId[handle] = handleId;
+    m_idToHandle[handleId] = handle;
 }
 
-void GraphicsRectItem::updateControlPointsSilently()
+void GraphicsRectItem::updateHandlesSilently()
 {
     qreal midX = m_rect.right()-m_rect.width()/2.0;
     qreal midY = m_rect.bottom()-m_rect.height()/2.0;
 
-    moveControlPointSilently(m_idToCtlPoint[TopLeft], m_rect.topLeft());
-    moveControlPointSilently(m_idToCtlPoint[Top], QPointF(midX, m_rect.top()));
-    moveControlPointSilently(m_idToCtlPoint[TopRight], m_rect.topRight());
-    moveControlPointSilently(m_idToCtlPoint[Right], QPointF(m_rect.right(), midY));
-    moveControlPointSilently(m_idToCtlPoint[BottomRight], m_rect.bottomRight());
-    moveControlPointSilently(m_idToCtlPoint[Bottom], QPointF(midX, m_rect.bottom()));
-    moveControlPointSilently(m_idToCtlPoint[BottomLeft], m_rect.bottomLeft());
-    moveControlPointSilently(m_idToCtlPoint[Left], QPointF(m_rect.left(), midY));
+    moveHandleSilently(m_idToHandle[TopLeft], m_rect.topLeft());
+    moveHandleSilently(m_idToHandle[Top], QPointF(midX, m_rect.top()));
+    moveHandleSilently(m_idToHandle[TopRight], m_rect.topRight());
+    moveHandleSilently(m_idToHandle[Right], QPointF(m_rect.right(), midY));
+    moveHandleSilently(m_idToHandle[BottomRight], m_rect.bottomRight());
+    moveHandleSilently(m_idToHandle[Bottom], QPointF(midX, m_rect.bottom()));
+    moveHandleSilently(m_idToHandle[BottomLeft], m_rect.bottomLeft());
+    moveHandleSilently(m_idToHandle[Left], QPointF(m_rect.left(), midY));
 }
 
 void GraphicsRectItem::updateGeometry() const
@@ -91,14 +91,14 @@ void GraphicsRectItem::updateGeometry() const
     QPainterPath path;
     path.addRect(m_rect);
     if (isSelected()) {
-        m_shape = (path + controlPointsShape()).simplified();
+        m_shape = (path + handlesShape()).simplified();
     }
     else
         m_shape = path;
 
     QRectF rect = m_shape.boundingRect();
     if (isSelected())
-        rect |= controlPointsBoundingRect();
+        rect |= handlesBoundingRect();
 
     qreal extra = pen().widthF()/2.0;
     m_boundingRect = rect.adjusted(-extra, -extra, +extra, +extra);
@@ -122,39 +122,39 @@ GraphicsObject *GraphicsRectItem::clone()
     return item;
 }
 
-void GraphicsRectItem::controlPointMoved(const GraphicsControlPoint *point)
+void GraphicsRectItem::handleMoved(const GraphicsHandle *handle)
 {
-    Q_ASSERT(m_ctlPointToId.contains(point));
-    CtlPointId id = m_ctlPointToId[point];
+    Q_ASSERT(m_handleToId.contains(handle));
+    HandleId id = m_handleToId[handle];
     switch (id) {
     case TopLeft:
-        m_rect.setTopLeft(point->pos());
+        m_rect.setTopLeft(handle->pos());
         break;
     case Top:
-        m_rect.setTop(point->pos().y());
+        m_rect.setTop(handle->pos().y());
         break;
     case TopRight:
-        m_rect.setTopRight(point->pos());
+        m_rect.setTopRight(handle->pos());
         break;
     case Right:
-        m_rect.setRight(point->pos().x());
+        m_rect.setRight(handle->pos().x());
         break;
     case BottomRight:
-        m_rect.setBottomRight(point->pos());
+        m_rect.setBottomRight(handle->pos());
         break;
     case Bottom:
-        m_rect.setBottom(point->pos().y());
+        m_rect.setBottom(handle->pos().y());
         break;
     case BottomLeft:
-        m_rect.setBottomLeft(point->pos());
+        m_rect.setBottomLeft(handle->pos());
         break;
     case Left:
-        m_rect.setLeft(point->pos().x());
+        m_rect.setLeft(handle->pos().x());
         break;
     default:
         break;
     }
-    updateControlPointsSilently();
+    updateHandlesSilently();
     markDirty();
 }
 
@@ -180,7 +180,7 @@ void GraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setBrush(brush());
     painter->drawRect(m_rect);
     if (isSelected())
-        paintControlPoints(painter, option, widget);
+        paintHandles(painter, option, widget);
 }
 
 QVariant GraphicsRectItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)

@@ -1,7 +1,7 @@
 #include "graphicsrecttool.h"
 #include "graphicsrectitem.h"
 #include "graphicslinetooldialog.h"
-#include "graphicscontrolpoint.h"
+#include "graphicshandle.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
 
@@ -88,16 +88,16 @@ void GraphicsRectTool::cancel()
     }
 }
 
-void GraphicsRectTool::setP1(const QPoint &point)
+void GraphicsRectTool::setP1(const QPoint &handlePos)
 {
-    QPointF pos = m_item->mapFromScene(view()->mapToScene(point));
-    m_item->moveControlPoint(m_item->controlPoints()[0], pos);
+    QPointF pos = m_item->mapFromScene(view()->mapToScene(handlePos));
+    m_item->moveHandle(m_item->handles()[0], pos);
 }
 
-void GraphicsRectTool::setP2(const QPoint &point)
+void GraphicsRectTool::setP2(const QPoint &handlePos)
 {
-    QPointF pos = m_item->mapFromScene(view()->mapToScene(point));
-    m_item->moveControlPoint(m_item->controlPoints()[4], pos);
+    QPointF pos = m_item->mapFromScene(view()->mapToScene(handlePos));
+    m_item->moveHandle(m_item->handles()[4], pos);
 }
 
 

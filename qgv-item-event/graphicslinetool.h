@@ -23,8 +23,8 @@ public slots:
     virtual void cancel();
 
 protected:
-    void setP1(const QPoint &point);
-    void setP2(const QPoint &point);
+    void setP1(const QPoint &handlePos);
+    void setP2(const QPoint &handlePos);
 private:
     int m_state;
     GraphicsLineItem *m_item;
