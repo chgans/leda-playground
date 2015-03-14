@@ -72,7 +72,6 @@ void GraphicsRectItem::addControlPoint(GraphicsRectItem::CtlPointId pointId, Gra
 
 void GraphicsRectItem::updateControlPointsSilently()
 {
-    m_rect = m_rect.normalized();
     qreal midX = m_rect.right()-m_rect.width()/2.0;
     qreal midY = m_rect.bottom()-m_rect.height()/2.0;
 
