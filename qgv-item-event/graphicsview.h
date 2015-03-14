@@ -29,6 +29,8 @@ public:
     GraphicsObject *objectUnderMouse() const;
     QPoint mousePosition() const;
 
+    void scaleView(qreal scaleFactor);
+
 signals:
     void leftMouseButtonPressed();
     void leftMouseButtonReleased();

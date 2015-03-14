@@ -42,6 +42,8 @@ GraphicsView::GraphicsView(QWidget *parent):
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setDragMode(QGraphicsView::NoDrag);
     setMouseTracking(true);
+
+    setTransformationAnchor(AnchorUnderMouse);
 }
 
 GraphicsView::~GraphicsView()
@@ -105,6 +107,15 @@ QPoint GraphicsView::mousePosition() const
     return mapFromGlobal(QCursor::pos());
 }
 
+void GraphicsView::scaleView(qreal scaleFactor)
+{
+    qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
+    if (factor < 0.07 || factor > 100)
+        return;
+
+    scale(scaleFactor, scaleFactor);
+}
+
 void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
 {
 
@@ -124,10 +135,10 @@ void GraphicsView::drawForeground(QPainter *painter, const QRectF &rect)
 // TODO: Zoom here or tool
 void GraphicsView::wheelEvent(QWheelEvent *event)
 {
-    if (m_tool != nullptr)
-        m_tool->wheelEvent(event);
-    else
-        event->ignore();
+    if (!event->modifiers().testFlag(Qt::ControlModifier))
+        return;
+    scaleView(pow((double)2, -event->delta() / 240.0));
+    event->accept();
 }
 
 void GraphicsView::mousePressEvent(QMouseEvent *event)
