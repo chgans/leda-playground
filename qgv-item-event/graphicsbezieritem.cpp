@@ -41,36 +41,46 @@ void GraphicsBezierItem::addPoint(const QPointF &pos)
 {
     Q_ASSERT(m_path.elementCount() == handles().count());
 
-    if (m_path.elementCount() == 0) {
+
+    if (m_px.size() == 0) {
         const GraphicsHandle *node = addHandle(GraphicsHandle::MoveRole,
-                                                           pos);
+                                               pos);
         m_handleToElementIndex[node] = 0;
-        m_path.moveTo(node->pos());
+        m_px.append(pos.x());
+        m_py.append(pos.y());
+        updateSpline();
     }
-    else if (!(qFuzzyCompare(m_path.currentPosition().x(), pos.x()) &&
-               qFuzzyCompare(m_path.currentPosition().x(), pos.x()))) {
+    else if (!(qFuzzyCompare(m_px.last(), pos.x()) &&
+               qFuzzyCompare(m_py.last(), pos.y()))) {
+
         int elementIndex = m_path.elementCount();
 
-        QPointF c1Pos = m_path.currentPosition();
-        QPointF c2Pos = pos;
+        m_px.append(pos.x());
+        m_py.append(pos.y());
+        m_c1x.append(0);
+        m_c1y.append(0);
+        m_c2x.append(0);
+        m_c2y.append(0);
+
+        updateSpline();
+
+        QPointF c1Pos(m_c1x.back(), m_c1y.back());
+        QPointF c2Pos(m_c2x.back(), m_c2y.back());
         const GraphicsHandle *c1 = addHandle(GraphicsHandle::MoveRole,
-                                                         c1Pos);
+                                             c1Pos);
         const GraphicsHandle *c2 = addHandle(GraphicsHandle::MoveRole,
-                                                         c2Pos);
+                                             c2Pos);
         const GraphicsHandle *node = addHandle(GraphicsHandle::MoveRole,
-                                                           pos);
+                                               pos);
 
         m_handleToElementIndex[c1] = elementIndex++;
         m_handleToElementIndex[c2] = elementIndex++;
         m_handleToElementIndex[node] = elementIndex++;
-
-        m_path.cubicTo(c1->pos(), c2->pos(), node->pos());
     }
     else {
         qWarning() << QString("Cannot add a cubic bezier to pos [%1, %2] which is equal to current pos")
                       .arg(pos.x()).arg(pos.y());
     }
-    //qDebug() << m_path << handles().count();
     setShapeDirty();
     setBoundingRectDirty();
 }
@@ -126,30 +136,105 @@ QPainterPath GraphicsBezierItem::copyPath(const QPainterPath &src, int first, in
     return dst;
 }
 
+void GraphicsBezierItem::updateSpline()
+{
+    setShapeDirty();
+    setBoundingRectDirty();
+
+    if (m_px.size() >= 2) {
+        computeControlPoints(m_px, m_c1x, m_c2x);
+        computeControlPoints(m_py, m_c1y, m_c2y);
+    }
+
+    // TODO: don't always rebuild the whole path
+    m_path = QPainterPath();
+    m_path.moveTo(m_px[0], m_py[0]);
+    for (int i = 1; i < m_px.size(); i++) {
+        qreal c1x = m_c1x[i-1];
+        qreal c1y = m_c1y[i-1];
+        qreal c2x = m_c2x[i-1];
+        qreal c2y = m_c2y[i-1];
+        qreal px  = m_px[i];
+        qreal py  = m_py[i];
+        m_path.cubicTo(c1x, c1y, c2x, c2y, px, py);
+    }
+}
+
+// https://www.particleincell.com/2012/bezier-splines/
+void GraphicsBezierItem::computeControlPoints(const QVector<qreal> &p, QVector<qreal> &c1, QVector<qreal> &c2)
+{
+    int n = p.size() - 1;
+    int i;
+    QVector<qreal> a(n), b(n), c(n), r(n);
+
+    /* left most segment */
+    a[0] = 0;
+    b[0] = 2;
+    c[0] = 1;
+    r[0] = p[0] + 2*p[1];
+
+    /* internal segments */
+    for (i = 1; i < n - 1; i++)
+    {
+        a[i] = 1;
+        b[i] = 4;
+        c[i] = 1;
+        r[i] = 4*p[i] + 2*p[i+1];
+    }
+
+    /* right segment */
+    a[n-1] = 2;
+    b[n-1] = 7;
+    c[n-1] = 0;
+    r[n-1] = 8*p[n-1] + p[n];
+
+    /* solves Ax=b with the Thomas algorithm (from Wikipedia) */
+    for (i = 1; i < n; i++)
+    {
+        qreal m = a[i] / b[i-1];
+        b[i] = b[i] - m*c[i-1];
+        r[i] = r[i] - m*r[i-1];
+    }
+
+    /* compute p1 */
+    c1[n-1] = r[n-1]/b[n-1];
+    for (i = n-2; i >= 0; --i)
+        c1[i] = (r[i] - c[i] * c1[i+1]) / b[i];
+
+    /* we have p1, now compute p2 */
+    for (i = 0; i < n-1; i++)
+        c2[i] = 2*p[i+1] - c1[i+1];
+
+    c2[n-1] = 0.5*(p[n] + c1[n-1]);
+}
+
+void GraphicsBezierItem::updateHandles()
+{
+    moveHandleSilently(handles().at(0), m_px[0], m_py[0]);
+    for (int i = 1; i < m_px.size(); i++) {
+        qreal c1x = m_c1x[i-1];
+        qreal c1y = m_c1y[i-1];
+        qreal c2x = m_c2x[i-1];
+        qreal c2y = m_c2y[i-1];
+        qreal px  = m_px[i];
+        qreal py  = m_py[i];
+        moveHandleSilently(handles().value(3*i-2), c1x, c1y);
+        moveHandleSilently(handles().value(3*i-1), c2x, c2y);
+        moveHandleSilently(handles().value(3*i), px, py);
+    }
+}
+
 QList<QPointF> GraphicsBezierItem::points() const
 {
     QList<QPointF> result;
-    QPainterPath::Element elt;
-    int count = m_path.elementCount();
-    int i = 0;
-    while (i < count) {
-        elt = m_path.elementAt(i);
-        result.append(QPointF(elt.x, elt.y));
-        if (i > 0)
-            i += 3;
-        else
-            i++;
-    }
+    for (int i = 0; i < m_px.size(); i++)
+        result.append(QPointF(m_px[i], m_py[i]));
     return result;
 }
 
 int GraphicsBezierItem::pointCount() const
 {
-    if (m_path.elementCount() < 2)
-        return m_path.elementCount();
-    int count = 1 + (m_path.elementCount() - 1) / 3;
-    //qDebug() << "Count" << count;
-    return count;
+    return m_px.size();
 }
 
 void GraphicsBezierItem::setBoundingRectDirty()
@@ -253,13 +338,33 @@ void GraphicsBezierItem::handleMoved(const GraphicsHandle *point)
     Q_ASSERT(m_path.elementCount() == handles().count());
     Q_ASSERT(m_handleToElementIndex.contains(point));
 
-    int elementIndex = m_handleToElementIndex.value(point);
-    m_path.setElementPositionAt(elementIndex, point->pos().x(), point->pos().y());
+    qreal x = point->pos().x();
+    qreal y = point->pos().y();
 
-    QRectF r = point->boundingRect();
-    r.moveCenter(point->pos());
-    setShapeDirty();
-    setBoundingRectDirty();
+    int elementIndex = m_handleToElementIndex.value(point);
+    if (elementIndex == 0) {
+        m_px[0] = x;
+        m_py[0] = y;
+    }
+    else {
+        int type = (elementIndex) % 3;
+        int i = elementIndex / 3;
+        if (type == 0) {
+            m_px[i] = x;
+            m_py[i] = y;
+        }
+        else if (type == 1) {
+            m_c1x[i] = x;
+            m_c1y[i] = y;
+        }
+        else {
+            m_c2x[i] = x;
+            m_c2y[i] = y;
+        }
+    }
+
+    updateSpline();
+    updateHandles();
 }
 
 

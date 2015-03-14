@@ -81,6 +81,11 @@ void GraphicsObject::moveHandleSilently(const GraphicsHandle *handle, const QPoi
     p->setPos(pos);
 }
 
+void GraphicsObject::moveHandleSilently(const GraphicsHandle *handle, qreal x, qreal y)
+{
+    moveHandleSilently(handle, QPointF(x, y));
+}
+
 void GraphicsObject::cloneTo(GraphicsObject *dst)
 {
     dst->setPos(pos());

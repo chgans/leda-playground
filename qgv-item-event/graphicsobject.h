@@ -40,6 +40,7 @@ protected:
 
     //void setHandles(const QVector<GraphicsHandle*> handles);
     void moveHandleSilently(const GraphicsHandle *handle, const QPointF &pos);
+    void moveHandleSilently(const GraphicsHandle *handle, qreal x, qreal y);
     virtual void paintHandles(QPainter *painter,
                                     const QStyleOptionGraphicsItem *option,
                                     QWidget *widget) const;

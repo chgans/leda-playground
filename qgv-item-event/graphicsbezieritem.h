@@ -38,6 +38,18 @@ private:
     QMap<const GraphicsHandle *, int> m_handleToElementIndex;
 
     QPainterPath copyPath(const QPainterPath &src, int first, int last);
+
+
+    QVector<qreal> m_px;
+    QVector<qreal> m_py;
+    QVector<qreal> m_c1x;
+    QVector<qreal> m_c1y;
+    QVector<qreal> m_c2x;
+    QVector<qreal> m_c2y;
+    void updateSpline();
+    void computeControlPoints(const QVector<qreal> &p, QVector<qreal> &c1, QVector<qreal> &c2);
+    void updateHandles();
+
     // QGraphicsItem interface
 public:
     virtual QRectF boundingRect() const;
