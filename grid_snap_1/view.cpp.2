@@ -1,0 +1,931 @@
+#include "view.h"
+#include "gridmanager.h"
+#include "igrid.h"
+
+#include <QWheelEvent>
+#include <QGLWidget>
+#include <QLinearGradient>
+#include <QtMath>
+
+#include <QGraphicsItem>
+
+#include <QPicture>
+#include <QImage>
+
+#include <QDebug>
+
+View::View(QWidget *parent) :
+    QGraphicsView(parent),
+    mBoard(0), mPathItem(0),
+    mPathMode(AnyAnglePath),
+    mPathCornerMode(CornerFirstMode)
+{
+    mGridManager = GridManager::instance();
+    setViewport(new QGLWidget);
+    setMouseTracking(true);
+    setTransformationAnchor(NoAnchor);
+    setResizeAnchor(NoAnchor);
+
+    QPainterPath p1;
+    p1.arcTo(0, 0, 100, 100, 0, 180);
+    QPainterPath p2;
+    p2.moveTo(p1.currentPosition());
+    p2.lineTo(50, 50);
+    p2.lineTo(120, 30);
+    mSubPath << p1 << p2;
+
+    QPainterPath p;
+    p.connectPath(p1);
+    p.connectPath(p2);
+
+    qDebug() << mSubPath;
+    qDebug() << p;
+}
+
+void View::initialise()
+{
+    mBoard = new QGraphicsRectItem(200, 400, 400, 200);
+    mBoard->setBrush(QBrush(Qt::black));
+    mBoard->setPen(QPen(Qt::red, 1));
+    scene()->addItem(mBoard);
+}
+
+void View::drawBackground(QPainter *painter, const QRectF &rect)
+{
+    //Debug() << __PRETTY_FUNCTION__ << rect << mapToScene(viewport()->rect());
+    QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
+    gradient.setColorAt(0, Qt::darkBlue);
+    gradient.setColorAt(1, Qt::lightGray);
+    painter->fillRect(rect, QBrush(gradient));
+    painter->setPen(QPen(Qt::white, 0, Qt::DashLine));
+    painter->drawRect(sceneRect());
+}
+
+void View::drawForeground(QPainter *painter, const QRectF &rect)
+{
+    drawGrids(painter, rect);
+    drawCursor(painter, rect);
+    QGraphicsView::drawForeground(painter, rect);
+}
+
+void View::wheelEvent(QWheelEvent *event)
+{
+
+    if (event->modifiers() & Qt::ControlModifier &&
+            event->orientation() == Qt::Vertical) {
+        qreal angle = event->angleDelta().y();
+        qreal factor = qPow(1.0015, angle);
+        QPointF pos = mapToScene(event->pos());
+        scale(factor, factor);
+        pos -= mapToScene(event->pos());
+        translate(-pos.x(), -pos.y());
+        event->accept();
+    } else {
+        QGraphicsView::wheelEvent(event);
+    }
+}
+
+void View::mouseMoveEvent(QMouseEvent *event)
+{
+    QPointF pos = mapToScene(event->pos());
+    QSizeF pixelSize = QSizeF(transform().m11(), transform().m22());
+
+    setCursorPosition(QPointF());
+    if (mBoard->contains(pos)) {
+        // Test grids in reverse order (top most first)
+        for (int i = mGridManager->grids().count() - 1; i >= 0; --i) {
+            const IGrid *grid = mGridManager->grids().at(i);
+            if (grid->shape(pixelSize).contains(pos)) {
+                setCursorPosition(grid->snap(pixelSize, pos));
+                event->accept();
+                break;
+            }
+        }
+    }
+    if (mPathItem && !mSubPath.isEmpty())
+        updateSubPath(mCursorPosition);
+}
+
+void View::mousePressEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+    if (event->button() == Qt::LeftButton) {
+        if (!mPathItem)
+            startPathItem(mCursorPosition);
+        if (!mSubPath.isEmpty())
+            finishSubPath(mCursorPosition);
+        startSubPath(mCursorPosition);
+    }
+    else if (event->button() == Qt::RightButton) {
+        if (mPathItem) {
+            finishPathItem();
+        }
+    }
+}
+
+void View::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Space) {
+        if (event->modifiers() & Qt::ControlModifier)
+            cyclePathCornerMode();
+        else
+            cyclePathMode();
+    }
+    // TBD:
+    //  - create
+    //      SHIFT+Z: cycle angle constraint: free, 90, 45, -45
+    //      SHIFT+X: toggle swap start/end angles
+    //      SHIFT+C: toggle corner mode: Plain, Arc, Mitter
+    //      SHIFT+A: decrease radius by minor grid
+    //      SHIFT+S: increase radius by major grid
+    //  - edit
+    //
+    if (event->key() == Qt::Key_Z)
+        cycleAngleConstraint();
+    else if (event->key() == Qt::Key_X)
+        toggleSwapStartEndAngles();
+    else if (event->key() == Qt::Key_C)
+        cycleCornerStyle();
+}
+
+void View::paintEvent(QPaintEvent *event)
+{
+    QGraphicsView::paintEvent(event);
+}
+
+void View::setCursorPosition(const QPointF &pos)
+{
+    mCursorPosition = pos;
+    scene()->update();
+}
+
+void View::drawGrids(QPainter *painter, const QRectF &rect)
+{
+    // Top grids mask bottom grids, while the whole grid layer is transparent
+    QSizeF pixelSize = QSizeF(transform().m11(), transform().m22());
+    QList<QPainterPath> gridShapes;
+    foreach (const IGrid* grid, mGridManager->grids()) {
+        gridShapes.append(grid->shape(pixelSize));
+    }
+    foreach (const IGrid* grid, mGridManager->grids()) {
+        gridShapes.takeFirst();
+        if (grid->shape(pixelSize).intersects(rect)) {
+            QPainterPath clipPath;
+            clipPath.addRect(mBoard->boundingRect()); // FIXME: shape() ?
+            foreach (QPainterPath path, gridShapes)
+                clipPath = clipPath.subtracted(path);
+
+            painter->setClipPath(clipPath);
+            painter->save();
+            grid->draw(pixelSize, painter, rect);
+            painter->restore();
+        }
+    }
+}
+
+void View::drawCursor(QPainter *painter, const QRectF &rect)
+{
+    Q_UNUSED(rect);
+    if (mCursorPosition.isNull())
+        return;
+    qreal length = 50.0/transform().m11();
+    QPointF top(mCursorPosition.x(),
+                mCursorPosition.y() - length);
+    QPointF bottom(mCursorPosition.x(),
+               mCursorPosition.y() + length);
+    QPointF right(mCursorPosition.x() + length,
+               mCursorPosition.y());
+    QPointF left(mCursorPosition.x() - length,
+               mCursorPosition.y());
+    painter->setPen(QPen(Qt::white, 0, Qt::SolidLine));
+    painter->drawLine(top, bottom);
+    painter->drawLine(left, right);
+}
+
+void View::cycleAngleConstraint()
+{
+    mAngleConstraint = static_cast<AngleConstraint>((mAngleConstraint+1)%4);
+}
+
+void View::cycleCornerStyle()
+{
+    mCornerStyle = static_cast<CornerStyle>((mCornerStyle+1)%3);
+}
+
+void View::toggleSwapStartEndAngles()
+{
+    mSwapStartEndAngles = !mSwapStartEndAngles;
+}
+
+
+#if 1
+
+void View::cyclePathCornerMode()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    //removePathEndPoints(mCursorPosition);
+    //int mode = mPathCornerMode+1;
+    //mode %= 2;
+    //mPathCornerMode = static_cast<CornerMode>(mode);
+    //addPointToPath(mCursorPosition);
+    mPathCornerMode = static_cast<CornerMode>((mPathCornerMode+1)%2);
+    updateSubPath(mCursorPosition);
+}
+
+void View::cyclePathMode()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    mPathMode = static_cast<PathMode>((mPathMode+1)%7);
+    updateSubPath(mCursorPosition);
+}
+
+void View::startPathItem(QPointF point)
+{
+    mPathItem = new QGraphicsPathItem;
+    mPathItem->setPos(point);
+    mPathItem->setPen(QPen(Qt::magenta));
+    mPathItem->setBrush(QBrush(Qt::darkMagenta));
+    scene()->addItem(mPathItem);
+    mSubPath.clear();
+}
+
+void View::updatePathItem()
+{
+    QPainterPath path;
+    foreach (QPainterPath p, mSubPath) {
+        path.connectPath(p);
+    }
+    path.closeSubpath();
+    mPathItem->setPath(path);
+}
+
+void View::finishPathItem()
+{
+    if (mSubPath.size() <= 1) {
+        scene()->removeItem(mPathItem);
+        delete mPathItem;
+    }
+    else {
+        mSubPath.removeLast();
+        updatePathItem();
+    }
+    mSubPath.clear();
+    mPathItem = 0;
+}
+
+void View::startSubPath(QPointF point)
+{
+    QPainterPath path;
+    if (!mSubPath.isEmpty())
+        path.moveTo(mSubPath.last().currentPosition());
+    else
+        path.moveTo(0, 0);
+
+    mSubPath << path;
+    //updateSubPath(point);
+}
+
+#if 1
+void View::updateSubPath(QPointF endPoint)
+{
+    if (!mPathItem || endPoint.isNull() || mSubPath.isEmpty())
+        return;
+
+    // TODO: check for start == end
+    // TODO: check if the 3 points are aligned
+
+    qDebug() << __PRETTY_FUNCTION__;
+
+    qreal startAngle, endAngle;
+    qreal radius = 5.0;
+
+    bool withAngle;
+    bool withArc;
+    bool swapAngles = mPathCornerMode == SecondCornerMode;
+
+    switch (mPathMode)
+    {
+    case AnyAnglePath:
+        withAngle = false;
+        break;
+
+    case RightAngleCirclePath:
+        withArc = true;
+    case RightAnglePath:
+        withAngle = true;
+        startAngle = 0;
+        endAngle = 90;
+        break;
+
+    case DiagAngleCirclePath:
+        withArc = true;
+    case DiagAnglePath:
+        withAngle = true;
+        startAngle = 0;
+        endAngle = 45;
+        break;
+
+    case BackDiagAngleCirclePath:
+        withArc = true;
+    case BackDiagAnglePath:
+        withAngle = true;
+        startAngle = 0;
+        endAngle = -45;
+        break;
+    }
+
+
+    QPointF p0(mSubPath.last().pointAtPercent(0));
+    QPointF p1, p2;
+    QPointF p3(mPathItem->mapFromScene(endPoint));
+    qreal a0, a3;
+
+    if (p0 == p3)
+        return;
+
+    mSubPath.removeLast();
+    QPainterPath subpath;
+    subpath.moveTo(p0);
+
+    if (!withAngle) {
+        subpath.lineTo(p3);
+    }
+    else {
+        if (!swapAngles) {
+            a0 = startAngle;
+            a3 = endAngle;
+        }
+        else {
+            a0 = endAngle;
+            a3 = startAngle;
+        }
+
+        qreal length = (p3-p0).manhattanLength();
+        QLineF l0 = QLineF::fromPolar(length, a0).translated(p0);
+        QLineF l3 = QLineF::fromPolar(length, a3).translated(p3);
+        QPointF px;
+        QLineF::IntersectType xtype = l0.intersect(l3, &px);
+        Q_ASSERT(xtype != QLineF::NoIntersection);
+
+        QLineF l1(px, p0);
+        l1.setLength(radius);
+        p1 = l1.p2();
+
+        QLineF l2(px, p3);
+        l2.setLength(radius);
+        p2 = l2.p2();
+
+        if (!withArc) {
+            subpath.lineTo(px);
+            subpath.lineTo(p3);
+        }
+        else {
+            subpath.lineTo(p1);
+            subpath.quadTo(px, p2);
+            subpath.lineTo(p3);
+        }
+    }
+
+    qDebug() << subpath;
+    mSubPath << subpath;
+
+    updatePathItem();
+}
+
+void View::finishSubPath(QPointF point)
+{
+    updateSubPath(point);
+}
+
+#else
+void View::updatePath(QPointF endPoint)
+{
+    if (!(mPathItem && !endPoint.isNull() && !mSubPath.isEmpty()))
+        return;
+
+    qDebug() << __PRETTY_FUNCTION__;
+    QPointF localEndPoint = mPathItem->mapFromScene(endPoint);
+
+    QPainterPath &subpath = mSubPath.last();
+
+    switch (mPathMode)
+    {
+    case AnyAnglePath:
+        subpath.setElementPositionAt(1,
+                                     localEndPoint.x(),
+                                     localEndPoint.y());
+        break;
+    case RightAnglePath:
+    {
+        /*
+        QPointF p0(subpath.elementAt(0));
+        QPointF p2(localEndPoint);
+        QPointF p1;
+        if (mPathCornerMode == SecondCornerMode)
+            p1 = QPointF(p2.x(), p0.y());
+        else
+            p1 = QPointF(p0.x(), p2.y());
+        subpath.setElementPositionAt(1,
+                                  p1.x(), p1.y());
+        subpath.setElementPositionAt(2,
+                                  p2.x(), p2.y());
+                                  */
+        break;
+    }
+#if 0
+    case RightAngleCirclePath:
+    {
+        mSubPath.removeLast();
+        QPainterPath path;
+        QPointF p0, p1, p2, p3;
+        qreal startAngle, sweepLength, radius;
+        QLineF vector;
+        QRectF box;
+        p0 = mSubPath.last().currentPosition();
+        p3 = localEndPoint;
+        vector.setPoints(p0, p3);
+        radius = qMin(qAbs(vector.dx()),
+                      qAbs(vector.dy()))/2;
+        int quadrant = int(vector.angle()/90.0);
+        // Points for Quadrant 0
+        if (mPathCornerMode == SecondCornerMode) {
+            startAngle = -90;
+            sweepLength = 90;
+            p1.setX(p3.x() - radius);
+            p1.setY(p0.y());
+            p2.setX(p3.x());
+            p2.setY(p0.y() - radius);
+        }
+        else {
+            startAngle = 180;
+            sweepLength = -90;
+            p1.setX(p0.x());
+            p1.setY(p3.y() + radius);
+            p2.setX(p0.x() + radius);
+            p2.setY(p3.y());
+        }
+        // Rotate p1 and p2
+        QLineF l1(p0, p1);
+        l1.setAngle(l1.angle()+quadrant*90);
+        p1 = l1.p2();
+        QLineF l2(p0, p2);
+        l2.setAngle(l2.angle()+quadrant*90);
+        p2 = l2.p2();
+        // Swap corner
+        if (mPathCornerMode == SecondCornerMode)
+            box = QRectF(p1.x(), p2.y(), 0, 0);
+        else
+            box = QRectF(p2.x(), p1.y(), 0, 0);
+        // Create the path
+        box.adjust(-radius, -radius, radius, radius);
+        qDebug() << vector.angle() << quadrant << radius << box;
+        path.moveTo(p0);
+        path.lineTo(p1);
+        path.lineTo(p2);
+        //path.addRect(box);
+        //path.arcTo(box, startAngle, sweepLength);
+        path.lineTo(p3);
+        // And store it
+        mSubPath << path;
+        break;
+    }
+#elif 1
+        /* P0       P1
+         * +--------+     + Px
+         *             `
+         *               `
+         *          +     + P2
+         *         Pc     |
+         *                |
+         *                |
+         *                + P3
+         */
+#if 1
+    case RightAngleCirclePath:
+    {
+        mSubPath.removeLast();
+        QPainterPath path;
+
+        QPointF p0(mSubPath.last().currentPosition());
+        QPointF p3(localEndPoint);
+
+        // All angles have to be <= 90.0 and !=
+        qreal startAngle = 22.5;
+        qreal endAngle = 90-22.5;
+        qreal radius = 5.0;
+
+        qreal length = (p3-p0).manhattanLength();
+        QLineF v1 = QLineF::fromPolar(length, startAngle).translated(p0);
+        QLineF v2 = QLineF::fromPolar(length, endAngle).translated(p3);
+        QPointF px;
+        QLineF::IntersectType xtype = v1.intersect(v2, &px);
+        Q_ASSERT(xtype != QLineF::NoIntersection);
+
+        QLineF l1p(px, p0);
+        l1p.setLength(radius);
+        QPointF p1 = l1p.p2();
+
+        QLineF l2p(px, p3);
+        l2p.setLength(radius);
+        QPointF p2 = l2p.p2();
+
+        path.moveTo(p0);
+        path.lineTo(p1);
+        path.quadTo(px, p2);
+        path.lineTo(p3);
+
+        qDebug() << path;
+        mSubPath << path;
+        break;
+    }
+#else
+    case RightAngleCirclePath:
+    {
+        mSubPath.removeLast();
+        QPainterPath path;
+        QPointF p0, p1, p2, p3;
+        qreal startAngle, sweepLength, radius;
+        QLineF vector;
+        QRectF box;
+        p0 = mSubPath.last().currentPosition();
+        p3 = localEndPoint;
+        vector.setPoints(p0, p3);
+        radius = qMin(qAbs(vector.dx()),
+                      qAbs(vector.dy()))/2;
+        int quadrant = int(vector.angle()/90.0);
+        if (quadrant == 0) {
+            if (mPathCornerMode == SecondCornerMode) {
+                startAngle = -90;
+                sweepLength = 90;
+                p1.setX(p3.x() - radius);
+                p1.setY(p0.y());
+                p2.setX(p3.x());
+                p2.setY(p0.y() - radius);
+            }
+            else {
+                startAngle = 180;
+                sweepLength = -90;
+                p1.setX(p0.x());
+                p1.setY(p3.y() + radius);
+                p2.setX(p0.x() + radius);
+                p2.setY(p3.y());
+            }
+        } else if (quadrant == 1) {
+            if (mPathCornerMode == SecondCornerMode) {
+                startAngle = -90;
+                sweepLength = -90;
+                p1.setX(p3.x() + radius);
+                p1.setY(p0.y());
+                p2.setX(p3.x());
+                p2.setY(p0.y() - radius);
+            }
+            else {
+                startAngle = 0;
+                sweepLength = 90;
+                p1.setX(p0.x());
+                p1.setY(p3.y() + radius);
+                p2.setX(p0.x() - radius);
+                p2.setY(p3.y());
+            }
+        } else if (quadrant == 2) {
+            if (mPathCornerMode == SecondCornerMode) {
+                startAngle = 90;
+                sweepLength = 90;
+                p1.setX(p3.x() + radius);
+                p1.setY(p0.y());
+                p2.setX(p3.x());
+                p2.setY(p0.y() + radius);
+            }
+            else {
+                startAngle = 0;
+                sweepLength = -90;
+                p1.setX(p0.x());
+                p1.setY(p3.y() - radius);
+                p2.setX(p0.x() - radius);
+                p2.setY(p3.y());
+            }
+        } else if (quadrant == 3) {
+            if (mPathCornerMode == SecondCornerMode) {
+                startAngle = 90;
+                sweepLength = -90;
+                p1.setX(p3.x() - radius);
+                p1.setY(p0.y());
+                p2.setX(p3.x());
+                p2.setY(p0.y() + radius);
+            }
+            else {
+                startAngle = 180;
+                sweepLength = 90;
+                p1.setX(p0.x());
+                p1.setY(p3.y() - radius);
+                p2.setX(p0.x() + radius);
+                p2.setY(p3.y());
+            }
+        }
+        if (mPathCornerMode == SecondCornerMode)
+            box = QRectF(p1.x(), p2.y(), 0, 0);
+        else
+            box = QRectF(p2.x(), p1.y(), 0, 0);
+
+        box.adjust(-radius, -radius, radius, radius);
+        qDebug() << vector.angle() << quadrant << radius << box;
+        path.moveTo(p0);
+        path.lineTo(p1);
+        path.arcTo(box, startAngle, sweepLength);
+        path.lineTo(p3);
+
+        mSubPath << path;
+        break;
+    }
+#endif
+#elif 1
+    case RightAngleCirclePath:
+    {
+        mSubPath.removeLast();
+        QPainterPath path;
+        QPointF p0 = mSubPath.last().currentPosition();
+        path.moveTo(p0);
+        QLineF line(localEndPoint,
+                    p0);
+        int quadrant = 3 - int(line.angle()/90.0);
+        qreal startAngle = 90*quadrant;
+        qDebug() << line.angle() << quadrant << startAngle << startAngle + 90.0;
+        qreal radius = qMin(qAbs(line.dx()),
+                            qAbs(line.dy()))/2;
+#if 1
+        // Quadrant 0
+        QPointF p1(p0.x(),
+                   localEndPoint.y() + radius);
+        QPointF p2(p0.x() - radius,
+                   localEndPoint.y());
+        path.lineTo(p1);
+        path.arcTo(QRectF(p2, p1),
+                   startAngle, 90.0); // 0, 90
+#elif 0
+        // Quadrant 1
+        QPointF p1(p0.x(),
+                   localEndPoint.y() + radius);
+        QPointF p2(p0.x() + radius,
+                   localEndPoint.y());
+        path.lineTo(p1);
+        QRectF rect(p0.x(), localEndPoint.y(),
+                    2*radius, 2*radius);
+        path.arcTo(rect, -180, -90.0);
+#elif 0
+        // Quadrant 2
+        QPointF p1(p0.x(),
+                   localEndPoint.y() - radius);
+        QPointF p2(p0.x() + radius,
+                   localEndPoint.y());
+        path.lineTo(p1);
+        QRectF rect(p0.x(), localEndPoint.y() - 2*radius,
+                    2*radius, 2*radius);
+        path.arcTo(rect, startAngle, 90.0); // 180, 90
+#elif 1
+        // Quadrant 3
+        QPointF p1(p0.x(),
+                   localEndPoint.y() - radius);
+        QPointF p2(p0.x() - radius,
+                   localEndPoint.y());
+        path.lineTo(p1);
+        QRectF rect(p0.x() - 2*radius,
+                    localEndPoint.y() - 2*radius,
+                    2*radius, 2*radius);
+        path.arcTo(rect, 0, -90.0);
+#endif
+        path.lineTo(localEndPoint);
+
+        mSubPath << path;
+    }
+#endif
+    case DiagAnglePath:
+    case DiagAngleCirclePath:
+    {
+        mSubPath.removeLast();
+        QPainterPath path;
+        QPointF p0, p1, p2;
+        QLineF horizontal, vertical, vector;
+        qreal alpha;
+        int quadrant;
+        if (mPathCornerMode == CornerFirstMode) {
+            p0 = mSubPath.last().currentPosition();
+            p2 = localEndPoint;
+        }
+        else {
+            p0 = localEndPoint;
+            p2 = mSubPath.last().currentPosition();
+        }
+        vector.setPoints(p0, p2);
+        horizontal.setPoints(p2, p2 + QPointF(1, 0));
+        vertical.setPoints(p2, p2 + QPointF(0, 1));
+        alpha = vector.angle();
+        quadrant = int((45.0+alpha)/90.0);
+        vector.setAngle(int(alpha/90.0)*90.0 + 45.0);
+        if (quadrant % 2 == 0)
+            vector.intersect(horizontal, &p1);
+        else
+            vector.intersect(vertical, &p1);
+
+        if (mPathMode == DiagAnglePath) {
+            path.moveTo(mSubPath.last().currentPosition());
+            path.lineTo(p1);
+            path.lineTo(localEndPoint);
+        }
+        else {
+            // Draw an arc in place of p1
+
+#if 0
+            qreal radius = qMin(qAbs(vector.dx()),
+                                qAbs(vector.dy()))/2;
+            QLineF toCenter = QLineF::fromPolar(radius/cos(M_PI/8.0), 180/8.0).translated(p1);
+            QRectF arcRect(toCenter.p2(), toCenter.p2());
+            arcRect.adjust(-radius, -radius, radius, radius);
+            path.moveTo(vector.p1());
+            path.arcMoveTo(arcRect, 180);
+            path.arcTo(arcRect, 180, 45);
+            path.lineTo(vector.p2());
+            if (mPathCornerMode != CornerFirstMode)
+                mSubPath << path;
+            else
+                mSubPath << path.toReversed();
+
+#else
+            vector = QLineF(mSubPath.last().currentPosition(),
+                            localEndPoint);
+            qreal radius = qMin(qAbs(vector.dx()),
+                                qAbs(vector.dy()))/2;
+
+            if (mPathCornerMode != CornerFirstMode) {
+                QLineF l = QLineF::fromPolar(radius/cos(M_PI/8.0), 180/8.0);
+                l.translate(p1);
+                QRectF r(l.p2(), l.p2());
+                r.adjust(-radius, -radius, radius, radius);
+                path.moveTo(mSubPath.last().currentPosition());
+                path.arcMoveTo(r, 180);
+                path.arcTo(r, 180, 45);
+                path.lineTo(localEndPoint);
+            }
+            else {
+                QLineF l = QLineF::fromPolar(radius/cos(M_PI/8.0), 180+180/8.0);
+                l.translate(p1);
+                QRectF r(l.p2(), l.p2());
+                r.adjust(-radius, -radius, radius, radius);
+                path.moveTo(mSubPath.last().currentPosition());
+                path.arcMoveTo(r, 45);
+                path.arcTo(r, 45, -45);
+                path.lineTo(localEndPoint);
+            }
+#endif
+        }
+        mSubPath << path;
+        break;
+    }
+    }
+
+    QPainterPath path;
+    foreach (QPainterPath p, mSubPath) {
+        path.connectPath(p);
+    }
+    mPathItem->setPath(path);
+    //qDebug() << path;
+
+}
+#endif
+
+
+#else
+
+void View::cyclePathCornerMode()
+{
+    int mode = mPathCornerMode+1;
+    mode %= 2;
+    mPathCornerMode = static_cast<CornerMode>(mode);
+}
+
+void View::cyclePathMode()
+{
+    int mode = mPathMode+1;
+    mode %= 5;
+    mPathMode = static_cast<PathMode>(mode);
+}
+
+void View::addPointToPath(QPointF point)
+{
+    if (point.isNull())
+        return;
+
+    if (!mPathItem) {
+        mPathItem = new QGraphicsPathItem;
+        mPathItem->setPos(mCursorPosition);
+        mPathItem->setPen(QPen(Qt::magenta));
+        mPathItem->setBrush(QBrush(Qt::darkMagenta));
+        scene()->addItem(mPathItem);
+    }
+
+    point += QPointF(1, 1);
+
+    QPainterPath path = mPathItem->path();
+    switch (mPathMode) {
+    case AnyAnglePath:
+        path.lineTo(mPathItem->mapFromScene(point));
+        break;
+    case RightAnglePath:
+    case RightAngleCirclePath:
+        path.lineTo(mPathItem->mapFromScene(point));
+        point += QPointF(1, 1);
+        path.lineTo(mPathItem->mapFromScene(point));
+        break;
+    case DiagAnglePath:
+    case DiagAngleCirclePath:
+        path.lineTo(mPathItem->mapFromScene(point));
+        point += QPointF(1, 1);
+        path.lineTo(mPathItem->mapFromScene(point));
+        break;
+    }
+    mPathItem->setPath(path);
+    qDebug() << path;
+}
+
+void View::updatePath(QPointF endPoint)
+{
+    if (!(mPathItem && !endPoint.isNull() &&
+            mPathItem->path().elementCount() > 1))
+        return;
+
+    QPainterPath path = mPathItem->path();
+    QPointF localEndPoint = mPathItem->mapFromScene(endPoint);
+
+    switch (mPathMode)
+    {
+    case AnyAnglePath:
+        path.setElementPositionAt(path.elementCount()-1,
+                                  localEndPoint.x(), localEndPoint.y());
+        break;
+    case RightAnglePath:
+    case RightAngleCirclePath:
+    {
+        Q_ASSERT(mPathItem->path().elementCount() > 2);
+        int i = path.elementCount() - 3;
+        QPointF p0(path.elementAt(i));
+        QPointF p2(localEndPoint);
+        QPointF p1;
+        if (mPathCornerMode == SecondCornerMode)
+            p1 = QPointF(p2.x(), p0.y());
+        else
+            p1 = QPointF(p0.x(), p2.y());
+        path.setElementPositionAt(i+1,
+                                  p1.x(), p1.y());
+        path.setElementPositionAt(i+2,
+                                  p2.x(), p2.y());
+        break;
+    }
+    case DiagAnglePath:
+    case DiagAngleCirclePath:
+    {
+        Q_ASSERT(mPathItem->path().elementCount() > 2);
+        int i = path.elementCount() - 3;
+        QPointF p0, p1, p2;
+        QLineF horizontal, vertical, diagonal;
+        qreal alpha;
+        int quadrant;
+        if (mPathCornerMode == SecondCornerMode) {
+            p0 = path.elementAt(i);
+            p1 = path.elementAt(i+1);
+            p2 = localEndPoint;
+        }
+        else {
+            p0 = localEndPoint;
+            p1 = path.elementAt(i+1);
+            p2 = path.elementAt(i);
+        }
+        horizontal.setPoints(p0, p0 + QPointF(1, 0));
+        vertical.setPoints(p0, p0 + QPointF(0, 1));
+        diagonal.setPoints(p2, p0);
+        alpha = diagonal.angle();
+        quadrant = int((45.0+alpha)/90.0);
+        diagonal.setAngle(int(alpha/90.0)*90.0 + 45.0);
+        if (quadrant % 2 == 0)
+            diagonal.intersect(horizontal, &p1);
+        else
+            diagonal.intersect(vertical, &p1);
+        path.setElementPositionAt(i+1,
+                                  p1.x(), p1.y());
+        path.setElementPositionAt(i+2,
+                                  localEndPoint.x(), localEndPoint.y());
+        break;
+    }
+    }
+    mPathItem->setPath(path);
+
+}
+
+void View::finishPath(QPointF endPoint)
+{
+    Q_UNUSED(endPoint);
+
+    QPainterPath path = mPathItem->path();
+    path.closeSubpath();
+    mPathItem->setPath(path);
+    mPathItem = 0;
+}
+#endif
