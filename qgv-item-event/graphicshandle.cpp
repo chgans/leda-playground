@@ -7,40 +7,17 @@
 
 #include <QDebug>
 
-GraphicsHandle::GraphicsHandle(GraphicsHandle::Role role,
-                               Kind kind,
-                               const QPointF &pos, GraphicsObject *parent):
+GraphicsHandle::GraphicsHandle(QGraphicsItem *parent):
     QGraphicsPathItem(parent),
-    m_parent(parent),
-    m_role(role), m_kind(kind)
+    IGraphicsObservableItem(),
+    m_handleShape(UndefinedHandleShape)
 {
-    static const int radius = 3;
-
-    QPainterPath path;
-    switch (kind) {
-    case CircleHandle:
-        path.addEllipse(QPointF(0, 0), radius, radius);
-        break;
-    case SquareHandle:
-        path.addRect(-radius, -radius, 2*radius, 2*radius);
-        break;
-    case DiamondHandle: {
-        QVector<QPointF> points;
-        points << QPointF(0, -radius) << QPointF(radius, 0)
-               << QPointF(0, radius) << QPointF(-radius, 0);
-        path.addPolygon(QPolygonF(points));
-        break;
-    }
-    default:
-        // Not reached
-        break;
-    }
-    setPath(path);
-
-    setPos(pos);
     setPen(QPen(QBrush(Qt::red), 0));
     setBrush(QBrush(Qt::white));
 
+    setHandleShape(CircularHandleShape);
+
+    setFlag(QGraphicsItem::ItemIsMovable);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
     setFlag(QGraphicsItem::ItemIgnoresTransformations);
 
@@ -52,33 +29,75 @@ QCursor GraphicsHandle::cursor() const
     return roleToCursor(m_role);
 }
 
-GraphicsHandle::Kind GraphicsHandle::kind() const
+void GraphicsHandle::setRole(GraphicsHandleRole role)
 {
-    return m_kind;
+    if (m_role == role)
+        return;
+    m_role = role;
+}
+
+GraphicsHandleRole GraphicsHandle::role() const
+{
+    return m_role;
+}
+
+void GraphicsHandle::setHandleShape(GraphicsHandleShape shape)
+{
+    if (m_handleShape == shape)
+        return;
+    prepareGeometryChange();
+    m_handleShape = shape;
+
+    static const int radius = 5;
+
+    QPainterPath path;
+    switch (shape) {
+    case CircularHandleShape:
+        path.addEllipse(QPointF(0, 0), radius, radius);
+        break;
+    case SquaredHandleShape:
+        path.addRect(-radius, -radius, 2*radius, 2*radius);
+        break;
+    case DiamondedHandleShape: {
+        QVector<QPointF> points;
+        points << QPointF(0, -radius) << QPointF(radius, 0)
+               << QPointF(0, radius) << QPointF(-radius, 0);
+        path.addPolygon(QPolygonF(points));
+        path.closeSubpath();
+        break;
+    }
+    default:
+        // Not reached
+        break;
+    }
+    setPath(path);
+}
+
+GraphicsHandleShape GraphicsHandle::handleShape() const
+{
+    return m_handleShape;
 }
 
 QVariant GraphicsHandle::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     if (change == QGraphicsItem::ItemPositionHasChanged) {
-        m_parent->handleMoved(this);
+        notifyObservers();
     }
     return value;
 }
 
-QCursor GraphicsHandle::roleToCursor(GraphicsHandle::Role role) const
+QCursor GraphicsHandle::roleToCursor(GraphicsHandleRole role)
 {
     switch (role)
     {
-    case MoveRole: return QCursor(Qt::PointingHandCursor);
-    case VSizeRole: return QCursor(Qt::SizeVerCursor);
-    case HSizeRole: return QCursor(Qt::SizeHorCursor);
-    case BDiagSizeRole: return QCursor(Qt::SizeBDiagCursor);
-    case FDiagSizeRole: return QCursor(Qt::SizeFDiagCursor);
-    case RotateRole: return QCursor(); // TBD
-    case ShearRole: return QCursor();  // TBD
-    case MarkRole: return QCursor();   // TBD
+    case MoveHandleRole: return QCursor(Qt::PointingHandCursor);
+    case VSizeHandleRole: return QCursor(Qt::SizeVerCursor);
+    case HSizeHandleRole: return QCursor(Qt::SizeHorCursor);
+    case BDiagSizeHandleRole: return QCursor(Qt::SizeBDiagCursor);
+    case FDiagSizeHandleRole: return QCursor(Qt::SizeFDiagCursor);
+    case RotateHandleRole: return QCursor(); // TBD
+    case ShearHandleRole: return QCursor();  // TBD
+    case MarkHandleRole: return QCursor();   // TBD
     default: return QCursor();
     }
 }
-
-

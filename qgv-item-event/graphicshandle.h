@@ -2,46 +2,63 @@
 #define GRAPHICSHANDLE_H
 
 #include <QGraphicsPathItem>
+#include "igraphicsobservableitem.h"
+
+#include <QPainter>
+#include <QPointer>
+#include <QCursor>
 
 class GraphicsObject;
 class QStyleOptionGraphicsItem;
 class QPainter;
 class QWidget;
 
-class GraphicsHandle: public QGraphicsPathItem
+enum GraphicsHandleRole {
+    MoveHandleRole = 0,
+    VSizeHandleRole,
+    HSizeHandleRole,
+    BDiagSizeHandleRole,
+    FDiagSizeHandleRole,
+    RotateHandleRole,
+    ShearHandleRole,
+    MarkHandleRole
+};
+
+enum GraphicsHandleShape {
+    UndefinedHandleShape = 0,
+    CircularHandleShape,
+    SquaredHandleShape,
+    DiamondedHandleShape
+};
+
+enum GraphicsHandleBehaviour {
+    UndefinedHandleBehaviour = 0,
+    NormalHandleBehaviour,
+    CornerHandleBehaviour,
+    SmoothHandleBehaviour,
+    SymetricHandleBehaviour,
+    AutoSmoothHandleBehaviour
+};
+
+class GraphicsHandle: public QGraphicsPathItem, public IGraphicsObservableItem
 {
 public:
-    enum Role {
-        MoveRole = 0,
-        VSizeRole,
-        HSizeRole,
-        BDiagSizeRole,
-        FDiagSizeRole,
-        RotateRole,
-        ShearRole,
-        MarkRole
-    };
-
-    enum Kind {
-        CircleHandle = 0,
-        SquareHandle,
-        DiamondHandle
-    };
-
-    GraphicsHandle(Role role, Kind kind,
-                   const QPointF &pos, GraphicsObject *parent);
+    GraphicsHandle(QGraphicsItem *parent = 0);
 
     QCursor cursor() const;
-    Kind kind() const;
+
+    void setRole(GraphicsHandleRole role);
+    GraphicsHandleRole role() const;
+    void setHandleShape(GraphicsHandleShape shape);
+    GraphicsHandleShape handleShape() const;
 
 protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
-    QCursor roleToCursor(Role role) const;
-    GraphicsObject *m_parent;
-    Role m_role;
-    Kind m_kind;
+    static QCursor roleToCursor(GraphicsHandleRole role);
+    GraphicsHandleRole m_role;
+    GraphicsHandleShape m_handleShape;
 };
 
 #endif // GRAPHICSHANDLE_H
