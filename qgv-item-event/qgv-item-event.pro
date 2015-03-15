@@ -28,7 +28,10 @@ SOURCES += main.cpp\
     graphicsrecttool.cpp \
     graphicsbezieritem.cpp \
     graphicsbeziertool.cpp \
-    graphicshandle.cpp
+    graphicshandle.cpp \
+    graphicspathpoint.cpp \
+    igraphicsitemobserver.cpp \
+    igraphicsobservableitem.cpp
 
 HEADERS  += mainwindow.h \
     graphicsscene.h \
@@ -43,7 +46,11 @@ HEADERS  += mainwindow.h \
     graphicsrecttool.h \
     graphicsbezieritem.h \
     graphicsbeziertool.h \
-    graphicshandle.h
+    graphicshandle.h \
+    graphicspathpoint.h \
+    igraphicsitemobserver.h \
+    igraphicsobservableitem.h \
+    graphicsstyle.h
 
 FORMS    += mainwindow.ui \
     graphicslinetooldialog.ui
