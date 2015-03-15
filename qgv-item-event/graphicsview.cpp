@@ -82,17 +82,12 @@ GraphicsObject *GraphicsView::objectAt(const QPoint &pos) const
     return dynamic_cast<GraphicsObject *>(QGraphicsView::itemAt(pos));
 }
 
-const GraphicsHandle *GraphicsView::handleAt(const QPoint &pos) const
+GraphicsHandle *GraphicsView::handleAt(const QPoint &pos) const
 {
-    const GraphicsObject *object = objectAt(pos);
-    if (object == nullptr)
-        return nullptr;
-    QPointF scenePos = mapToScene(pos);
-    QPointF itemPos = object->mapFromScene(scenePos);
-    return object->HandleNear(itemPos);
+    return dynamic_cast<GraphicsHandle *>(QGraphicsView::itemAt(pos));
 }
 
-const GraphicsHandle *GraphicsView::handleUnderMouse() const
+GraphicsHandle *GraphicsView::handleUnderMouse() const
 {
     return handleAt(mousePosition());
 }

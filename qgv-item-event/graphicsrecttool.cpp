@@ -35,7 +35,6 @@ void GraphicsRectTool::mousePressEvent(QMouseEvent *event)
     }
     else if (m_state == 1) {
         setP2(event->pos());
-        m_item->setSelected(true);
         m_item = nullptr;
         m_state = 0;
     }
@@ -91,13 +90,13 @@ void GraphicsRectTool::cancel()
 void GraphicsRectTool::setP1(const QPoint &handlePos)
 {
     QPointF pos = m_item->mapFromScene(view()->mapToScene(handlePos));
-    m_item->moveHandle(m_item->handles()[0], pos);
+    m_item->handleAt(GraphicsRectItem::TopLeft)->setPos(pos);
 }
 
 void GraphicsRectTool::setP2(const QPoint &handlePos)
 {
     QPointF pos = m_item->mapFromScene(view()->mapToScene(handlePos));
-    m_item->moveHandle(m_item->handles()[4], pos);
+    m_item->handleAt(GraphicsRectItem::BottomRight)->setPos(pos);
 }
 
 

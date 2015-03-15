@@ -102,9 +102,9 @@ void GraphicsBezierTool::mouseMoveEvent(QMouseEvent *event)
             m_item->addPoint(mapToItem(m_nodePos));
             m_insertHandleOnMouseMove = false;
         }
-        int idx = m_item->handles().count() - 1;
-        const GraphicsHandle *p = m_item->handles().value(idx);
-        m_item->moveHandle(p, mapToItem(m_nodePos));
+        int idx = m_item->handleCount() - 1;
+        GraphicsHandle *handle = m_item->handleAt(idx);
+        handle->setPos(mapToItem(m_nodePos));
         break;
     }
     default:
@@ -141,8 +141,6 @@ void GraphicsBezierTool::mouseReleaseEvent(QMouseEvent *event)
         m_insertHandleOnMouseMove = true;
         break;
     case LastPoint:
-        //m_item->removePoint(m_item->pointCount()-1);
-        m_item->setSelected(true);
         m_item = nullptr;
         setState(NotStarted);
         break;

@@ -23,9 +23,9 @@ public:
     void setTool(GraphicsTool *tool);
 
     GraphicsObject *objectAt(const QPoint &pos) const;
-    const GraphicsHandle *handleAt(const QPoint &pos) const;
+    GraphicsHandle *handleAt(const QPoint &pos) const;
 
-    const GraphicsHandle *handleUnderMouse() const;
+    GraphicsHandle *handleUnderMouse() const;
     GraphicsObject *objectUnderMouse() const;
     QPoint mousePosition() const;
 

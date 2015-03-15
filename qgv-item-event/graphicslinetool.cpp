@@ -22,6 +22,7 @@ void GraphicsLineTool::mousePressEvent(QMouseEvent *event)
 {
     if (m_state == 0) {
         Q_ASSERT(m_item == nullptr);
+        scene()->clearSelection();
         m_item = new GraphicsLineItem();
         m_item->setFlags(QGraphicsItem::ItemIsMovable |
                          QGraphicsItem::ItemIsSelectable);
@@ -86,16 +87,18 @@ void GraphicsLineTool::cancel()
     }
 }
 
-void GraphicsLineTool::setP1(const QPoint &handlePos)
+void GraphicsLineTool::setP1(const QPoint &viewPos)
 {
-    QPointF pos = m_item->mapFromScene(view()->mapToScene(handlePos));
-    m_item->moveHandle(m_item->handles()[0], pos);
+    QPointF scenePos = view()->mapToScene(viewPos);
+    QPointF handlePos = m_item->mapFromScene(scenePos);
+    m_item->handleAt(0)->setPos(handlePos);
 }
 
-void GraphicsLineTool::setP2(const QPoint &handlePos)
+void GraphicsLineTool::setP2(const QPoint &viewPos)
 {
-    QPointF pos = m_item->mapFromScene(view()->mapToScene(handlePos));
-    m_item->moveHandle(m_item->handles()[1], pos);
+    QPointF scenePos = view()->mapToScene(viewPos);
+    QPointF handlePos = m_item->mapFromScene(scenePos);
+    m_item->handleAt(1)->setPos(handlePos);
 }
 
 

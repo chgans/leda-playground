@@ -86,6 +86,7 @@ void GraphicsTool::cancel()
 
 }
 
+// TODO: the original should be dimmed out instead
 GraphicsObject *GraphicsTool::createPhantomItem(GraphicsObject *item)
 {
     GraphicsObject *phantomItem = item->clone();

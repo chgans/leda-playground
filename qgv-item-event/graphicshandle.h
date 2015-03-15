@@ -1,15 +1,14 @@
 #ifndef GRAPHICSHANDLE_H
 #define GRAPHICSHANDLE_H
 
-#include <QRectF>
-#include <QPainterPath>
+#include <QGraphicsPathItem>
 
 class GraphicsObject;
 class QStyleOptionGraphicsItem;
 class QPainter;
 class QWidget;
 
-class GraphicsHandle
+class GraphicsHandle: public QGraphicsPathItem
 {
 public:
     enum Role {
@@ -23,37 +22,26 @@ public:
         MarkRole
     };
 
-    GraphicsHandle(Role role = MoveRole, const QPointF &pos = QPointF());
-    GraphicsHandle(const GraphicsHandle &other);
+    enum Kind {
+        CircleHandle = 0,
+        SquareHandle,
+        DiamondHandle
+    };
 
-    // Draw a line between this GraphicsHandle and other GraphicsHandle
-    void addLink(GraphicsHandle *other);
-    void removeLink(GraphicsHandle *other);
-    // return a list of GraphicsHandle this GraphicsHandle has been explicitely linked to
-    // (no retro link!)
-    QList<GraphicsHandle *> links() const;
+    GraphicsHandle(Role role, Kind kind,
+                   const QPointF &pos, GraphicsObject *parent);
 
     QCursor cursor() const;
+    Kind kind() const;
 
-    QVariant data() const;
-    void setData(const QVariant &data);
-
-    QRectF boundingRect() const;
-    QPainterPath shape() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) const;
-    QPointF pos() const;
-    void setPos(const QPointF &pos);
+protected:
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
     QCursor roleToCursor(Role role) const;
-    //GraphicsObject *m_parent;
+    GraphicsObject *m_parent;
     Role m_role;
-    //QPointF m_pos;
-    QRectF m_rect;
-    QVariant m_data;
-    QList<GraphicsHandle*> m_links;
-    QPainterPath m_shape;
-    QRectF m_boudingRect;
+    Kind m_kind;
 };
 
 #endif // GRAPHICSHANDLE_H

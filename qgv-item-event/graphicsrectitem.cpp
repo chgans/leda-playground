@@ -12,7 +12,7 @@
 
 GraphicsRectItem::GraphicsRectItem(GraphicsObject *parent):
     GraphicsObject(parent), m_rect(QRectF(0, 0, 0, 0)),
-    m_dirty(true)
+    m_updatingHandles(false), m_dirty(true)
 {
     addHandle(TopLeft, GraphicsHandle::FDiagSizeRole);
     addHandle(Top, GraphicsHandle::VSizeRole);
@@ -59,30 +59,34 @@ QBrush GraphicsRectItem::brush() const
 void GraphicsRectItem::setBrush(const QBrush &brush)
 {
     m_brush = brush;
-    markDirty(); // needed?
 }
 
 void GraphicsRectItem::addHandle(GraphicsRectItem::HandleId handleId, GraphicsHandle::Role role)
 {
-    const GraphicsHandle *handle = GraphicsObject::addHandle(role,
-                                                                    QPointF(0, 0));
+    const GraphicsHandle *handle = new GraphicsHandle(role,
+                                                GraphicsHandle::CircleHandle,
+                                                QPointF(0, 0), this);
     m_handleToId[handle] = handleId;
-    m_idToHandle[handleId] = handle;
+    m_idToHandle[handleId] = const_cast<GraphicsHandle *>(handle);
 }
 
 void GraphicsRectItem::updateHandlesSilently()
 {
+    m_updatingHandles = true;
+
     qreal midX = m_rect.right()-m_rect.width()/2.0;
     qreal midY = m_rect.bottom()-m_rect.height()/2.0;
 
-    moveHandleSilently(m_idToHandle[TopLeft], m_rect.topLeft());
-    moveHandleSilently(m_idToHandle[Top], QPointF(midX, m_rect.top()));
-    moveHandleSilently(m_idToHandle[TopRight], m_rect.topRight());
-    moveHandleSilently(m_idToHandle[Right], QPointF(m_rect.right(), midY));
-    moveHandleSilently(m_idToHandle[BottomRight], m_rect.bottomRight());
-    moveHandleSilently(m_idToHandle[Bottom], QPointF(midX, m_rect.bottom()));
-    moveHandleSilently(m_idToHandle[BottomLeft], m_rect.bottomLeft());
-    moveHandleSilently(m_idToHandle[Left], QPointF(m_rect.left(), midY));
+    m_idToHandle[TopLeft]->setPos(m_rect.topLeft());
+    m_idToHandle[Top]->setPos(QPointF(midX, m_rect.top()));
+    m_idToHandle[TopRight]->setPos(m_rect.topRight());
+    m_idToHandle[Right]->setPos(QPointF(m_rect.right(), midY));
+    m_idToHandle[BottomRight]->setPos(m_rect.bottomRight());
+    m_idToHandle[Bottom]->setPos(QPointF(midX, m_rect.bottom()));
+    m_idToHandle[BottomLeft]->setPos(m_rect.bottomLeft());
+    m_idToHandle[Left]->setPos(QPointF(m_rect.left(), midY));
+
+    m_updatingHandles = false;
 }
 
 void GraphicsRectItem::updateGeometry() const
@@ -90,16 +94,9 @@ void GraphicsRectItem::updateGeometry() const
 
     QPainterPath path;
     path.addRect(m_rect);
-    if (isSelected()) {
-        m_shape = (path + handlesShape()).simplified();
-    }
-    else
-        m_shape = path;
+    m_shape = path;
 
     QRectF rect = m_shape.boundingRect();
-    if (isSelected())
-        rect |= handlesBoundingRect();
-
     qreal extra = pen().widthF()/2.0;
     m_boundingRect = rect.adjusted(-extra, -extra, +extra, +extra);
 
@@ -124,7 +121,10 @@ GraphicsObject *GraphicsRectItem::clone()
 
 void GraphicsRectItem::handleMoved(const GraphicsHandle *handle)
 {
-    Q_ASSERT(m_handleToId.contains(handle));
+    //Q_ASSERT(m_handleToId.contains(handle));
+    if (m_updatingHandles)
+        return;
+
     HandleId id = m_handleToId[handle];
     switch (id) {
     case TopLeft:
@@ -179,15 +179,15 @@ void GraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setPen(pen());
     painter->setBrush(brush());
     painter->drawRect(m_rect);
-    if (isSelected())
-        paintHandles(painter, option, widget);
 }
 
+// TODO: refactor
 QVariant GraphicsRectItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-    // Notify the scene that shape() and boudingRect() changed
     if (change == QGraphicsItem::ItemSelectedHasChanged) {
-        markDirty();
+        foreach (QGraphicsItem *h, childItems()) {
+            h->setVisible(isSelected());
+        }
     }
     return value;
 }

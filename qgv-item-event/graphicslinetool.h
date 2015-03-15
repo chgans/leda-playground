@@ -23,7 +23,7 @@ public slots:
     virtual void cancel();
 
 protected:
-    void setP1(const QPoint &handlePos);
+    void setP1(const QPoint &viewPos);
     void setP2(const QPoint &handlePos);
 private:
     int m_state;

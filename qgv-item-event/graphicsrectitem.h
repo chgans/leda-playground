@@ -17,17 +17,6 @@ class GraphicsRectItem : public GraphicsObject
     Q_OBJECT
 
 public:
-    GraphicsRectItem(GraphicsObject *parent = 0);
-    ~GraphicsRectItem();
-
-    QRectF rect() const;
-    void setRect(const QRectF &rect);
-    QPen pen() const;
-    void setPen(const QPen &pen);
-    QBrush brush() const;
-    void setBrush(const QBrush &brush);
-
-private:
     enum HandleId {
         TopLeft = 0,
         Top,
@@ -39,13 +28,26 @@ private:
         Left,
         NbHandles
     };
+
+    GraphicsRectItem(GraphicsObject *parent = 0);
+    ~GraphicsRectItem();
+
+    QRectF rect() const;
+    void setRect(const QRectF &rect);
+    QPen pen() const;
+    void setPen(const QPen &pen);
+    QBrush brush() const;
+    void setBrush(const QBrush &brush);
+
+private:
     QRectF m_rect;
     QPen m_pen;
     QBrush m_brush;
     QMap<const GraphicsHandle *, HandleId> m_handleToId;
-    QMap<HandleId, const GraphicsHandle *> m_idToHandle;
+    QMap<HandleId, GraphicsHandle *> m_idToHandle;
     void addHandle(HandleId handleId, GraphicsHandle::Role role);
     void updateHandlesSilently();
+    bool m_updatingHandles;
     mutable QRectF m_boundingRect;
     mutable QPainterPath m_shape;
     mutable bool m_dirty;

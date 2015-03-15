@@ -5,6 +5,8 @@
 
 #include <QPen>
 
+class Point;
+
 class GraphicsBezierItem : public GraphicsObject
 {
 public:
@@ -24,7 +26,7 @@ private:
     QPen m_pen;
     QLineF m_line;
     QPainterPath m_path;
-
+    bool m_updatingHandles;
     void setBoundingRectDirty();
     void computeBoundingRect() const;
     mutable bool m_boundingRectIsDirty;

@@ -9,8 +9,14 @@
 GraphicsLineItem::GraphicsLineItem(GraphicsObject *parent):
     GraphicsObject(parent), m_dirty(true)
 {
-    m_handle1 = addHandle(GraphicsHandle::MoveRole, QPointF(0, 0));
-    m_handle2 = addHandle(GraphicsHandle::MoveRole, QPointF(0, 0));
+    // TODO: same way of doing as bezier item
+    // Add handles in mouserelease/move
+    m_handle1 = new GraphicsHandle(GraphicsHandle::MoveRole,
+                                   GraphicsHandle::CircleHandle,
+                                   QPointF(0, 0), this);
+    m_handle2 = new GraphicsHandle(GraphicsHandle::MoveRole,
+                                   GraphicsHandle::CircleHandle,
+                                   QPointF(0, 0), this);
 }
 
 QLineF GraphicsLineItem::line() const
@@ -73,17 +79,15 @@ void GraphicsLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 {
     painter->setPen(m_pen);
     painter->drawLine(line());
-    if (isSelected())
-        paintHandles(painter, option, widget);
 }
 
-// FIXME: optimisation, make sure shape() and boudingRect() don't change
-// when seletion changed?
 QVariant GraphicsLineItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-    // Notify the scene that shape() and boudingRect() changed
-    if (change == QGraphicsItem::ItemSelectedHasChanged)
-        markDirty();
+    if (change == QGraphicsItem::ItemSelectedHasChanged) {
+        foreach (QGraphicsItem *h, childItems()) {
+            h->setVisible(isSelected());
+        }
+    }
     return value;
 }
 
@@ -105,12 +109,7 @@ void GraphicsLineItem::updateGeometry() const
     path.moveTo(m_line.p1());
     path.lineTo(m_line.p2());
 
-    if (isSelected()) {
-        path = stroker.createStroke(path);
-        m_shape = (path + handlesShape()).simplified();
-    }
-    else
-        m_shape = stroker.createStroke(path);
+    m_shape = stroker.createStroke(path);
 
     QRectF rect = m_shape.boundingRect();
     qreal extra = pen().widthF()/2.0;

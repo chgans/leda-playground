@@ -53,9 +53,9 @@ GraphicsSelectTool::~GraphicsSelectTool()
 
 void GraphicsSelectTool::updateCursor(QMouseEvent *event)
 {
-    const GraphicsHandle *handle = view()->handleUnderMouse();
+    GraphicsHandle *handle = view()->handleUnderMouse();
     GraphicsObject *object = view()->objectUnderMouse();
-    if (handle != nullptr && object != nullptr && object->isSelected()) {
+    if (handle != nullptr) {
         m_handle = handle;
         setOperation(MoveHandle);
     }
@@ -139,7 +139,7 @@ void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
         return;
 
     if (m_state == HintState) {
-        const GraphicsHandle *handle = view()->handleUnderMouse();
+        GraphicsHandle *handle = view()->handleUnderMouse();
         GraphicsObject *object = view()->objectUnderMouse();
         m_mousePressPosition = event->pos();
         switch (m_operation) {
@@ -164,8 +164,6 @@ void GraphicsSelectTool::mousePressEvent(QMouseEvent *event)
             break;
         case MoveHandle:
             Q_ASSERT(handle != nullptr);
-            m_item = object;
-            m_items = scene()->selectedObjects();
             m_handle = handle;
             break;
         default:
@@ -210,9 +208,10 @@ void GraphicsSelectTool::mouseMoveEvent(QMouseEvent *event)
             break;
         }
         case MoveHandle: {
+            // TODO: use phantomItem as well
             QPointF scenePos = view()->mapToScene(event->pos());
-            QPointF itemPos = m_item->mapFromScene(scenePos);
-            m_item->moveHandle(m_handle, itemPos);
+            QPointF handlePos = m_handle->mapToParent(m_handle->mapFromScene(scenePos));
+            m_handle->setPos(handlePos);
             break;
         }
         default:
@@ -267,6 +266,17 @@ void GraphicsSelectTool::keyPressEvent(QKeyEvent *event)
         if (m_operation == MoveItem && m_state == HintState)
             setOperation(CloneItem);
     }
+    /*
+    else if (event->key() == Qt::Key_Delete) {
+        QPoint pos = view()->mapFromGlobal(QCursor::pos());
+        GraphicsObject *object = view()->objectAt(pos);
+        const GraphicsHandle *handle = view()->handleAt(pos);
+        if (handle != nullptr) {
+            object->removeHandle(object->handles().indexOf(handle));
+        }
+
+    }
+    */
     event->accept();
 }
 
