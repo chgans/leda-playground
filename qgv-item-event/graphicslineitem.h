@@ -2,14 +2,16 @@
 #define GRAPHICSLINEITEM_H
 
 #include "graphicsobject.h"
+#include "igraphicsitemobserver.h"
 
 #include <QPen>
 #include <QLineF>
 
-class GraphicsLineItem : public GraphicsObject
+class GraphicsLineItem : public GraphicsObject, public IGraphicsItemObserver
 {
     Q_OBJECT
 
+    // GraphicsLineItem
 public:
     GraphicsLineItem(GraphicsObject *parent = 0);
 
@@ -21,7 +23,10 @@ public:
     // GraphicsObject interface
 public:
     GraphicsObject *clone();
-    void handleMoved(const GraphicsHandle *handle);
+
+    // IGraphicsItemObserver
+public:
+    void itemNotification(IGraphicsObservableItem *item);
 
     // QGraphicsItem interface
 public:
@@ -33,6 +38,7 @@ public:
 protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
+    // GraphicsLineItem
 private:
     mutable QPainterPath m_shape;
     mutable QRectF m_boundingRect;
@@ -42,8 +48,8 @@ private:
 
     QPen m_pen;
     QLineF m_line;
-    const GraphicsHandle *m_handle1;
-    const GraphicsHandle *m_handle2;
+    GraphicsHandle *m_handle1;
+    GraphicsHandle *m_handle2;
 };
 
 #endif // GRAPHICSLINEITEM_H

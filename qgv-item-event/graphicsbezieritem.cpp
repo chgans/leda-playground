@@ -44,24 +44,35 @@ void GraphicsBezierItem::setPen(const QPen &pen)
     setBoundingRectDirty();
 }
 
+// pos is in local coordinate
 void GraphicsBezierItem::addPoint(const QPointF &pos)
 {
-    Q_ASSERT(m_path.elementCount() == handleCount());
+    m_updatingHandles = true;
 
     if (m_px.size() == 0) {
-        GraphicsHandle *node = new GraphicsHandle(GraphicsHandle::MoveRole,
-                                                  GraphicsHandle::CircleHandle,
-                                                  pos, this);
-        m_handleToElementIndex[node] = 0;
+        GraphicsPathPoint *point = new GraphicsPathPoint(this);
+        point->setNodePos(pos);
+        point->setFirst(true);
+        point->setLast(true);
+        addObservedItem(point);
+
+        qDebug() << "addPoint" << pos;
         m_px.append(pos.x());
         m_py.append(pos.y());
-        updateSpline();
     }
     else if (!(qFuzzyCompare(m_px.last(), pos.x()) &&
                qFuzzyCompare(m_py.last(), pos.y()))) {
 
-        int elementIndex = m_path.elementCount();
+        // Update the dirst/last status of the ex-last one
+        points().last()->setLast(false);
 
+        // Same with the new last one
+        GraphicsPathPoint *point = new GraphicsPathPoint(this);
+        point->setLast(true);
+        addObservedItem(point);
+
+        // Add new point to spline
+        qDebug() << "addPoint" << pos;
         m_px.append(pos.x());
         m_py.append(pos.y());
         m_c1x.append(0);
@@ -69,60 +80,23 @@ void GraphicsBezierItem::addPoint(const QPointF &pos)
         m_c2x.append(0);
         m_c2y.append(0);
 
+        // And update the spline control points coordinates
         updateSpline();
 
-        QPointF c1Pos(m_c1x.back(), m_c1y.back());
-        QPointF c2Pos(m_c2x.back(), m_c2y.back());
-        GraphicsHandle *c1 = new GraphicsHandle(GraphicsHandle::MoveRole,
-                                                GraphicsHandle::DiamondHandle,
-                                                c1Pos, this);
-        m_handleToElementIndex[c1] = elementIndex++;
-        GraphicsHandle *c2 = new GraphicsHandle(GraphicsHandle::MoveRole,
-                                                GraphicsHandle::DiamondHandle,
-                                                c2Pos, this);
-        m_handleToElementIndex[c2] = elementIndex++;
-        GraphicsHandle *node = new GraphicsHandle(GraphicsHandle::MoveRole,
-                                                  GraphicsHandle::CircleHandle,
-                                                  pos, this);
-        m_handleToElementIndex[node] = elementIndex++;
+        // And the force the handles to use them
+        updateHandles();
     }
     else {
         qWarning() << QString("Cannot add a cubic bezier to pos [%1, %2] which is equal to current pos")
                       .arg(pos.x()).arg(pos.y());
     }
+    m_updatingHandles = false;
     setShapeDirty();
     setBoundingRectDirty();
 }
 
 void GraphicsBezierItem::removePoint(int index)
 {
-#if 0
-    int nbElt = m_path.elementCount();
-    int nbPoints = pointCount();
-    int eltIndex = index*3;
-
-    Q_ASSERT(nbElt > 0);
-    Q_ASSERT(index < nbPoints);
-    Q_ASSERT(m_path.elementCount() == handles().count());
-
-    QPainterPath path;
-    if (index == 0) {
-        if (m_path.elementCount() > 1) {
-            path.moveTo(m_path.elementAt(3).x, m_path.elementAt(3).y);
-        }
-        m_path = path;
-        m_handleToElementIndex.remove(removeHandle(0));
-    }
-    else if (index == nbPoints - 1) {
-        m_path = copyPath(m_path, 0, index - 1);
-        m_handleToElementIndex.remove(removeHandle(3*index));
-        m_handleToElementIndex.remove(removeHandle(3*index - 1));
-        m_handleToElementIndex.remove(removeHandle(3*index - 2));
-    }
-    //qDebug() << m_path;
-    setShapeDirty();
-    setBoundingRectDirty();
-#endif
 }
 
 QPainterPath GraphicsBezierItem::copyPath(const QPainterPath &src, int first, int last)
@@ -158,6 +132,7 @@ void GraphicsBezierItem::updateSpline()
     }
 
     // TODO: don't always rebuild the whole path
+    // If the pointCount() hasn't change
     m_path = QPainterPath();
     m_path.moveTo(m_px[0], m_py[0]);
     for (int i = 1; i < m_px.size(); i++) {
@@ -219,34 +194,59 @@ void GraphicsBezierItem::computeControlPoints(const QVector<qreal> &p, QVector<q
     c2[n-1] = 0.5*(p[n] + c1[n-1]);
 }
 
+//
 void GraphicsBezierItem::updateHandles()
 {
+    Q_ASSERT(m_px.count() == childItems().count());
+
     m_updatingHandles = true;
-    handleAt(0)->setPos(m_px[0], m_py[0]);
-    for (int i = 1; i < m_px.size(); i++) {
-        qreal c1x = m_c1x[i-1];
-        qreal c1y = m_c1y[i-1];
-        qreal c2x = m_c2x[i-1];
-        qreal c2y = m_c2y[i-1];
-        qreal px  = m_px[i];
-        qreal py  = m_py[i];
-        handleAt(3*i-2)->setPos(c1x, c1y);
-        handleAt(3*i-1)->setPos(c2x, c2y);
-        handleAt(3*i)->setPos(px, py);
+    qDebug() << "updateHandles" << m_px.count();
+
+    int i = 0;
+
+    Q_ASSERT(pointAt(i)->isFirst());
+    Q_ASSERT(!pointAt(i)->isLast() || m_px.size() == 1);
+    pointAt(i)->setNodePos(m_px[i], m_py[i]);
+    pointAt(i)->setControl2Pos(m_c1x[i], m_c1y[i]); // right
+    i++;
+    while (i < m_px.size() - 1) {
+        Q_ASSERT(!pointAt(i)->isFirst());
+        Q_ASSERT(!pointAt(i)->isLast());
+        pointAt(i)->setNodePos(m_px[i], m_py[i]);
+        pointAt(i)->setControl1Pos(m_c2x[i-1], m_c2y[i-1]); // left
+        pointAt(i)->setControl2Pos(m_c1x[i], m_c1y[i]); // right
+        i++;
     }
+    Q_ASSERT(!pointAt(i)->isFirst() || m_px.size() == 1);
+    Q_ASSERT(pointAt(i)->isLast());
+    pointAt(i)->setNodePos(m_px[i], m_py[i]);
+    pointAt(i)->setControl1Pos(m_c2x[i-1], m_c2y[i-1]); // left
+
     m_updatingHandles = false;
+    qDebug() << "updateHandles" << m_updatingHandles;
 }
 
-QList<QPointF> GraphicsBezierItem::points() const
+GraphicsPathPoint *GraphicsBezierItem::pointAt(int idx)
 {
-    QList<QPointF> result;
-    for (int i = 0; i < m_px.size(); i++)
-        result.append(QPointF(m_px[i], m_py[i]));
+    Q_ASSERT(idx < childItems().count());
+    Q_ASSERT(m_px.count() == childItems().count());
+    return dynamic_cast<GraphicsPathPoint *>(childItems().at(idx));
+}
+
+QList<GraphicsPathPoint *> GraphicsBezierItem::points() const
+{
+    //Q_ASSERT(m_px.count() == childItems().count());
+    QList<GraphicsPathPoint*> result;
+    foreach (QGraphicsItem *item, childItems()) {
+        result.append(dynamic_cast<GraphicsPathPoint *>(item));
+    }
     return result;
 }
 
+
 int GraphicsBezierItem::pointCount() const
 {
+    //Q_ASSERT(m_px.count() == childItems().count());
     return m_px.size();
 }
 
@@ -317,41 +317,36 @@ GraphicsObject *GraphicsBezierItem::clone()
     return item;
 }
 
-void GraphicsBezierItem::handleMoved(const GraphicsHandle *point)
+void GraphicsBezierItem::itemNotification(IGraphicsObservableItem *item)
 {
+    qDebug() << "itemNotification";
     if (m_updatingHandles)
         return;
 
-    Q_ASSERT(m_path.elementCount() == handleCount());
-    Q_ASSERT(m_handleToElementIndex.contains(point));
+    GraphicsPathPoint *point = dynamic_cast<GraphicsPathPoint*>(item);
+    Q_ASSERT(point);
 
-    qreal x = point->pos().x();
-    qreal y = point->pos().y();
+    qDebug() << point << point->nodePos() << point->control1Pos() << point->control2Pos();
 
-    int elementIndex = m_handleToElementIndex.value(point);
-    if (elementIndex == 0) {
-        m_px[0] = x;
-        m_py[0] = y;
-    }
-    else {
-        int type = (elementIndex) % 3;
-        int i = elementIndex / 3;
-        if (type == 0) {
-            m_px[i] = x;
-            m_py[i] = y;
-        }
-        else if (type == 1) {
-            m_c1x[i] = x;
-            m_c1y[i] = y;
-        }
-        else {
-            m_c2x[i] = x;
-            m_c2y[i] = y;
-        }
+    int pointIndex = points().indexOf(point);
+
+    m_px[pointIndex] = point->nodePos().x();
+    m_py[pointIndex] = point->nodePos().y();
+
+    if (!point->isFirst()) {
+        m_c2x[pointIndex-1] = point->control1Pos().x();
+        m_c2y[pointIndex-1] = point->control1Pos().y();
     }
 
-    updateSpline();
-    updateHandles();
+    if (!point->isLast()) {
+        m_c1x[pointIndex] = point->control2Pos().x();
+        m_c1y[pointIndex] = point->control2Pos().y();
+    }
+
+    if (m_px.size() >= 2) {
+        updateSpline();
+        updateHandles();
+    }
 }
 
 

@@ -14,14 +14,14 @@ GraphicsRectItem::GraphicsRectItem(GraphicsObject *parent):
     GraphicsObject(parent), m_rect(QRectF(0, 0, 0, 0)),
     m_updatingHandles(false), m_dirty(true)
 {
-    addHandle(TopLeft, GraphicsHandle::FDiagSizeRole);
-    addHandle(Top, GraphicsHandle::VSizeRole);
-    addHandle(TopRight, GraphicsHandle::BDiagSizeRole);
-    addHandle(Right, GraphicsHandle::HSizeRole);
-    addHandle(BottomRight, GraphicsHandle::FDiagSizeRole);
-    addHandle(Bottom, GraphicsHandle::VSizeRole);
-    addHandle(BottomLeft, GraphicsHandle::BDiagSizeRole);
-    addHandle(Left, GraphicsHandle::HSizeRole);
+    addHandle(TopLeft, FDiagSizeHandleRole);
+    addHandle(Top, VSizeHandleRole);
+    addHandle(TopRight, BDiagSizeHandleRole);
+    addHandle(Right, HSizeHandleRole);
+    addHandle(BottomRight, FDiagSizeHandleRole);
+    addHandle(Bottom, VSizeHandleRole);
+    addHandle(BottomLeft, BDiagSizeHandleRole);
+    addHandle(Left, HSizeHandleRole);
 }
 
 GraphicsRectItem::~GraphicsRectItem()
@@ -61,13 +61,15 @@ void GraphicsRectItem::setBrush(const QBrush &brush)
     m_brush = brush;
 }
 
-void GraphicsRectItem::addHandle(GraphicsRectItem::HandleId handleId, GraphicsHandle::Role role)
+void GraphicsRectItem::addHandle(GraphicsRectItem::HandleId handleId, GraphicsHandleRole role)
 {
-    const GraphicsHandle *handle = new GraphicsHandle(role,
-                                                GraphicsHandle::CircleHandle,
-                                                QPointF(0, 0), this);
+    GraphicsHandle *handle = new GraphicsHandle(this);
+    handle->setRole(role);
+    handle->setHandleShape(CircularHandleShape);
+    handle->setPos(QPointF(0, 0));
+    addObservedItem(handle);
     m_handleToId[handle] = handleId;
-    m_idToHandle[handleId] = const_cast<GraphicsHandle *>(handle);
+    m_idToHandle[handleId] = handle;
 }
 
 void GraphicsRectItem::updateHandlesSilently()
@@ -119,11 +121,14 @@ GraphicsObject *GraphicsRectItem::clone()
     return item;
 }
 
-void GraphicsRectItem::handleMoved(const GraphicsHandle *handle)
+void GraphicsRectItem::itemNotification(IGraphicsObservableItem *item)
 {
     //Q_ASSERT(m_handleToId.contains(handle));
     if (m_updatingHandles)
         return;
+
+    GraphicsHandle *handle = dynamic_cast<GraphicsHandle*>(item);
+    Q_ASSERT(handle);
 
     HandleId id = m_handleToId[handle];
     switch (id) {

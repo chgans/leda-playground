@@ -30,8 +30,8 @@ public:
 
 protected:
     void cloneTo(GraphicsObject *dst);
-    virtual void handleMoved(const GraphicsHandle *handle) = 0;
-    friend class GraphicsHandle;
+    //virtual void handleMoved(const GraphicsHandle *handle) = 0;
+    //friend class GraphicsHandle;
 };
 
 #endif // GRAPHICSOBJECT_H

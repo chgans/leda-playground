@@ -92,6 +92,7 @@ void GraphicsBezierTool::mouseMoveEvent(QMouseEvent *event)
         m_nodePos = event->pos();
         if (m_insertHandleOnMouseMove) { // TODO: check for minimum view distance, 10 pixels?
             m_item->addPoint(mapToItem(m_nodePos));
+            qDebug() << "MME/FP/A" << mapToItem(m_nodePos);
             m_insertHandleOnMouseMove = false;
             setState(MidPoints);
         }
@@ -101,10 +102,13 @@ void GraphicsBezierTool::mouseMoveEvent(QMouseEvent *event)
         if (m_insertHandleOnMouseMove) { // Same as above
             m_item->addPoint(mapToItem(m_nodePos));
             m_insertHandleOnMouseMove = false;
+            qDebug() << "MME/MP/A" << mapToItem(m_nodePos);
         }
-        int idx = m_item->handleCount() - 1;
-        GraphicsHandle *handle = m_item->handleAt(idx);
-        handle->setPos(mapToItem(m_nodePos));
+        //int idx = m_item->handleCount() - 1;
+        int idx = m_item->pointCount() - 1;
+        GraphicsPathPoint *point = m_item->pointAt(idx);
+        //qDebug() << "MME/MP/U" << idx << mapToItem(m_nodePos);
+        point->setNodePos(mapToItem(m_nodePos));
         break;
     }
     default:
@@ -131,14 +135,14 @@ void GraphicsBezierTool::mouseReleaseEvent(QMouseEvent *event)
         m_item->setPos(mapToScene(event->pos()));
         m_item->setPen(QPen(QBrush(Qt::darkCyan), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         m_item->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemIsMovable);
-        m_item->setPos(mapToScene(m_nodePos));
-        m_item->addPoint(mapToItem(m_nodePos));
-        //m_item->setSelected(true);
         scene()->addItem(m_item);
+        m_item->setSelected(true); // For debugging
         m_insertHandleOnMouseMove = true;
+        qDebug() << "MRE/FP/A" << mapToScene(event->pos());
         break;
     case MidPoints:
         m_insertHandleOnMouseMove = true;
+        qDebug() << "MRE/MP/A" << mapToItem(event->pos());
         break;
     case LastPoint:
         m_item = nullptr;

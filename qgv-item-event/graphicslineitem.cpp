@@ -11,12 +11,17 @@ GraphicsLineItem::GraphicsLineItem(GraphicsObject *parent):
 {
     // TODO: same way of doing as bezier item
     // Add handles in mouserelease/move
-    m_handle1 = new GraphicsHandle(GraphicsHandle::MoveRole,
-                                   GraphicsHandle::CircleHandle,
-                                   QPointF(0, 0), this);
-    m_handle2 = new GraphicsHandle(GraphicsHandle::MoveRole,
-                                   GraphicsHandle::CircleHandle,
-                                   QPointF(0, 0), this);
+    m_handle1 = new GraphicsHandle(this);
+    m_handle1->setRole(MoveHandleRole);
+    m_handle1->setHandleShape(CircularHandleShape);
+    m_handle1->setPos(QPointF(0, 0));
+    addObservedItem(m_handle1);
+
+    m_handle2 = new GraphicsHandle(this);
+    m_handle2->setRole(MoveHandleRole);
+    m_handle2->setHandleShape(CircularHandleShape);
+    m_handle2->setPos(QPointF(0, 0));
+    addObservedItem(m_handle2);
 }
 
 QLineF GraphicsLineItem::line() const
@@ -50,8 +55,11 @@ GraphicsObject *GraphicsLineItem::clone()
     return item;
 }
 
-void GraphicsLineItem::handleMoved(const GraphicsHandle *handle)
+void GraphicsLineItem::itemNotification(IGraphicsObservableItem *item)
 {
+    GraphicsHandle *handle = dynamic_cast<GraphicsHandle*>(item);
+    Q_ASSERT(handle);
+
     markDirty();
     if (handle == m_handle1) {
         m_line.setP1(handle->pos());

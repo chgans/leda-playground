@@ -1,8 +1,9 @@
 #ifndef GRAPHICSRECTITEM_H
 #define GRAPHICSRECTITEM_H
 
-#include  "graphicsobject.h"
+#include "graphicsobject.h"
 #include "graphicshandle.h"
+#include "igraphicsitemobserver.h"
 
 #include <QVector>
 #include <QMap>
@@ -12,7 +13,7 @@
 
 // TODO: AbstractGraphicsShape
 // TODO: add properties
-class GraphicsRectItem : public GraphicsObject
+class GraphicsRectItem : public GraphicsObject, public IGraphicsItemObserver
 {
     Q_OBJECT
 
@@ -43,9 +44,9 @@ private:
     QRectF m_rect;
     QPen m_pen;
     QBrush m_brush;
-    QMap<const GraphicsHandle *, HandleId> m_handleToId;
+    QMap<GraphicsHandle *, HandleId> m_handleToId;
     QMap<HandleId, GraphicsHandle *> m_idToHandle;
-    void addHandle(HandleId handleId, GraphicsHandle::Role role);
+    void addHandle(HandleId handleId, GraphicsHandleRole role);
     void updateHandlesSilently();
     bool m_updatingHandles;
     mutable QRectF m_boundingRect;
@@ -57,7 +58,7 @@ private:
     // GraphicsObject interface
 public:
     virtual GraphicsObject *clone();
-    void handleMoved(const GraphicsHandle *handle);
+    void itemNotification(IGraphicsObservableItem *item);
 
     // QGraphicsItem interface
 public:

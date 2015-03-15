@@ -2,31 +2,36 @@
 #define GRAPHICSBEZIERITEM_H
 
 #include "graphicsobject.h"
+#include "igraphicsitemobserver.h"
+#include "graphicspathpoint.h"
 
 #include <QPen>
 
-class Point;
 
-class GraphicsBezierItem : public GraphicsObject
+class GraphicsBezierItem : public GraphicsObject, public IGraphicsItemObserver
 {
 public:
     GraphicsBezierItem(GraphicsObject *parent = 0);
 
     QPainterPath path() const;
     void setPath(const QPainterPath &path);
+
     QPen pen() const;
     void setPen(const QPen &pen);
 
     void addPoint(const QPointF &pos);
     void removePoint(int index);
-    QList<QPointF> points() const;
+    QList<GraphicsPathPoint *> points() const;
     int pointCount() const;
+    GraphicsPathPoint *pointAt(int idx);
 
 private:
     QPen m_pen;
     QLineF m_line;
     QPainterPath m_path;
+
     bool m_updatingHandles;
+
     void setBoundingRectDirty();
     void computeBoundingRect() const;
     mutable bool m_boundingRectIsDirty;
@@ -37,10 +42,7 @@ private:
     mutable bool m_shapeIsDirty;
     mutable QPainterPath m_shape;
 
-    QMap<const GraphicsHandle *, int> m_handleToElementIndex;
-
     QPainterPath copyPath(const QPainterPath &src, int first, int last);
-
 
     QVector<qreal> m_px;
     QVector<qreal> m_py;
@@ -52,6 +54,7 @@ private:
     void computeControlPoints(const QVector<qreal> &p, QVector<qreal> &c1, QVector<qreal> &c2);
     void updateHandles();
 
+
     // QGraphicsItem interface
 public:
     virtual QRectF boundingRect() const;
@@ -62,9 +65,9 @@ public:
 public:
     virtual GraphicsObject *clone();
 
-    // GraphicsObject interface
+    // IGraphicsItemObserver interface
 protected:
-    virtual void handleMoved(const GraphicsHandle *point);
+    virtual void itemNotification(IGraphicsObservableItem *item);
 
     // QGraphicsItem interface
 protected:
