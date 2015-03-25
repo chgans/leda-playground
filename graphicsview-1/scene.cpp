@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "scenelayer.h"
 
 #include <QCursor>
 #include <QGraphicsView>
@@ -25,8 +26,75 @@ Scene::Scene(qreal x, qreal y, qreal width, qreal height, QObject *parent):
     init();
 }
 
+QList<GSceneLayer *> Scene::layers() const
+{
+    return m_layers;
+}
+
+void Scene::setLayers(const QList<GSceneLayer *> layers)
+{
+    if (m_layers == layers)
+        return;
+    m_layers = layers;
+    emit layersChanged();
+}
+
+int Scene::addLayer(const QString &name, const QColor &color)
+{
+    GSceneLayer *layer = new GSceneLayer();
+    layer->setName(name);
+    layer->setColor(color);
+    m_layers.append(layer);
+    addItem(layer);
+}
+
+void Scene::activateLayer(int idx)
+{
+    Q_ASSERT(idx < m_layers.count());
+
+    if (m_layers[idx] == m_activeLayer)
+        return;
+
+    if (m_activeLayer)
+        m_activeLayer->setEnabled(false);
+
+    m_activeLayer = m_layers[idx];
+    m_activeLayer->setEnabled(true);
+
+    int i;
+    for (i = 0; i < m_layers.count(); i++) {
+        if (i != idx)
+            m_layers[i]->setZValue(i);
+    }
+    m_layers[idx]->setZValue(i);
+
+    emit activeLayerchanged();
+}
+
+void Scene::activateLayer(GSceneLayer *layer)
+{
+    Q_ASSERT(m_layers.contains(layer));
+
+    int idx = m_layers.indexOf(layer);
+    activateLayer(idx);
+}
+
+GSceneLayer *Scene::activeLayer() const
+{
+    return m_activeLayer;
+}
+
+void Scene::addItemToLayer(QGraphicsItem *item)
+{
+    Q_ASSERT(item != 0);
+    Q_ASSERT(m_activeLayer != 0);
+
+    item->setParentItem(m_activeLayer);
+}
+
 void Scene::init()
 {
+    m_activeLayer = 0;
     mCellSize.setHeight(25);
     mCellSize.setWidth(25);
     mDragged = 0;

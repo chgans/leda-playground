@@ -142,17 +142,28 @@ int main(int argc, char *argv[])
 
     Scene scene(-500, -500, 1000, 1000);
     MainWindow *w = new MainWindow;
+    scene.addLayer("Top layer", QColor("#ff0000"));
+    scene.addLayer("Bottom layer", QColor("#0000ff"));
+    scene.addLayer("Mechanical 1", QColor("#ff00ff"));
+    scene.addLayer("Mechanical 13", QColor("#ff00ff"));
+    scene.addLayer("Mechanical 15", QColor("#008000"));
+    scene.addLayer("Top overlay", QColor("#ffff00"));
+    scene.addLayer("Bottom overlay", QColor("#808000"));
+    scene.addLayer("Top paste", QColor("#808080"));
+    scene.addLayer("Bottom paste", QColor("#800000"));
+    scene.addLayer("Top solder", QColor("#800080"));
+    scene.addLayer("Bottom solder", QColor("#ff00ff"));
+    scene.addLayer("Drill guide", QColor("#800000"));
+    scene.addLayer("Keep-Out layer", QColor("#ff00ff"));
+    scene.addLayer("Drill drawing", QColor("#ff002a"));
+    scene.addLayer("Multi-Layer", QColor("#c0c0c0"));
+    scene.activateLayer(0);;
     w->setGraphicsScene(&scene);
     w->show();
 
 
     {
-        QGraphicsItemGroup *group = new QGraphicsItemGroup();
-        group->setFlag(QGraphicsItem::ItemIsMovable, true);
-        group->setFlag(QGraphicsItem::ItemIsSelectable, true);
-        scene.addItem(group);
-
-        QString filename("../../graphicsview-1/test.json");
+        QString filename("../graphicsview-1/test.json");
         QFile file(filename);
         if (!file.open(QIODevice::ReadOnly)) {
             qDebug() << "Couldn't open" << filename;
@@ -183,144 +194,55 @@ int main(int argc, char *argv[])
             return 1;
         }
         QJsonArray items = obj["items"].toArray();
-        //int i = 0;
-        QList<QGraphicsItem*> maskingItems;
         foreach (QJsonValue val, items) {
             if (!val.isObject()) {
                 qDebug() << "Item is not an object";
                 continue;
             }
+
             obj = val.toObject();
             QString type = obj["type"].toString();
             if (type.isNull()) {
                 qDebug() << "Item has no type";
                 continue;
             }
+
+            QGraphicsItem *item;
+            QVector<double> pos = readPosition(obj["position"].toArray());
+            QVector<QPointF> points = readPointList(obj["points"].toArray());
+            QPen pen = readPen(obj["pen"].toObject());
+            QBrush brush = readBrush(obj["brush"].toObject());
+            double opacity = obj["opacity"].toDouble();
+            int layer = obj["layer"].toInt();
+
             if (type.toLower() == "rectangle") {
-                QVector<double> pos = readPosition(obj["position"].toArray());
-                QVector<QPointF> points = readPointList(obj["points"].toArray());
-                QPen pen = readPen(obj["pen"].toObject());
-                QBrush brush = readBrush(obj["brush"].toObject());
-                double opacity = obj["opacity"].toDouble();
-                QGraphicsRectItem *item = new QGraphicsRectItem();
-                item->setPos(pos[0], pos[1]);
-                item->setZValue(pos[2]);
-                item->setRect(QRectF(points[0], points[1]));
-                item->setPen(pen);
-                item->setBrush(brush);
-                item->setOpacity(opacity);
-                item->setFlag(QGraphicsItem::ItemIsMovable, true);
-                item->setFlag(QGraphicsItem::ItemIsSelectable, true);
-                scene.addItem(item);
-                //group->addToGroup(item);
-                //qDebug() << item;
-                //static int i = 0;
-                //if (++i == 3)
-                //    w.mv->addMaskingItem(item);
+                QGraphicsRectItem *ritem = new QGraphicsRectItem();
+                ritem->setRect(QRectF(points[0], points[1]));
+                ritem->setPen(pen);
+                ritem->setBrush(brush);
+                item = ritem;
             }
             else if (type.toLower() == "polygon") {
-                QVector<double> pos = readPosition(obj["position"].toArray());
-                QVector<QPointF> points = readPointList(obj["points"].toArray());
-                QPen pen = readPen(obj["pen"].toObject());
-                QBrush brush = readBrush(obj["brush"].toObject());
-                double opacity = obj["opacity"].toDouble();
-                QGraphicsPolygonItem *item = new QGraphicsPolygonItem();
-                item->setPos(pos[0], pos[1]);
-                item->setZValue(pos[2]);
-                item->setPolygon(QPolygonF(points));
-                item->setPen(pen);
-                item->setBrush(brush);
-                item->setOpacity(opacity);
-                item->setFlag(QGraphicsItem::ItemIsMovable, true);
-                item->setFlag(QGraphicsItem::ItemIsSelectable, true);
-                scene.addItem(item);
-                //group->addToGroup(item);
+                QGraphicsPolygonItem *pitem = new QGraphicsPolygonItem();
+                pitem->setPolygon(QPolygonF(points));
+                pitem->setPen(pen);
+                pitem->setBrush(brush);
+                item = pitem;
             }
-            else if (type.toLower() == "simple-text") {
-                QVector<double> pos = readPosition(obj["position"].toArray());
-                QPen pen = readPen(obj["pen"].toObject());
-                QBrush brush = readBrush(obj["brush"].toObject());
-                double opacity = obj["opacity"].toDouble();
-                QString text = obj["text"].toString();
-                QFont font = readFont(obj["font"].toObject());
-                QGraphicsSimpleTextItem *item = new QGraphicsSimpleTextItem();
-                item->setPos(pos[0], pos[1]);
-                item->setZValue(pos[2]);
-                item->setText(text);
-                item->setFont(font);
-                item->setPen(pen);
-                item->setBrush(brush);
-                item->setOpacity(opacity);
-                item->setFlag(QGraphicsItem::ItemIsMovable, true);
-                item->setFlag(QGraphicsItem::ItemIsSelectable, true);
-                scene.addItem(item);
-                //group->addToGroup(item);
+            else {
+                continue;
             }
+
+            item->setPos(pos[0], pos[1]);
+            item->setZValue(pos[2]);
+            item->setOpacity(opacity);
+            item->setFlag(QGraphicsItem::ItemIsMovable, true);
+            item->setFlag(QGraphicsItem::ItemIsSelectable, true);
+            scene.activateLayer(layer);
+            scene.addItemToLayer(item);
         }
     }
 
-    QGraphicsPathItem *pathItem1 = new QGraphicsPathItem;
-    QGraphicsPathItem *pathItem2 = new QGraphicsPathItem;
-    QGraphicsPathItem *pathItem3 = new QGraphicsPathItem;
-    QPainterPath path1, path2, path3;
-
-    QPointF p0(0, 0), p1(10, 30), p2(40, 60), p3(100, 5), p4(120, -40);
-    int fig = 1;
-    if (fig == 0) {
-        path1.moveTo(p0);
-        path1.lineTo(p1);
-        path1.lineTo(p2);
-        path1.lineTo(p3);
-        path1.lineTo(p4);
-    } else if (fig == 1) {
-        path1.moveTo(p0);
-        path1.lineTo(p1);
-        QPointF c(10, 90);
-        qreal r = 10;
-        qreal a = 180;
-        qreal b = 90;
-        path1.arcTo(QRectF(c, c).adjusted(-r, -r, r, r), a, b);
-        path1.lineTo(p4);
-    } else if (fig == 2) {
-        path1.moveTo(p0);
-        path1.lineTo(p1);
-        path1.quadTo(p2, p3);
-        path1.lineTo(p4);
-    } else if (fig == 3) { // FIXME: radial sym doesn't work
-        path1.moveTo(p0);
-        path1.cubicTo(p1, p2, p3);
-        path1.lineTo(p4);
-    }
-    //path1.closeSubpath();
-
-    pathItem1->setPath(path1);
-    pathItem1->setBrush(QBrush(Qt::darkMagenta));
-    pathItem1->setPen(QPen(Qt::red, 1));
-    pathItem1->setFlag(QGraphicsItem::ItemIsMovable, true);
-    pathItem1->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    scene.addItem(pathItem1);
-    qDebug() << path1;
-    //qDebug() << path1.toReversed();
-
-    path2 = radialSymetricPath(path1);; // path1.toReversed(); //
-    pathItem2->setPath(path2);
-    pathItem2->setBrush(QBrush(Qt::darkGreen));
-    pathItem2->setFlag(QGraphicsItem::ItemIsMovable, true);
-    pathItem2->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    pathItem2->setPen(QPen(Qt::red, 1));
-    //pathItem2->setPos(200, 0);
-    scene.addItem(pathItem2);
-    qDebug() << path2;
-
-    path3 = axialSymetricPath(path1);
-    pathItem3->setPath(path3);
-    pathItem3->setBrush(QBrush(Qt::darkCyan));
-    pathItem3->setFlag(QGraphicsItem::ItemIsMovable, true);
-    pathItem3->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    pathItem3->setPen(QPen(Qt::red, 1));
-    //pathItem3->setPos(400, 0);
-    scene.addItem(pathItem3);
-    qDebug() << path3;
 
     app.exec();
     delete w;

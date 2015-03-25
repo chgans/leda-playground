@@ -1,5 +1,8 @@
 #include "pcbeditorwidget.h"
 #include "mainview.h"
+#include "scene.h"
+#include "scenelayer.h"
+
 #include "pcbpalettemanagerdialog.h"
 
 #include <QVBoxLayout>
@@ -24,49 +27,18 @@ static QIcon *icon(const QColor &color)
 PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     QWidget(parent)
 {
-    mTabBar = new QTabBar;
-    mTabBar->setShape(QTabBar::RoundedSouth);
-    mTabBar->setDrawBase(false);
-    mTabBar->addTab("Top layer");
-    mTabBar->setTabIcon(0, *icon(QColor("#ff0000")));
-    mTabBar->addTab("Bottom layer");
-    mTabBar->setTabIcon(1, *icon(QColor("#0000ff")));
-    mTabBar->addTab("Mechanical 1");
-    mTabBar->setTabIcon(2, *icon(QColor("#ff00ff")));
-    mTabBar->addTab("Mechanical 13");
-    mTabBar->setTabIcon(3, *icon(QColor("#ff00ff")));
-    mTabBar->addTab("Mechanical 15");
-    mTabBar->setTabIcon(4, *icon(QColor("#008000")));
-    mTabBar->addTab("Top overlay");
-    mTabBar->setTabIcon(5, *icon(QColor("#ffff00")));
-    mTabBar->addTab("Bottom overlay");
-    mTabBar->setTabIcon(6, *icon(QColor("#808000")));
-    mTabBar->addTab("Top paste");
-    mTabBar->setTabIcon(7, *icon(QColor("#808080")));
-    mTabBar->addTab("Bottom paste");
-    mTabBar->setTabIcon(8, *icon(QColor("#800000")));
-    mTabBar->addTab("Top solder");
-    mTabBar->setTabIcon(9, *icon(QColor("#800080")));
-    mTabBar->addTab("Bottom solder");
-    mTabBar->setTabIcon(10, *icon(QColor("#ff00ff")));
-    mTabBar->addTab("Drill guide");
-    mTabBar->setTabIcon(11, *icon(QColor("#800000")));
-    mTabBar->addTab("Keep-Out layer");
-    mTabBar->setTabIcon(12, *icon(QColor("#ff00ff")));
-    mTabBar->addTab("Drill drawing");
-    mTabBar->setTabIcon(13, *icon(QColor("#ff002a")));
-    mTabBar->addTab("Multi-Layer");
-    mTabBar->setTabIcon(14, *icon(QColor("#c0c0c0")));
-    connect(mTabBar, SIGNAL(currentChanged(int)),
-            this, SLOT(activateLayer(int)));
+    mLayerTabBar = new QTabBar;
+    mLayerTabBar->setShape(QTabBar::RoundedSouth);
+    mLayerTabBar->setDrawBase(false);
 
     mView = new MainView();
-    mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    mView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    mView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
 
     mCurrentLayerButton = new QToolButton;
     mCurrentLayerButton->setAutoRaise(true);
-    mCurrentLayerButton->setIcon(mTabBar->tabIcon(0));
+    mCurrentLayerButton->setIcon(mLayerTabBar->tabIcon(0));
     mCurrentLayerButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     // TODO: menu to pick up a profile + edit profiles
     //QAction *editColor = new QAction(this);
@@ -120,7 +92,7 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     QHBoxLayout *toolLayout = new QHBoxLayout;
     toolLayout->addWidget(mCurrentLayerButton);
     toolLayout->addWidget(mLayerSetButton);
-    toolLayout->addWidget(mTabBar);
+    toolLayout->addWidget(mLayerTabBar);
     toolLayout->addWidget(mSnapButton);
     toolLayout->addWidget(mMaskButton);
     toolLayout->addWidget(mClearButton);
@@ -134,6 +106,13 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
 
     createActions();
     createMenus();
+}
+
+void PcbEditorWidget::setScene(Scene *scene)
+{
+    mView->setScene(scene);
+    mView->scale(0.75, 0.75);
+    setupLayerTabBar();
 }
 
 void PcbEditorWidget::wheelEvent(QWheelEvent *event)
@@ -150,17 +129,19 @@ void PcbEditorWidget::wheelEvent(QWheelEvent *event)
 
 void PcbEditorWidget::activateLayer(int index)
 {
-    mCurrentLayerButton->setIcon(mTabBar->tabIcon(index));
+    qDebug() << "Activating layer" << index;
+    mCurrentLayerButton->setIcon(mLayerTabBar->tabIcon(index));
+    scene()->activateLayer(index);
 }
 
 void PcbEditorWidget::activateNextLayer()
 {
-    activateLayer((mTabBar->currentIndex() + 1 ) % mTabBar->count());
+    activateLayer((mLayerTabBar->currentIndex() + 1 ) % mLayerTabBar->count());
 }
 
 void PcbEditorWidget::activatePreviousLayer()
 {
-    activateLayer((mTabBar->currentIndex() - 1 ) % mTabBar->count());
+    activateLayer((mLayerTabBar->currentIndex() - 1 ) % mLayerTabBar->count());
 }
 
 void PcbEditorWidget::activateNextSignalLayer()
@@ -264,6 +245,28 @@ void PcbEditorWidget::createMenus()
     mBoardInsightPopUpMenu->addAction(mToggleInsightLensTrackingAction);
     mBoardInsightPopUpMenu->addAction(mToggleInsightLensAutoZoomAction);
     mBoardInsightPopUpMenu->addAction(mToggleInsightLensSingleLayerModeAction);
+}
+
+Scene *PcbEditorWidget::scene() const
+{
+    Q_ASSERT(mView && mView->scene());
+    return static_cast<Scene *>(mView->scene());
+}
+
+void PcbEditorWidget::setupLayerTabBar()
+{
+    Scene *s = scene();
+    for (int i = 0; i < s->layers().count(); i++) {
+        GSceneLayer *layer = s->layers()[i];
+        mLayerTabBar->addTab(layer->name());
+        mLayerTabBar->setTabIcon(i, *icon(layer->color()));
+    }
+    int activeLayer = 0;
+    activateLayer(activeLayer);
+    mLayerTabBar->setCurrentIndex(activeLayer);
+    connect(mLayerTabBar, SIGNAL(currentChanged(int)),
+            this, SLOT(activateLayer(int)));
+
 }
 
 void PcbEditorWidget::enableHeadsUp(bool enabled)

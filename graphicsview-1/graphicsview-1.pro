@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     pcbpalettemanager.cpp \
     pcbpalettemanagerdialog.cpp \
     pcbphysicallayer.cpp \
-    pcbphysicalboard.cpp
+    pcbphysicalboard.cpp \
+    scenelayer.cpp
 
 HEADERS  += mainwindow.h \
     detailview.h \
@@ -49,7 +50,8 @@ HEADERS  += mainwindow.h \
     pcbpalettemanager.h \
     pcbpalettemanagerdialog.h \
     pcbphysicallayer.h \
-    pcbphysicalboard.h
+    pcbphysicalboard.h \
+    scenelayer.h
 
 FORMS    += mainwindow.ui \
     pcbpalettesettingsdialog.ui

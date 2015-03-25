@@ -12,25 +12,9 @@
     "uid": "ANQPNMMK",
     "items": [
         {
-            "type": "pin",
-            "position": [0, 0, 0],
-            "length": 300,
-            "designator": "1",
-            "uid": "GAAXBDWM",
-            "pen": {
-                "width": 1,
-                "color": "#800000",
-                "color-idx": 221,
-                "style": "solid"
-            },
-            "opacity": 1.0,
-            "locked": 0
-        },
-        {
             "type": "rectangle",
             "position": [0, 0, 0],
             "points": [[-150, -150], [150, 150]],
-            "radius": 0,
             "pen": {
                 "width": 1,
                 "color": "#800000",
@@ -38,17 +22,17 @@
                 "style": "solid"
             },
             "brush": {
-                "color": "#ffffb0",
+                "color": "#ff0000",
                 "color-idx": 218
             },
-            "opacity": 1.0,
-            "locked": 0
+            "opacity": 0.8,
+            "locked": 0,
+            "layer": 0
         },
         {
             "type": "rectangle",
-            "position": [-500, -500, 0],
-            "points": [[0, 0], [100, 100]],
-            "radius": 0,
+            "position": [0, 200, 0],
+            "points": [[-150, -150], [150, 150]],
             "pen": {
                 "width": 1,
                 "color": "#800000",
@@ -56,17 +40,35 @@
                 "style": "solid"
             },
             "brush": {
-                "color": "#ffffb0",
+                "color": "#ff0000",
                 "color-idx": 218
             },
-            "opacity": 1.0,
-            "locked": 0
+            "opacity": 0.8,
+            "locked": 0,
+            "layer": 0
         },
         {
-            "type": "rectangle",
+            "type": "polygon",
+            "position": [500, -250, 0],
+            "points": [[25, 100], [100, 100], [150, 210], [150, 150]],
+            "pen": {
+                "width": 1,
+                "color": "#800000",
+                "color-idx": 221,
+                "style": "solid"
+            },
+            "brush": {
+                "color": "#0000ff",
+                "color-idx": 218
+            },
+            "opacity": 0.8,
+            "locked": 0,
+            "layer": 1
+        },
+        {
+            "type": "polygon",
             "position": [-250, -250, 0],
-            "points": [[0, 0], [100, 100]],
-            "radius": 0,
+            "points": [[25, 100], [100, 100], [150, 210], [150, 150]],
             "pen": {
                 "width": 1,
                 "color": "#800000",
@@ -74,17 +76,35 @@
                 "style": "solid"
             },
             "brush": {
-                "color": "#ffffb0",
+                "color": "#0000ff",
                 "color-idx": 218
             },
-            "opacity": 1.0,
-            "locked": 0
+            "opacity": 0.8,
+            "locked": 0,
+            "layer": 1
+        },
+        {
+            "type": "rectangle",
+            "position": [600, 400, 0],
+            "points": [[0, 0], [100, 100]],
+            "pen": {
+                "width": 2,
+                "color": "#800000",
+                "color-idx": 221,
+                "style": "solid"
+            },
+            "brush": {
+                "color": "#ff00ff",
+                "color-idx": 218
+            },
+            "opacity": 0.8,
+            "locked": 0,
+            "layer": 2
         },
         {
             "type": "rectangle",
             "position": [400, 400, 0],
             "points": [[0, 0], [100, 100]],
-            "radius": 0,
             "pen": {
                 "width": 1,
                 "color": "#800000",
@@ -92,11 +112,12 @@
                 "style": "solid"
             },
             "brush": {
-                "color": "#ffffb0",
+                "color": "#ff00ff",
                 "color-idx": 218
             },
-            "opacity": 1.0,
-            "locked": 0
+            "opacity": 0.8,
+            "locked": 0,
+            "layer": 2
         }
     ]
 }

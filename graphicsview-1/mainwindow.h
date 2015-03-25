@@ -4,11 +4,14 @@
 #include <QMainWindow>
 
 class QGraphicsScene;
+class QDockWidget;
+
 class MainView;
 class ObjectPreview;
 class DetailView;
 class OverView;
-class QDockWidget;
+class PcbEditorWidget;
+class Scene;
 
 namespace Ui {
 class MainWindow;
@@ -22,17 +25,17 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void setGraphicsScene(QGraphicsScene *scene);
-
-    MainView *mv;
+    void setGraphicsScene(Scene *scene);
 
 private slots:
 
 protected:
     void createActions();
     void createMenus();
+    void createDockWidgets();
 
 private:
+    PcbEditorWidget *m_editor;
     QDockWidget *dw;
     ObjectPreview *opv;
     DetailView *dv;

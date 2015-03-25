@@ -14,6 +14,9 @@ class InsightHeadsUpWidget;
 class InsightConnectivityWidget;
 class InsightPickListWidget;
 
+// TODO: rename to Pcb2dView
+//  Add flags to enable tools (lens, ...)
+
 class MainView : public QGraphicsView
 {
     Q_OBJECT

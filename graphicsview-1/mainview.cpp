@@ -56,6 +56,7 @@ MainView::MainView(QWidget *parent) :
     mPickList->hide();
     connect(mPickList, SIGNAL(itemSelected(QGraphicsItem*)),
             this, SLOT(onItemSelectedFromPickList(QGraphicsItem*)));
+
 }
 
 void MainView::addMaskingItem(QGraphicsItem *item)

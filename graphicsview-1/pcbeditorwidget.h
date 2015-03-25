@@ -7,7 +7,9 @@ class QAction;
 class QMenu;
 class QTabBar;
 class QToolButton;
+
 class MainView;
+class Scene;
 
 class PcbEditorWidget : public QWidget
 {
@@ -17,7 +19,7 @@ public:
 
     MainView *graphicsView() { return mView; }
 
-
+    void setScene(Scene *scene);
 
 
 
@@ -39,7 +41,7 @@ protected slots:
 
 private:
     MainView *mView;
-    QTabBar *mTabBar;
+    QTabBar *mLayerTabBar;
     QToolButton *mCurrentLayerButton;
     QToolButton *mLayerSetButton;
     QToolButton *mSnapButton;
@@ -48,6 +50,8 @@ private:
 
     void createActions();
     void createMenus();
+    Scene *scene() const;
+    void setupLayerTabBar();
 
     /** 2D Board Insight System **/
 private:

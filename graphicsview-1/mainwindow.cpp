@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "scene.h"
 #include "mainview.h"
 #include "objectpreview.h"
 #include "detailview.h"
@@ -24,54 +25,13 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    //menuBar()->addMenu("test");
-
-    QTabWidget *tw = new QTabWidget(this);
-    setCentralWidget(tw);
-
-    PcbEditorWidget *w;
-    w = new PcbEditorWidget;
-    tw->addTab(w, "Editor 1");
-    w = new PcbEditorWidget;
-    tw->addTab(w, "Editor 2");
-    mv = w->graphicsView();
+    m_editor = new PcbEditorWidget();
+    setCentralWidget(m_editor);
 
     createActions();
     createMenus();
+    createDockWidgets();
 
-#if 1
-    QSplitter *s = new QSplitter(Qt::Vertical);
-    QVBoxLayout *l;
-    QWidget *lw;
-
-    opv = new ObjectPreview;
-    l = new QVBoxLayout;
-    l->addWidget(opv);
-    lw = new QWidget();
-    lw->setLayout(l);
-    s->addWidget(lw);
-
-    dv = new DetailView;
-    dv->setObservedView(mv);
-    l = new QVBoxLayout;
-    l->addWidget(dv);
-    lw = new QWidget();
-    lw->setLayout(l);
-    s->addWidget(lw);
-
-    ov = new OverView;
-    ov->setObservedView(mv);
-    l = new QVBoxLayout;
-    l->addWidget(ov);
-    lw = new QWidget();
-    lw->setLayout(l);
-    s->addWidget(lw);
-
-
-    dw = new QDockWidget("Overview");
-    dw->setWidget(s);
-    addDockWidget(Qt::LeftDockWidgetArea, dw);
-#endif
 }
 
 MainWindow::~MainWindow()
@@ -79,15 +39,11 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::setGraphicsScene(QGraphicsScene *scene)
+void MainWindow::setGraphicsScene(Scene *scene)
 {
-    mv->setScene(scene);
-    mv->scale(0.75, 0.75);
-#if 1
-    opv->setScene(scene);
-    dv->setScene(scene);
-    ov->setScene(scene);
-#endif
+    m_editor->setScene(scene);
+    dv->setObservedView(m_editor->graphicsView());
+    ov->setObservedView(m_editor->graphicsView());
 }
 
 void MainWindow::createActions()
@@ -96,5 +52,38 @@ void MainWindow::createActions()
 
 void MainWindow::createMenus()
 {
+}
+
+void MainWindow::createDockWidgets()
+{
+    QSplitter *s = new QSplitter(Qt::Vertical);
+    QVBoxLayout *l;
+    QWidget *lw;
+
+#if 1
+    opv = new ObjectPreview;
+    l = new QVBoxLayout;
+    l->addWidget(opv);
+    lw = new QWidget();
+    lw->setLayout(l);
+    s->addWidget(lw);
+#endif
+    dv = new DetailView;
+    l = new QVBoxLayout;
+    l->addWidget(dv);
+    lw = new QWidget();
+    lw->setLayout(l);
+    s->addWidget(lw);
+
+    ov = new OverView;
+    l = new QVBoxLayout;
+    l->addWidget(ov);
+    lw = new QWidget();
+    lw->setLayout(l);
+    s->addWidget(lw);
+
+    dw = new QDockWidget("Overview");
+    dw->setWidget(s);
+    addDockWidget(Qt::LeftDockWidgetArea, dw);
 }
 

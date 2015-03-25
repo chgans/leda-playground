@@ -27,6 +27,7 @@ void OverView::setObservedView(QGraphicsView *view)
         mObservedView->viewport()->removeEventFilter(this);
     view->viewport()->installEventFilter(this);
     mObservedView = view;
+    setScene(mObservedView->scene());
 }
 
 void OverView::getObservedRect()
