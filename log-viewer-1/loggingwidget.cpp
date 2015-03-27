@@ -159,7 +159,7 @@ void LoggingWidget::updateCategoryList(const QList<const char *> categories)
         QAction *action = new QAction(m_categoriesMenu);
         action->setCheckable(true);
         action->setText(QString(QByteArray(name)));
-        action->setData((int)name);
+        action->setData((quint64)name);
         action->setChecked(m_filterModel->filterIncludesCategoryName(name));
         m_categoriesMenu->addAction(action);
     }
