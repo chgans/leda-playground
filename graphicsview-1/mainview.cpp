@@ -42,7 +42,8 @@ MainView::MainView(QWidget *parent) :
     mDesignInsightFrame->layout()->addWidget(new QLabel(""));
 #endif
     mConnectivity = new InsightConnectivityWidget;
-
+    mConnectivity->setMaximumSize(300, 300);
+    mConnectivity->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     mLens = new InsightLensWidget(this);
     mLens->setBuddyView(this);
     mLens->setLensShape(InsightLensWidget::SquareLens);
