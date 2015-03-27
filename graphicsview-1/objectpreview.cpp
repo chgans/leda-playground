@@ -26,6 +26,8 @@ void ObjectPreview::setObjectToPreview(QGraphicsItem *item)
     mObject = item;
 }
 
+// Instead use standard view, which has higlight feature: grey out other items by
+// painting a mask in drawForeground
 void ObjectPreview::drawItems(QPainter *painter,
                               int numItems,
                               QGraphicsItem *items[],
