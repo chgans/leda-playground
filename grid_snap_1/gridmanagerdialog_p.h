@@ -139,7 +139,6 @@ public:
     explicit GridTableModel(QObject *parent = 0) :
         QAbstractTableModel(parent)
     {
-        //mGrids.append(new CartesianGrid);
     }
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const
@@ -217,8 +216,14 @@ public:
 
     bool setData(const QModelIndex &index, const QVariant &value, int role)
     {
-        //qDebug() << __FUNCTION__ << index << role << value;
-        if (value.canConvert<bool>()) {
+        if (role != Qt::DisplayRole)
+            return false;
+
+        switch (index.column()) {
+        case 0:
+            mGrids.at(index.row())->setPriority(value.toInt());
+            return true;
+        case 7:
             mGrids.at(index.row())->setEnabledForComponents(value.toBool());
             emit dataChanged(index, index);
             return true;
@@ -234,7 +239,6 @@ public:
         return f;
     }
 
-    // TODO: const
     const IGrid *grid(const QModelIndex &index)
     {
         if (!index.isValid() || index.row() >= mGrids.size())

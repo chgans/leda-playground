@@ -66,11 +66,13 @@ void MainWindow::loadFeatures()
     QList<const IGrid *> grids;
 
     CartesianGrid *cgrid = new CartesianGrid;
+    cgrid->setPriority(1);
     cgrid->setOrigin(QPointF(0, 0));
     cgrid->setSize(QSize(1000, 1000));
     grids.append(cgrid);
 
     PolarGrid *pgrid = new PolarGrid;
+    pgrid->setPriority(2);
     pgrid->setOrigin(QPointF(200, 400));
     //pgrid->setSize(QSize(100, 100));
     pgrid->setAngularRange(3*90, 4*90);
@@ -82,6 +84,7 @@ void MainWindow::loadFeatures()
     grids.append(pgrid);
 
     pgrid = new PolarGrid;
+    pgrid->setPriority(3);
     pgrid->setOrigin(QPointF(200, 600));
     //pgrid->setSize(QSize(100, 100));
     pgrid->setAngularRange(0*90, 1*90);

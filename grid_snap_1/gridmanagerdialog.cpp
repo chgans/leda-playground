@@ -30,6 +30,7 @@ GridManagerDialog::GridManagerDialog(QWidget *parent)
     mView->setModel(mModel);
     mView->showGrid();
     mView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    mView->sortByColumn(0);
     connect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(updateEditors()));
     connect(mModel, SIGNAL(modelReset()),
@@ -157,10 +158,10 @@ void GridManagerDialog::customMenuRequested(QPoint pos)
 
 void GridManagerDialog::updateEditors()
 {
-    //qDebug() << __FUNCTION__;
+    mView->sortByColumn(0);
+
     for (int row = 0; row < mModel->rowCount(); ++row)
         for (int col = 4; col <= 7; ++col) {
-            //qDebug() << __FUNCTION__ << row << col;
             mView->openPersistentEditor(mModel->index(row, col));
         }
 }
@@ -215,7 +216,10 @@ void GridManagerDialog::edit()
 
 void GridManagerDialog::increment()
 {
-    qDebug() << __FUNCTION__;
+    foreach (QModelIndex index, mView->selectionModel()->selectedRows(0)) {
+        int prio = mModel->data(index, Qt::DisplayRole).toInt();
+        mModel->setData(index, prio + 1, Qt::DisplayRole);
+    }
 }
 
 void GridManagerDialog::decrement()
