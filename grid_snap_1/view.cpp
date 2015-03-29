@@ -22,6 +22,8 @@ View::View(QWidget *parent) :
     mSwapStartEndAngles(false)
 {
     mGridManager = GridManager::instance();
+    connect(mGridManager, SIGNAL(gridsChanged()),
+            this, SLOT(invalidateScene()));
     setViewport(new QGLWidget);
     setMouseTracking(true);
     setTransformationAnchor(NoAnchor);

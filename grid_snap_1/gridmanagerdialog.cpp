@@ -24,26 +24,10 @@ GridManagerDialog::GridManagerDialog(QWidget *parent)
     setWindowTitle("Grid Manager");
     setLayout(new QVBoxLayout);
 
-    mModel = new GridTableModel(this);
     mView = new QTableView();
-    mModel->setGrids(GridManager::instance()->grids());
-    mView->setModel(mModel);
     mView->showGrid();
     mView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    mView->sortByColumn(0);
-    connect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(updateEditors()));
-    connect(mModel, SIGNAL(modelReset()),
-            this, SLOT(updateEditors()));
     layout()->addWidget(mView);
-
-    // Setup header sizes
-    QHeaderView *header = mView->horizontalHeader();
-    header->setStretchLastSection(false);
-    header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(3, QHeaderView::Stretch);
-    header->setSectionResizeMode(7, QHeaderView::Fixed);
-    header->resize(7, header->sectionSize(6));
 
     // Setup delegate editors
     CheckBoxDelegate *cbDelegate = new CheckBoxDelegate(this);
@@ -56,7 +40,6 @@ GridManagerDialog::GridManagerDialog(QWidget *parent)
     mView->setItemDelegateForColumn(5, colorDelegate);
     //mView->openPersistentEditor(mModel->index(0, 4)); // FIXME
     //mView->openPersistentEditor(mModel->index(0, 5)); // FIXME
-    updateEditors();
 
     // Double click fires up the grid editor dialog
     connect(mView, SIGNAL(doubleClicked(QModelIndex)),
@@ -68,19 +51,16 @@ GridManagerDialog::GridManagerDialog(QWidget *parent)
                              QDialogButtonBox::Cancel|
                              QDialogButtonBox::Apply|
                              QDialogButtonBox::Reset);
+    connect(bbox->button(QDialogButtonBox::Apply), SIGNAL(clicked()),
+            SIGNAL(applyRequested()));
+    connect(bbox->button(QDialogButtonBox::Reset), SIGNAL(clicked()),
+            SIGNAL(resetRequested()));
     connect(bbox->button(QDialogButtonBox::Ok), SIGNAL(clicked()),
             SLOT(accept()));
     connect(bbox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()),
             SLOT(reject()));
-    connect(bbox->button(QDialogButtonBox::Apply), SIGNAL(clicked()),
-            SLOT(apply()));
-    connect(bbox->button(QDialogButtonBox::Reset), SIGNAL(clicked()),
-            SLOT(reset()));
-    layout()->addWidget(bbox);
 
-    //
-    resize(QSize(header->size().width()+100,
-           25*QLabel("A").sizeHint().height()));
+    layout()->addWidget(bbox);
 
     // Context menu setup
     mView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -92,6 +72,42 @@ GridManagerDialog::GridManagerDialog(QWidget *parent)
 GridManagerDialog::~GridManagerDialog()
 {
 
+}
+
+void GridManagerDialog::setModel(GridTableModel *model)
+{
+    if (mModel != nullptr)
+        mModel->disconnect(this);
+
+    mModel = model;
+
+    if (mModel == nullptr)
+        return;
+
+    mView->setModel(mModel);
+
+    // Setup header sizes
+    QHeaderView *header = mView->horizontalHeader();
+    header->setStretchLastSection(false);
+    header->setSectionResizeMode(QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(3, QHeaderView::Stretch);
+    header->setSectionResizeMode(7, QHeaderView::Fixed);
+    header->resize(7, header->sectionSize(6));
+
+    // Setup dialog size
+    resize(QSize(header->size().width()+100,
+           25*QLabel("A").sizeHint().height()));
+
+
+    mView->sortByColumn(0);
+
+    connect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this, SLOT(updateEditors()));
+    connect(mModel, SIGNAL(modelReset()),
+            this, SLOT(updateEditors()));
+
+    //
+    updateEditors();
 }
 
 void GridManagerDialog::customMenuRequested(QPoint pos)
@@ -250,14 +266,4 @@ void GridManagerDialog::exportSelected()
 void GridManagerDialog::exportAll()
 {
     qDebug() << __FUNCTION__;
-}
-
-void GridManagerDialog::apply()
-{
-    GridManager::instance()->setGrids(mModel->grids());
-}
-
-void GridManagerDialog::reset()
-{
-    mModel->setGrids(GridManager::instance()->grids());
 }

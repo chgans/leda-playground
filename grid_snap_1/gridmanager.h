@@ -10,6 +10,9 @@ class IGridFactory;
 class IGridEditor;
 class IGrid;
 
+class GridManagerDialog;
+class GridTableModel;
+
 class GridManager : public QObject
 {
     Q_OBJECT
@@ -30,16 +33,23 @@ public:
     QList<const IGrid *> grids();
     void setGrids(const QList<const IGrid *> &grids);
 
+public slots:
+    void execDialog();
+
 signals:
     void gridsChanged();
 
-public slots:
+protected slots:
+    void applyGridChanges();
+    void resetGridChanges();
 
 private:
     explicit GridManager(QObject *parent = 0);
     // TODO: Id class (QTC) and QHash
     QMap<QString, IGridFactory*> mFactories;
     QList<IGrid*> mGrids;
+    GridManagerDialog *m_dialog = nullptr;
+    GridTableModel *m_model = nullptr;
 };
 
 #endif // GRIDMANAGER_H

@@ -26,17 +26,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QToolBar *toolBar = addToolBar("tools");
     QAction *action = toolBar->addAction("Grids");
     connect(action, SIGNAL(triggered()),
-            this, SLOT(execGridManagerDialog()));
+            mManager, SLOT(execDialog()));
 
     setCentralWidget(mView);
     showMaximized();
-}
-
-void MainWindow::execGridManagerDialog()
-{
-    GridManagerDialog dlg;
-    dlg.show();
-    dlg.exec();
 }
 
 void MainWindow::onGridsChanged()
@@ -44,6 +37,7 @@ void MainWindow::onGridsChanged()
     qDebug() << __FUNCTION__;
     mView->invalidateScene(mView->sceneRect(), QGraphicsScene::BackgroundLayer);
     mView->update();
+    mView->viewport()->update();
 }
 
 #include "gridmanager.h"

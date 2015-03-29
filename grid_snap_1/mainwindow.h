@@ -18,7 +18,6 @@ signals:
 public slots:
 
 protected slots:
-    void execGridManagerDialog();
     void onGridsChanged();
 
 private:

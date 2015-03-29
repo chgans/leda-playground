@@ -16,6 +16,12 @@ public:
     GridManagerDialog(QWidget *parent = 0);
     ~GridManagerDialog();
 
+    void setModel(GridTableModel *model);
+
+signals:
+    void applyRequested();
+    void resetRequested();
+
 protected slots:
     void customMenuRequested(QPoint pos);
     void updateEditors();
@@ -29,17 +35,15 @@ protected slots:
     void import();
     void exportSelected();
     void exportAll();
-    void apply();
-    void reset();
 
 private:
-    GridTableModel *mModel;
-    QTableView *mView;
-    QMenu *mMenu;
-    QAction *mIncrementAction;
-    QAction *mDecrementAction;
-    QAction *mRemoveAction;
-    QAction *mEditAction;
+    GridTableModel *mModel = nullptr;
+    QTableView *mView = nullptr;
+    QMenu *mMenu = nullptr;
+    QAction *mIncrementAction = nullptr;
+    QAction *mDecrementAction = nullptr;
+    QAction *mRemoveAction =nullptr;
+    QAction *mEditAction = nullptr;
 };
 
 #endif // GRIDMANAGERDIALOG_H
