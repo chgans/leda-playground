@@ -7,6 +7,10 @@ class QGridLayout;
 class QLabel;
 class QGraphicsView;
 
+// TODO:
+// - enableHeadsUpTracking
+// - resetHeadsUpDeltaOrigin
+// - enableHeadsUpDeltaOrigin
 class InsightHeadsUpWidget : public QFrame
 {
     Q_OBJECT
