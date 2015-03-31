@@ -17,10 +17,12 @@ public:
 
     explicit InsightLensWidget(QWidget *parent = 0);
 
+    // TODO: Q_PROPERTY
+
     LensShape lensShape() const;
     QSize lensSize() const;
     int lensZoomLevel() const;
-    bool hasLensMouseTracking() const;
+    bool mouseTracking() const;
     bool isLensEnabled() const;
 
     void moveLensToMousePosition();
@@ -33,10 +35,11 @@ signals:
 
 public slots:
     void setLensShape(LensShape shape);
+    void toggleLensShape();
     void setLensSize(const QSize &size);
     void setLensZoomLevel(int percent);
-    void setLensMouseTracking(bool enable);
-    bool toggleLensMouseTracking();
+    void setMouseTracking(bool enable);
+    bool toggleMouseTracking();
     void setLensEnabled(bool enable);
     bool toggleLensEnabled();
 

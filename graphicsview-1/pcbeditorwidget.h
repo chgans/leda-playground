@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+class QMainWindow;
 class QAction;
 class QMenu;
 class QTabBar;
@@ -21,23 +22,25 @@ public:
 
     void setScene(Scene *scene);
 
-
+    void activateEditor(QMainWindow *window);
 
 signals:
 
 public slots:
 
-protected:
-    void wheelEvent(QWheelEvent *event);
-
 protected slots:
-    void activateLayer(int index);
+    void showColorDialog();
+    void showBoardInsightPopUpMenu();
 
     // TODO: QAction for that
+    void activateLayer(int index);
     void activateNextLayer();
     void activatePreviousLayer();
     void activateNextSignalLayer();
     void activatePreviousSignalLayer();
+
+protected:
+    void wheelEvent(QWheelEvent *event);
 
 private:
     MainView *mView;
@@ -61,26 +64,13 @@ private:
     QAction *mToggleHeadsUpDeltaOriginAction; // Shit+D
     QAction *mToggleInsightLensAction; // Shift+M
     QAction *mShiftInsightLensToMouseAction; // Shift+Ctrl+N
+    QAction *mToggleInsightLensShapeAction; // Shift+B
     QAction *mToggleInsightLensTrackingAction; // Shift+N
     QAction *mToggleInsightLensAutoZoomAction; // Shift+Ctrl+M
     QAction *mToggleInsightLensSingleLayerModeAction; // Shift+Ctrl+S
     QAction *mShowBoardInsightPopUpMenuAction; // F2
     QMenu   *mBoardInsightPopUpMenu;
-protected slots:
-    void enableHeadsUp(bool enabled);
-    void enableHeadsUpTracking(bool enabled);
-    void resetHeadsUpDeltaOrigin();
-    void enableHeadsUpDeltaOrigin(bool enabled);
-    void enableInsightLens(bool enabled);
-    void shiftInsightLensToMouse();
-    void enableInsightLensTracking(bool enabled);
-    void enableInsightLensAutoZoom(bool enabled);
-    void enableInsightLensSingleLayerMode(bool enabled);
-    void showBoardInsightPopUpMenu();
 
-    void showColorDialog();
-
-private:
     QAction *mInsightLensZoomInAction; // Alt+WheelUp
     QAction *mInsightLensZoomOutAction; // Alt+WheelDown
 

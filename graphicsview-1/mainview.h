@@ -32,10 +32,28 @@ public:
     // Needed for magnifier
     virtual void setScene(QGraphicsScene *scene);
 
+    bool headsUpEnabled() const;
+    bool headsUpTrackingEnabled() const;
+    bool headsUpDeltaOriginEnabled() const;
+    bool insightLensEnabled() const;
+    bool insightLensMouseTrackingEnabled() const;
+    bool insightLensAutoZoomEnabled() const;
+    bool insightLensSingleLayerEnabled() const;
+
 signals:
     void viewportChanged();
 
 public slots:
+    void enableHeadsUp(bool enabled);
+    void enableHeadsUpTracking(bool enabled);
+    void resetHeadsUpDeltaOrigin();
+    void enableHeadsUpDeltaOrigin(bool enabled);
+    void enableInsightLens(bool enabled);
+    void shiftInsightLensToMouse();
+    void enableInsightLensTracking(bool enabled);
+    void enableInsightLensAutoZoom(bool enabled);
+    void enableInsightLensSingleLayerMode(bool enabled);
+    void toggleInsightLensShape();
 
 protected:
     void wheelEvent(QWheelEvent *event);

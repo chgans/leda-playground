@@ -43,6 +43,39 @@ InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
     mView->installEventFilter(this);
 }
 
+bool InsightHeadsUpWidget::mouseTracking() const
+{
+    return m_mouseTracking;
+}
+
+bool InsightHeadsUpWidget::deltaOrigin() const
+{
+    return m_deltaOrigin;
+}
+
+void InsightHeadsUpWidget::setMouseTracking(bool arg)
+{
+    if (m_mouseTracking == arg)
+        return;
+
+    m_mouseTracking = arg;
+    emit mouseTrackingChanged(arg);
+}
+
+void InsightHeadsUpWidget::setDeltaOrigin(bool arg)
+{
+    if (m_deltaOrigin == arg)
+        return;
+
+    m_deltaOrigin = arg;
+    emit deltaOriginChanged(arg);
+}
+
+void InsightHeadsUpWidget::resetDeltaOrigin()
+{
+
+}
+
 // TODO: Let the view compute the position (using snap/grid) and notify observers
 // either via signal or via IDrawingViewObserver registration + event mask
 bool InsightHeadsUpWidget::eventFilter(QObject *watched, QEvent *event)

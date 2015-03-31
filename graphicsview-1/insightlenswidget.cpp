@@ -33,7 +33,7 @@ InsightLensWidget::InsightLensWidget(QWidget *parent) :
     setLensEnabled(false);
     setLensSize(QSize(300, 300));
     setLensShape(SquareLens);
-    setLensMouseTracking(true);
+    setMouseTracking(true);
     setLensZoomLevel(400);
 }
 
@@ -54,6 +54,14 @@ void InsightLensWidget::setLensShape(LensShape shape)
         mView->clearMask();
         clearMask();
     }
+}
+
+void InsightLensWidget::toggleLensShape()
+{
+    if (mShape == SquareLens)
+        setLensShape(RoundLens);
+    else
+        setLensShape(SquareLens);
 }
 
 InsightLensWidget::LensShape InsightLensWidget::lensShape() const
@@ -83,21 +91,21 @@ int InsightLensWidget::lensZoomLevel() const
     return mZoomLevel;
 }
 
-void InsightLensWidget::setLensMouseTracking(bool enable)
+void InsightLensWidget::setMouseTracking(bool enable)
 {
     mMouseTracking = enable;
     moveLensToMousePosition();
     moveLensContentToMousePosition();
 }
 
-bool InsightLensWidget::hasLensMouseTracking() const
+bool InsightLensWidget::mouseTracking() const
 {
     return mMouseTracking;
 }
 
-bool InsightLensWidget::toggleLensMouseTracking()
+bool InsightLensWidget::toggleMouseTracking()
 {
-    setLensMouseTracking(!mMouseTracking);
+    setMouseTracking(!mMouseTracking);
     return mMouseTracking;
 }
 

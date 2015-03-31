@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     createMenus();
     createDockWidgets();
 
+    m_editor->activateEditor(this);
 }
 
 MainWindow::~MainWindow()

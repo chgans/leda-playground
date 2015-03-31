@@ -47,11 +47,12 @@ MainView::MainView(QWidget *parent) :
     mLens = new InsightLensWidget(this);
     mLens->setBuddyView(this);
     mLens->setLensShape(InsightLensWidget::SquareLens);
-    mLens->setLensMouseTracking(true);
+    mLens->setMouseTracking(true);
     mLens->setEnabled(true);
 
     mHeadsUp = new InsightHeadsUpWidget(this);
     mHeadsUp->move(5, 5);
+    enableHeadsUp(false);
 
     mPickList = new InsightPickListWidget(this);
     mPickList->hide();
@@ -92,6 +93,96 @@ void MainView::setScene(QGraphicsScene *scene)
     QGraphicsView::setScene(scene);
     mLens->setBuddyView(this);
     mConnectivity->setBuddyView(this);
+}
+
+// Should we instead provide access to the design insights object and monitor
+// their property changes?
+bool MainView::headsUpEnabled() const
+{
+    return mHeadsUp->isVisible();
+}
+
+void MainView::enableHeadsUp(bool enabled)
+{
+    mHeadsUp->setVisible(enabled);
+}
+
+bool MainView::headsUpTrackingEnabled() const
+{
+    return mHeadsUp->mouseTracking();
+}
+
+void MainView::enableHeadsUpTracking(bool enabled)
+{
+    mHeadsUp->setMouseTracking(enabled);
+}
+
+void MainView::resetHeadsUpDeltaOrigin()
+{
+    mHeadsUp->resetDeltaOrigin();
+}
+
+bool MainView::headsUpDeltaOriginEnabled() const
+{
+    return mHeadsUp->deltaOrigin();
+}
+
+void MainView::enableHeadsUpDeltaOrigin(bool enabled)
+{
+    mHeadsUp->setDeltaOrigin(enabled);
+}
+
+bool MainView::insightLensEnabled() const
+{
+    return mLens->isLensEnabled();
+}
+
+void MainView::enableInsightLens(bool enabled)
+{
+    mLens->setLensEnabled(enabled);
+}
+
+void MainView::shiftInsightLensToMouse()
+{
+    mLens->moveLensToMousePosition();
+}
+
+void MainView::enableInsightLensTracking(bool enabled)
+{
+    mLens->setMouseTracking(enabled);
+}
+
+bool MainView::insightLensMouseTrackingEnabled() const
+{
+    return mLens->mouseTracking();
+}
+
+bool MainView::insightLensAutoZoomEnabled() const
+{
+    // TODO
+    return false;
+}
+
+void MainView::enableInsightLensAutoZoom(bool enabled)
+{
+    // TODO
+    Q_UNUSED(enabled);
+}
+
+bool MainView::insightLensSingleLayerEnabled() const
+{
+    return false;
+}
+
+void MainView::enableInsightLensSingleLayerMode(bool enabled)
+{
+    // TODO
+    Q_UNUSED(enabled);
+}
+
+void MainView::toggleInsightLensShape()
+{
+    mLens->toggleLensShape();
 }
 
 void MainView::wheelEvent(QWheelEvent *event)
@@ -183,6 +274,7 @@ void MainView::focusOutEvent(QFocusEvent *event)
 
 void MainView::keyPressEvent(QKeyEvent *event)
 {
+#if 0
     if (event->key() == Qt::Key_M &&
             event->modifiers() == Qt::ControlModifier) {
         // TODO: use QAction, create F2 pop-up menu, ...
@@ -201,6 +293,7 @@ void MainView::keyPressEvent(QKeyEvent *event)
         // TODO: use QAction, create F2 pop-up menu, ...
         mLens->toggleLensMouseTracking();
     }
+#endif
     QGraphicsView::keyPressEvent(event);
 }
 
