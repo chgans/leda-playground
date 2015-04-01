@@ -37,9 +37,6 @@ public slots:
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect);
     void drawForeground(QPainter *painter, const QRectF &rect);
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
 private:
     void init();

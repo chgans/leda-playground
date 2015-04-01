@@ -152,36 +152,3 @@ void Scene::drawForeground(QPainter *painter, const QRectF &rect)
     }
 
 }
-
-void Scene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
-{
-    /*
-    mDragged = qgraphicsitem_cast<QGraphicsItem*>(itemAt(mouseEvent->scenePos(), QTransform()));
-    if (mDragged) {
-        QGraphicsView *view = views().first();
-        QPoint screenPos = view->mapToGlobal(view->mapFromScene(mDragged->pos()));
-        QCursor::setPos(screenPos);
-    }
-    */
-    QGraphicsScene::mousePressEvent(mouseEvent);
-}
-
-void Scene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
-{
-    /*
-    if (mDragged) {
-        mDragged->setPos(snapScenePos(mouseEvent->scenePos()));
-    } else */
-        QGraphicsScene::mouseMoveEvent(mouseEvent);
-}
-
-void Scene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
-{
-    /*
-    if (mDragged) {
-        mDragged->setPos(snapScenePos(mouseEvent->scenePos()));
-        mDragged = 0;
-    } else*/
-        QGraphicsScene::mouseReleaseEvent(mouseEvent);
-}
-
