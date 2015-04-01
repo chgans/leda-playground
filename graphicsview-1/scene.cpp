@@ -46,6 +46,7 @@ int Scene::addLayer(const QString &name, const QColor &color)
     layer->setColor(color);
     m_layers.append(layer);
     addItem(layer);
+    return m_layers.count() - 1;
 }
 
 void Scene::activateLayer(int idx)
