@@ -385,8 +385,8 @@ QList<QWidget *> InsightHeadsUpWidget::itemWidgets(InsightHeadsUpWidget::Items i
 
 void InsightHeadsUpWidget::updateItemWidget(InsightHeadsUpWidget::Item item)
 {
-    bool enabled = m_displayedItems.testFlag(item) && m_displayMode == HeadsUpMode ||
-            m_displayedItemsHover.testFlag(item) && m_displayMode == HoverMode;
+    bool enabled = (m_displayedItems.testFlag(item) && m_displayMode == HeadsUpMode) ||
+            (m_displayedItemsHover.testFlag(item) && m_displayMode == HoverMode);
 
     foreach (QWidget *widget, itemWidgets(item)) {
         widget->setVisible(enabled);
