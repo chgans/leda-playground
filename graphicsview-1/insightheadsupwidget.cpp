@@ -278,6 +278,7 @@ void InsightHeadsUpWidget::setColor(QColor arg)
         return;
 
     m_color = arg;
+    update();
     emit colorChanged(arg);
 }
 
@@ -287,6 +288,7 @@ void InsightHeadsUpWidget::setBorderColor(QColor arg)
         return;
 
     m_borderColor = arg;
+    update();
     emit borderColorChanged(arg);
 }
 
