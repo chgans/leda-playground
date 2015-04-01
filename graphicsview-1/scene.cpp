@@ -98,7 +98,6 @@ void Scene::init()
     m_activeLayer = 0;
     mCellSize.setHeight(25);
     mCellSize.setWidth(25);
-    mDragged = 0;
 }
 
 QPointF Scene::snapScenePos(QPointF pos)
@@ -129,27 +128,4 @@ void Scene::drawBackground(QPainter *painter, const QRectF &rect)
         lines.append(QLineF(rect2.left(), y, rect2.right(), y));
     painter->setPen(QPen(Qt::lightGray, 0, Qt::SolidLine));
     painter->drawLines(lines.data(), lines.size());
-}
-
-
-// TODO: do this in the view
-// TODO: the cross has to be the same size independently of the zoom factor
-
-void Scene::drawForeground(QPainter *painter, const QRectF &rect)
-{
-    Q_UNUSED(rect)
-
-    // Draw big cross
-    if (mDragged) {
-        painter->setPen(QPen(Qt::black, 0, Qt::SolidLine));
-        painter->drawLine(mDragged->scenePos().x() - mCellSize.width()/2.0,
-                          mDragged->scenePos().y(),
-                          mDragged->scenePos().x() + mCellSize.width()/2.0,
-                          mDragged->scenePos().y());
-        painter->drawLine(mDragged->scenePos().x(),
-                          mDragged->scenePos().y() - mCellSize.height()/2.0,
-                          mDragged->scenePos().x(),
-                          mDragged->scenePos().y() + mCellSize.height()/2.0);
-    }
-
 }

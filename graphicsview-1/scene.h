@@ -36,7 +36,6 @@ public slots:
 
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect);
-    void drawForeground(QPainter *painter, const QRectF &rect);
 
 private:
     void init();
@@ -48,10 +47,6 @@ private:
 
     // The size of the cells in the grid.
     QSize mCellSize;
-    // The item being dragged.
-    QGraphicsItem *mDragged;
-    // The distance from the top left of the item to the mouse position.
-    QPointF mDragOffset;
 };
 
 #endif // SCENE_H
