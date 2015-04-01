@@ -15,6 +15,9 @@
 // - HeadsUpWidget position: corner or follow mouse
 // - background brush/gradiant and border color (Need to manage paint ourself?)
 // - Don't assume the view is the parent widget
+// - find out why we need to call layout()->update()
+// - Display bug, X/Y location is clipped. Why?
+// - wheel delta over item doesn't scroll view ?!?
 
 InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
     QFrame(parent)
