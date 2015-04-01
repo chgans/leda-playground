@@ -109,12 +109,12 @@ void MainView::enableHeadsUp(bool enabled)
 
 bool MainView::headsUpTrackingEnabled() const
 {
-    return mHeadsUp->mouseTracking();
+    return false; //return mHeadsUp->mouseTracking();
 }
 
 void MainView::enableHeadsUpTracking(bool enabled)
 {
-    mHeadsUp->setMouseTracking(enabled);
+    //mHeadsUp->setMouseTracking(enabled);
 }
 
 void MainView::resetHeadsUpDeltaOrigin()
@@ -124,12 +124,12 @@ void MainView::resetHeadsUpDeltaOrigin()
 
 bool MainView::headsUpDeltaOriginEnabled() const
 {
-    return mHeadsUp->deltaOrigin();
+    return false; //return mHeadsUp->deltaOrigin();
 }
 
 void MainView::enableHeadsUpDeltaOrigin(bool enabled)
 {
-    mHeadsUp->setDeltaOrigin(enabled);
+    //mHeadsUp->setDeltaOrigin(enabled);
 }
 
 bool MainView::insightLensEnabled() const
