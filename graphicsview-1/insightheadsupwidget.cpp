@@ -399,8 +399,6 @@ void InsightHeadsUpWidget::updateItemWidget(InsightHeadsUpWidget::Item item)
 void InsightHeadsUpWidget::updateItemWidgets()
 {
     updateItemWidget(CursorLocation);
-    updateItemWidget(CursorLocation);
-    updateItemWidget(LastClickDelta);
     updateItemWidget(LastClickDelta);
     updateItemWidget(CurrentLayer);
     updateItemWidget(SnapInformation);
