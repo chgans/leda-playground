@@ -8,30 +8,24 @@
 #include <QGraphicsView>
 #include <QVariant>
 #include <QFont>
+#include <QPainter>
+#include <QGradient>
 
 // TODO:
 // - InsightDisplayWidget -> Insight{HeadsUp,Popup,Panel}Widget
 // - {Cursor,Layer,Snap,...}Listener
 // - HeadsUpWidget position: corner or follow mouse
-// - background brush/gradiant and border color (Need to manage paint ourself?)
 // - Don't assume the view is the parent widget
 // - find out why we need to call layout()->update()
 // - Display bug, X/Y location is clipped. Why?
 // - wheel delta over item doesn't scroll view ?!?
 
 InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
-    QFrame(parent)
+    QWidget(parent)
 {
-    // Widget style
-    setFrameStyle(Box|Plain);
-    setLineWidth(1);
-    setAutoFillBackground(true);
-    QPalette p = palette();
-    p.setColor(QPalette::Base, QColor(26,88,124,122)); // Background color + opacity
-    setPalette(p);
-
     // Layout
     QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->setSpacing(0);
     setLayout(mainLayout);
 
     // Location items
@@ -44,6 +38,8 @@ InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
     m_xCursorDeltaLabelBuddy = new QLabel("dX:");
     m_yCursorDeltaLabel = new QLabel();
     m_yCursorDeltaLabelBuddy = new QLabel("dY:");
+    m_xCursorUnitLabel = new QLabel("mm");
+    m_yCursorUnitLabel = new QLabel("mm");
     locationLayout->addWidget(m_xCursorLocationLabelBuddy, 0, 0);
     locationLayout->addWidget(m_xCursorLocationLabel, 0, 1);
     locationLayout->addWidget(m_yCursorLocationLabelBuddy, 1, 0);
@@ -52,7 +48,13 @@ InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
     locationLayout->addWidget(m_xCursorDeltaLabel, 0, 3);
     locationLayout->addWidget(m_yCursorDeltaLabelBuddy, 1, 2);
     locationLayout->addWidget(m_yCursorDeltaLabel, 1, 3);
-    mainLayout->addLayout(locationLayout);
+    locationLayout->addWidget(m_xCursorUnitLabel, 0, 4);
+    locationLayout->addWidget(m_yCursorUnitLabel, 1, 4);
+    QHBoxLayout *alignLayout = new QHBoxLayout();
+    alignLayout->addLayout(locationLayout);
+    alignLayout->addStretch();
+    locationLayout->setHorizontalSpacing(3);
+    mainLayout->addLayout(alignLayout);
 
     // Other items
     m_currentLayerLabel = new QLabel();
@@ -70,11 +72,18 @@ InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
     m_componentInfoLabel = new QLabel();
     mainLayout->addWidget(m_componentInfoLabel);
 
-    // Set defaults
+    // Set default settings
+    QLinearGradient gradient;
+    gradient.setColorAt(0, QColor(0, 0, 0, 122));
+    gradient.setColorAt(1, QColor(26,88,124, 122));
+    setBrush(QBrush(gradient));
+    setPen(QPen(QColor(255, 255, 255), 1));
+    setOpacity(0.25);
+    setHoverOpacity(0.75);
     QFont font1 = font();
     font1.setBold(true);
     QFont font2 = font();
-    font1.setBold(true);
+    font2.setBold(false);
     QColor color1(224, 222, 172);
     QColor color2(255, 255, 255);
     Items itemSet1 = CursorLocation | LastClickDelta;
@@ -92,6 +101,18 @@ InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
     setAttribute(Qt::WA_TransparentForMouseEvents, true);
     m_view = static_cast<QGraphicsView*>(parent);
     m_view->installEventFilter(this);
+
+    // Testing
+#if 0
+    setDisplayMode(HoverMode);
+    setCursorDelta(QPointF(0.2, 100.9630458));
+    setSnapInformation("Snap information goes here...");
+    setObjectSummary("Object summary goes here...");
+    setShortCutInformation("Shorcut 1\nShorcut 2\nShorcut 3");
+    setViolationInformation("Violation information goes here...");
+    setNetInformation("Net information goes here...");
+    setComponentInformation("Component information goes here...");
+#endif
 }
 
 void InsightHeadsUpWidget::setItemFont(Item item, const QFont &font)
@@ -183,14 +204,14 @@ InsightHeadsUpWidget::DisplayMode InsightHeadsUpWidget::displayMode() const
     return m_displayMode;
 }
 
-QColor InsightHeadsUpWidget::color() const
+QPen InsightHeadsUpWidget::pen() const
 {
-    return m_color;
+    return m_pen;
 }
 
-QColor InsightHeadsUpWidget::borderColor() const
+QBrush InsightHeadsUpWidget::brush() const
 {
-    return m_borderColor;
+    return m_brush;
 }
 
 void InsightHeadsUpWidget::setItemData(InsightHeadsUpWidget::Item item, const QVariant &data)
@@ -272,24 +293,24 @@ void InsightHeadsUpWidget::setDisplayMode(InsightHeadsUpWidget::DisplayMode arg)
     emit displayModeChanged(arg);
 }
 
-void InsightHeadsUpWidget::setColor(QColor arg)
+void InsightHeadsUpWidget::setPen(const QPen &pen)
 {
-    if (m_color == arg)
+    if (m_pen == pen)
         return;
 
-    m_color = arg;
+    m_pen = pen;
     update();
-    emit colorChanged(arg);
+    emit penChanged();
 }
 
-void InsightHeadsUpWidget::setBorderColor(QColor arg)
+void InsightHeadsUpWidget::setBrush(const QBrush &brush)
 {
-    if (m_borderColor == arg)
+    if (m_brush == brush)
         return;
 
-    m_borderColor = arg;
+    m_brush = brush;
     update();
-    emit borderColorChanged(arg);
+    emit brushChanged();
 }
 
 void InsightHeadsUpWidget::setCursorLocation(const QPointF &pos)
@@ -367,10 +388,12 @@ QList<QWidget *> InsightHeadsUpWidget::itemWidgets(InsightHeadsUpWidget::Items i
 
     if (items.testFlag(CursorLocation))
         widgets << m_xCursorLocationLabel << m_yCursorLocationLabel
-                << m_xCursorLocationLabelBuddy << m_yCursorLocationLabelBuddy;
+                << m_xCursorLocationLabelBuddy << m_yCursorLocationLabelBuddy
+                << m_xCursorUnitLabel << m_yCursorUnitLabel;
     if (items.testFlag(LastClickDelta))
         widgets << m_xCursorDeltaLabel << m_yCursorDeltaLabel
-                << m_xCursorDeltaLabelBuddy << m_yCursorDeltaLabelBuddy;
+                << m_xCursorDeltaLabelBuddy << m_yCursorDeltaLabelBuddy
+                << m_xCursorUnitLabel << m_yCursorUnitLabel;
     if (items.testFlag(CurrentLayer))
         widgets << m_currentLayerLabel;
     if (items.testFlag(SnapInformation))
@@ -409,4 +432,13 @@ void InsightHeadsUpWidget::updateItemWidgets()
     updateItemWidget(ViolationInformation);
     updateItemWidget(NetInformation);
     updateItemWidget(ComponentInformation);
+}
+
+void InsightHeadsUpWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QPainter painter(this);
+    painter.setBrush(m_brush);
+    painter.setPen(m_pen);
+    painter.drawRect(rect().adjusted(0, 0, -m_pen.width(), -m_pen.width()));
 }

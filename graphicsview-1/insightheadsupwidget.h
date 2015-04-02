@@ -1,13 +1,15 @@
 #ifndef INSIGHTHEADSUPWIDGET_H
 #define INSIGHTHEADSUPWIDGET_H
 
-#include <QFrame>
+#include <QWidget>
+#include <QPen>
+#include <QBrush>
 
 class QGridLayout;
 class QLabel;
 class QGraphicsView;
 
-class InsightHeadsUpWidget : public QFrame
+class InsightHeadsUpWidget : public QWidget
 {
     Q_OBJECT
     Q_FLAGS(Items Item)
@@ -15,8 +17,8 @@ class InsightHeadsUpWidget : public QFrame
 
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
     Q_PROPERTY(qreal hoverOpacity READ hoverOpacity WRITE setHoverOpacity NOTIFY hoverOpacityChanged)
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(QColor borderColor READ borderColor WRITE setBorderColor NOTIFY borderColorChanged)
+    Q_PROPERTY(QPen pen READ pen WRITE setPen NOTIFY penChanged)
+    Q_PROPERTY(QBrush brush READ brush WRITE setBrush NOTIFY brushChanged)
 
     Q_PROPERTY(DisplayMode displayMode READ displayMode WRITE setDisplayMode NOTIFY displayModeChanged)
     Q_PROPERTY(Items displayedItems READ displayedItems WRITE setDisplayedItems NOTIFY displayedItemsChanged)
@@ -55,8 +57,8 @@ public:
 
     qreal opacity() const;
     qreal hoverOpacity() const;
-    QColor color() const;
-    QColor borderColor() const;
+    QPen pen() const;
+    QBrush brush() const;
 
     DisplayMode displayMode() const;
 
@@ -67,9 +69,8 @@ signals:
     void hoverOpacityChanged(qreal arg);
     void displayModeChanged(DisplayMode arg);
 
-    void colorChanged(QColor arg);
-
-    void borderColorChanged(QColor arg);
+    void penChanged();
+    void brushChanged();
 
 public slots:
     void setItemData(Item item, const QVariant &data);
@@ -93,8 +94,8 @@ public slots:
     void setDisplayedItemsHover(Items items);
     void setDisplayMode(DisplayMode arg);
 
-    void setColor(QColor arg);
-    void setBorderColor(QColor arg);
+    void setPen(const QPen &pen);
+    void setBrush(const QBrush &brush);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event);
@@ -106,6 +107,8 @@ private:
     Items m_displayedItemsHover = 0;
     QPointF m_cursorLocation;
     QPointF m_cursorDelta;
+    QLabel *m_xCursorUnitLabel;
+    QLabel *m_yCursorUnitLabel;
     QLabel *m_xCursorLocationLabel;
     QLabel *m_xCursorLocationLabelBuddy;
     QLabel *m_yCursorLocationLabel;
@@ -128,8 +131,12 @@ private:
     QList<QWidget *> itemWidgets(InsightHeadsUpWidget::Items items) const;
     void updateItemWidget(Item item);
     void updateItemWidgets();
-    QColor m_color;
-    QColor m_borderColor;
+    QPen m_pen;
+    QBrush m_brush;
+
+    // QWidget interface
+protected:
+    void paintEvent(QPaintEvent *event);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(InsightHeadsUpWidget::Items)
