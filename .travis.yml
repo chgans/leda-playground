@@ -1,0 +1,13 @@
+language: cpp
+
+compiler:
+ - gcc
+ - clang
+
+before_install:
+ - sudo apt-get install qtbase5-dev libqt5test5
+ - sudo apt-get install qt5-default qttools5-dev-tools
+
+script:
+ - qmake
+ - make -j$(nproc)
