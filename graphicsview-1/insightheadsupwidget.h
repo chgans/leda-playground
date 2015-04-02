@@ -54,6 +54,8 @@ public:
 
     Items displayedItems() const;
     Items displayedItemsHover() const;
+    bool displayedItem(Item item) const;
+    bool displayedItemHover(Item item) const;
 
     qreal opacity() const;
     qreal hoverOpacity() const;
@@ -61,6 +63,9 @@ public:
     QBrush brush() const;
 
     DisplayMode displayMode() const;
+
+    void setBuddyView(QGraphicsView *view);
+    QGraphicsView *buddyView() const;
 
 signals:
     void displayedItemsChanged();
@@ -76,7 +81,7 @@ public slots:
     void setItemData(Item item, const QVariant &data);
     void setCursorLocation(const QPointF &pos);
     void setCursorDelta(const QPointF &pos);
-    void setCursorDeltaOrigin(const QPointF &pos); // TBD
+    void setCursorDeltaOrigin(const QPointF &pos);
     void setCurrentLayer(const QString &text);
     void setSnapInformation(const QString &text);
     void setObjectSummary(const QString &text);
@@ -85,12 +90,14 @@ public slots:
     void setNetInformation(const QString &text);
     void setComponentInformation(const QString &text);
 
-    void resetDeltaOrigin(); // TBD
+    void resetDeltaOrigin();
 
     void setOpacity(qreal opacity);
     void setHoverOpacity(qreal opacity);
 
+    void setDisplayedItem(Item item, bool displayed);
     void setDisplayedItems(Items items);
+    void setDisplayedItemHover(Item item, bool displayed);
     void setDisplayedItemsHover(Items items);
     void setDisplayMode(DisplayMode arg);
 
@@ -102,11 +109,11 @@ protected:
     void updateContent();
 
 private:
-    QGraphicsView *m_view;
+    QGraphicsView *m_view = nullptr;
     Items m_displayedItems = 0;
     Items m_displayedItemsHover = 0;
     QPointF m_cursorLocation;
-    QPointF m_cursorDelta;
+    QPointF m_cursorDeltaOrigin;
     QLabel *m_xCursorUnitLabel;
     QLabel *m_yCursorUnitLabel;
     QLabel *m_xCursorLocationLabel;

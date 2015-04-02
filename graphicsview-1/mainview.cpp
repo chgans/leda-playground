@@ -52,7 +52,7 @@ MainView::MainView(QWidget *parent) :
 
     mHeadsUp = new InsightHeadsUpWidget(this);
     mHeadsUp->move(5, 5);
-    enableHeadsUp(false);
+    enableHeadsUp(true);
 
     mPickList = new InsightPickListWidget(this);
     mPickList->hide();
@@ -93,28 +93,31 @@ void MainView::setScene(QGraphicsScene *scene)
     QGraphicsView::setScene(scene);
     mLens->setBuddyView(this);
     mConnectivity->setBuddyView(this);
+    mHeadsUp->setBuddyView(this);
 }
 
 // Should we instead provide access to the design insights object and monitor
 // their property changes?
 bool MainView::headsUpEnabled() const
 {
-    return mHeadsUp->isVisible();
+    return mHeadsUp->isEnabled();
 }
 
 void MainView::enableHeadsUp(bool enabled)
 {
+    mHeadsUp->setEnabled(enabled);
     mHeadsUp->setVisible(enabled);
 }
 
 bool MainView::headsUpTrackingEnabled() const
 {
-    return false; //return mHeadsUp->mouseTracking();
+    return mHeadsUp->displayedItem(InsightHeadsUpWidget::CursorLocation);
 }
 
 void MainView::enableHeadsUpTracking(bool enabled)
 {
-    //mHeadsUp->setMouseTracking(enabled);
+    mHeadsUp->setDisplayedItem(InsightHeadsUpWidget::CursorLocation, enabled);
+    mHeadsUp->setDisplayedItemHover(InsightHeadsUpWidget::CursorLocation, enabled);
 }
 
 void MainView::resetHeadsUpDeltaOrigin()
@@ -124,12 +127,13 @@ void MainView::resetHeadsUpDeltaOrigin()
 
 bool MainView::headsUpDeltaOriginEnabled() const
 {
-    return false; //return mHeadsUp->deltaOrigin();
+    return mHeadsUp->displayedItem(InsightHeadsUpWidget::LastClickDelta);
 }
 
 void MainView::enableHeadsUpDeltaOrigin(bool enabled)
 {
-    //mHeadsUp->setDeltaOrigin(enabled);
+    mHeadsUp->setDisplayedItem(InsightHeadsUpWidget::LastClickDelta, enabled);
+    mHeadsUp->setDisplayedItemHover(InsightHeadsUpWidget::LastClickDelta, enabled);
 }
 
 bool MainView::insightLensEnabled() const

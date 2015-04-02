@@ -2,7 +2,6 @@
 
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QSpacerItem>
 #include <QColor>
 #include <QGridLayout>
 #include <QGraphicsView>
@@ -10,15 +9,18 @@
 #include <QFont>
 #include <QPainter>
 #include <QGradient>
+#include <QEvent>
+
 
 // TODO:
 // - InsightDisplayWidget -> Insight{HeadsUp,Popup,Panel}Widget
 // - {Cursor,Layer,Snap,...}Listener
 // - HeadsUpWidget position: corner or follow mouse
-// - Don't assume the view is the parent widget
 // - find out why we need to call layout()->update()
 // - Display bug, X/Y location is clipped. Why?
 // - wheel delta over item doesn't scroll view ?!?
+// - Fix unit display (disabled only if both loc and delta qare disabled, enable if one of them enabled)
+// - move setAttribute(Qt::WA_TransparentForMouseEvents, true) to another managing class ?
 
 InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
     QWidget(parent)
@@ -97,10 +99,8 @@ InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
     setItemFont(itemSet2, font2);
     updateItemWidgets();
 
-    // Mouse events go through to the buddy view but we still watch them
+    // Mouse events go through to the buddy view
     setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    m_view = static_cast<QGraphicsView*>(parent);
-    m_view->installEventFilter(this);
 
     // Testing
 #if 0
@@ -164,6 +164,16 @@ InsightHeadsUpWidget::Items InsightHeadsUpWidget::displayedItems() const
     return m_displayedItems;
 }
 
+void InsightHeadsUpWidget::setDisplayedItem(InsightHeadsUpWidget::Item item, bool displayed)
+{
+    if (m_displayedItems.testFlag(item) == displayed)
+        return;
+
+    m_displayedItems ^= item;
+    updateItemWidgets();
+    emit displayedItemsChanged();
+}
+
 void InsightHeadsUpWidget::setDisplayedItems(Items items)
 {
     if (m_displayedItems == items)
@@ -174,9 +184,28 @@ void InsightHeadsUpWidget::setDisplayedItems(Items items)
     emit displayedItemsChanged();
 }
 
+void InsightHeadsUpWidget::setDisplayedItemHover(InsightHeadsUpWidget::Item item, bool displayed)
+{
+    if (m_displayedItemsHover.testFlag(item) == displayed)
+        return;
+    m_displayedItemsHover |= item;
+    updateItemWidgets();
+    emit displayedItemsHoverChanged();
+}
+
 InsightHeadsUpWidget::Items InsightHeadsUpWidget::displayedItemsHover() const
 {
     return m_displayedItemsHover;
+}
+
+bool InsightHeadsUpWidget::displayedItem(InsightHeadsUpWidget::Item item) const
+{
+    return m_displayedItems.testFlag(item);
+}
+
+bool InsightHeadsUpWidget::displayedItemHover(InsightHeadsUpWidget::Item item) const
+{
+    return m_displayedItemsHover.testFlag(item);
 }
 
 void InsightHeadsUpWidget::setDisplayedItemsHover(Items items)
@@ -202,6 +231,20 @@ qreal InsightHeadsUpWidget::hoverOpacity() const
 InsightHeadsUpWidget::DisplayMode InsightHeadsUpWidget::displayMode() const
 {
     return m_displayMode;
+}
+
+void InsightHeadsUpWidget::setBuddyView(QGraphicsView *view)
+{
+    if (m_view != nullptr && m_view->scene() != nullptr)
+        m_view->scene()->removeEventFilter(this);
+    m_view = view;
+    if (m_view != nullptr && m_view->scene() != nullptr)
+        m_view->scene()->installEventFilter(this);
+}
+
+QGraphicsView *InsightHeadsUpWidget::buddyView() const
+{
+    return m_view;
 }
 
 QPen InsightHeadsUpWidget::pen() const
@@ -252,7 +295,8 @@ void InsightHeadsUpWidget::setItemData(InsightHeadsUpWidget::Item item, const QV
 
 void InsightHeadsUpWidget::resetDeltaOrigin()
 {
-
+    setCursorDeltaOrigin(m_cursorLocation);
+    setCursorDelta(QPointF(0, 0));
 }
 
 void InsightHeadsUpWidget::setOpacity(qreal opacity)
@@ -315,6 +359,10 @@ void InsightHeadsUpWidget::setBrush(const QBrush &brush)
 
 void InsightHeadsUpWidget::setCursorLocation(const QPointF &pos)
 {
+    if (m_cursorLocation == pos)
+        return;
+
+    m_cursorLocation = pos;
     m_xCursorLocationLabel->setText(QString("%1").arg(pos.x(), 0, 'f', 3));
     m_yCursorLocationLabel->setText(QString("%1").arg(pos.y(), 0, 'f', 3));
     updateContent();
@@ -329,7 +377,11 @@ void InsightHeadsUpWidget::setCursorDelta(const QPointF &pos)
 
 void InsightHeadsUpWidget::setCursorDeltaOrigin(const QPointF &pos)
 {
+    if (m_cursorDeltaOrigin == pos)
+        return;
 
+    m_cursorDeltaOrigin = pos;
+    updateContent();
 }
 
 void InsightHeadsUpWidget::setCurrentLayer(const QString &text)
@@ -369,17 +421,36 @@ void InsightHeadsUpWidget::setComponentInformation(const QString &text)
 
 bool InsightHeadsUpWidget::eventFilter(QObject *watched, QEvent *event)
 {
-    if (watched == m_view) {
-        QPoint viewPos = m_view->viewport()->mapFromGlobal(QCursor::pos());
-        QPointF scenePos = m_view->mapToScene(viewPos);
-        setCursorLocation(scenePos);
+    if (watched == m_view->scene()) {
+        QPoint viewPos;
+        QPointF scenePos;
+        switch (event->type()) {
+        case QEvent::GraphicsSceneMouseMove:
+            viewPos = m_view->viewport()->mapFromGlobal(QCursor::pos());
+            scenePos = m_view->mapToScene(viewPos);
+            setCursorLocation(scenePos);
+            setCursorDelta(m_cursorLocation - m_cursorDeltaOrigin);
+            if (m_view->scene()->itemAt(scenePos, m_view->transform()))
+                setDisplayMode(HoverMode);
+            else
+                setDisplayMode(HeadsUpMode);
+            break;
+        case QEvent::GraphicsSceneMousePress:
+            resetDeltaOrigin();
+            break;
+        default:
+            break;
+        }
+
     }
     return QWidget::eventFilter(watched, event);
 }
 
 void InsightHeadsUpWidget::updateContent()
 {
-    layout()->update();
+    // ?!?
+    setVisible(false);
+    setVisible(true);
 }
 
 QList<QWidget *> InsightHeadsUpWidget::itemWidgets(InsightHeadsUpWidget::Items items) const
@@ -419,6 +490,7 @@ void InsightHeadsUpWidget::updateItemWidget(InsightHeadsUpWidget::Item item)
     foreach (QWidget *widget, itemWidgets(item)) {
         widget->setVisible(enabled);
     }
+    updateContent();
 }
 
 void InsightHeadsUpWidget::updateItemWidgets()
