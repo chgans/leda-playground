@@ -59,6 +59,8 @@ public:
 
     qreal opacity() const;
     qreal hoverOpacity() const;
+    qreal effectiveOpacity() const;
+
     QPen pen() const;
     QBrush brush() const;
 

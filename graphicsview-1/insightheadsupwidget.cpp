@@ -76,8 +76,8 @@ InsightHeadsUpWidget::InsightHeadsUpWidget(QWidget *parent) :
 
     // Set default settings
     QLinearGradient gradient;
-    gradient.setColorAt(0, QColor(0, 0, 0, 122));
-    gradient.setColorAt(1, QColor(26,88,124, 122));
+    gradient.setColorAt(0, QColor(0, 0, 0));
+    gradient.setColorAt(1, QColor(26,88,124));
     setBrush(QBrush(gradient));
     setPen(QPen(QColor(255, 255, 255), 1));
     setOpacity(0.25);
@@ -228,6 +228,14 @@ qreal InsightHeadsUpWidget::hoverOpacity() const
     return m_hoverOpacity;
 }
 
+qreal InsightHeadsUpWidget::effectiveOpacity() const
+{
+    if (m_displayMode == HoverMode)
+        return m_hoverOpacity;
+    else
+        return m_opacity;
+}
+
 InsightHeadsUpWidget::DisplayMode InsightHeadsUpWidget::displayMode() const
 {
     return m_displayMode;
@@ -305,15 +313,7 @@ void InsightHeadsUpWidget::setOpacity(qreal opacity)
         return;
 
     m_opacity = opacity;
-
-    QPalette p = palette();
-    QColor c = p.color(QPalette::Base);
-    c.setAlphaF(m_opacity);
-    p.setColor(QPalette::Base, c);
-    setPalette(p);
-
-    update();
-
+    updateContent();
     emit opacityChanged(m_opacity);
 }
 
@@ -512,5 +512,6 @@ void InsightHeadsUpWidget::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setBrush(m_brush);
     painter.setPen(m_pen);
+    painter.setOpacity(effectiveOpacity());
     painter.drawRect(rect().adjusted(0, 0, -m_pen.width(), -m_pen.width()));
 }
