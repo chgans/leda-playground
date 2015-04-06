@@ -448,9 +448,7 @@ bool InsightHeadsUpWidget::eventFilter(QObject *watched, QEvent *event)
 
 void InsightHeadsUpWidget::updateContent()
 {
-    // ?!?
-    setVisible(false);
-    setVisible(true);
+    adjustSize();
 }
 
 QList<QWidget *> InsightHeadsUpWidget::itemWidgets(InsightHeadsUpWidget::Items items) const
