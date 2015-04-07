@@ -57,8 +57,6 @@ public slots:
 
 protected:
     void wheelEvent(QWheelEvent *event);
-    void resizeEvent(QResizeEvent *event);
-    bool viewportEvent(QEvent *event);
     void drawForeground(QPainter * painter, const QRectF & rect);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -71,10 +69,6 @@ private:
     QTimer mDesignInsightTimer;
     QGraphicsItem *mDesignInsightItem;
     InsightConnectivityWidget *mConnectivity;
-    /*
-    QFrame *mDesignInsightFrame;
-    OverView *mDesignInsightView;
-    */
 
     QList<QGraphicsItem*> mMaskingItems;
 

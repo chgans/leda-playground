@@ -27,23 +27,11 @@ MainView::MainView(QWidget *parent) :
     mDesignInsightItem = 0;
     connect(&mDesignInsightTimer, SIGNAL(timeout()),
             this, SLOT(showDesignInsight()));
-#if 0
-    mDesignInsightFrame = new QFrame(this);
-    // To be on top of all
-    mDesignInsightFrame->setWindowFlags(Qt::SplashScreen);
-    mDesignInsightFrame->hide();    
-    mDesignInsightFrame->setLayout(new QVBoxLayout);
-    mDesignInsightFrame->setAutoFillBackground(true);
-    mDesignInsightFrame->setFrameStyle(QFrame::Box);
-    mDesignInsightFrame->setMaximumSize(500, 500);
-    mDesignInsightView = new OverView;
-    mDesignInsightView->setObservedView(this);
-    mDesignInsightFrame->layout()->addWidget(mDesignInsightView);
-    mDesignInsightFrame->layout()->addWidget(new QLabel(""));
-#endif
+
     mConnectivity = new InsightConnectivityWidget;
     mConnectivity->setMaximumSize(300, 300);
     mConnectivity->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
     mLens = new InsightLensWidget(this);
     mLens->setBuddyView(this);
     mLens->setLensShape(InsightLensWidget::SquareLens);
@@ -206,18 +194,6 @@ void MainView::wheelEvent(QWheelEvent *event)
     }
 }
 
-void MainView::resizeEvent(QResizeEvent *event)
-{
-    //emit viewportChanged();
-    QGraphicsView::resizeEvent(event);
-}
-
-bool MainView::viewportEvent(QEvent *event)
-{
-    //emit viewportChanged();
-    return QGraphicsView::viewportEvent(event);
-}
-
 void MainView::drawForeground(QPainter *painter, const QRectF &rect)
 {
     // Instead of dimming out all other components (decrease their opacity)
@@ -242,10 +218,7 @@ void MainView::mousePressEvent(QMouseEvent *event)
 {
     qDebug() << "There are" << items(event->pos()).size()
              << "items at position" << mapToScene(event->pos());
-    // TODO:
-    //  - long press => select and start move
-    //  - single click => select
-    //  - double click => edit
+
     if (items(event->pos()).size() > 1) {
         mPickList->move(mapFromGlobal(QCursor::pos())); // TODO: Better placement strategy
         mPickList->setPickList(scene(), items(event->pos()));
@@ -276,26 +249,6 @@ void MainView::focusOutEvent(QFocusEvent *event)
 
 void MainView::keyPressEvent(QKeyEvent *event)
 {
-#if 0
-    if (event->key() == Qt::Key_M &&
-            event->modifiers() == Qt::ControlModifier) {
-        // TODO: use QAction, create F2 pop-up menu, ...
-        mLens->toggleLensEnabled();
-    }
-    else if (event->key() == Qt::Key_N &&
-            event->modifiers() == Qt::ControlModifier) {
-        // TODO: use QAction, create F2 pop-up menu, ...
-        if (mLens->lensShape() == InsightLensWidget::SquareLens)
-            mLens->setLensShape(InsightLensWidget::RoundLens);
-        else
-            mLens->setLensShape(InsightLensWidget::SquareLens);
-    }
-    else if (event->key() == Qt::Key_B &&
-            event->modifiers() == Qt::ControlModifier) {
-        // TODO: use QAction, create F2 pop-up menu, ...
-        mLens->toggleLensMouseTracking();
-    }
-#endif
     QGraphicsView::keyPressEvent(event);
 }
 
@@ -306,18 +259,12 @@ bool MainView::eventFilter(QObject *obj, QEvent *event)
 
 void MainView::showDesignInsight()
 {
-#if 0
-    mDesignInsightView->setScene(scene());
-    mDesignInsightFrame->move(QCursor::pos());
-    mDesignInsightFrame->show();
-#endif
     mConnectivity->move(QCursor::pos());
     mConnectivity->show();
 }
 
 void MainView::hideDesignInsight()
 {
-    //mDesignInsightFrame->hide();
     mConnectivity->hide();
 }
 
