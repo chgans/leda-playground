@@ -247,11 +247,9 @@ void MainView::mousePressEvent(QMouseEvent *event)
     //  - single click => select
     //  - double click => edit
     if (items(event->pos()).size() > 1) {
+        mPickList->move(mapFromGlobal(QCursor::pos())); // TODO: Better placement strategy
         mPickList->setPickList(scene(), items(event->pos()));
-        mPickList->move(mapFromGlobal(QCursor::pos()));
-        // FIXME: block interaction until selection is made or picklist looses focus
         mPickList->show();
-        mPickList->raise(); // Strange!?!
     }
     QGraphicsView::mousePressEvent(event);
 }

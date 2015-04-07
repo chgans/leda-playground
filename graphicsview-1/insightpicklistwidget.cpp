@@ -13,43 +13,20 @@
 
 #include <QDebug>
 
-// TODO:
-//  * Add a splitter between the view and the list
-//  * Get the list an automatic vertical size (depends on list length)
-//  * Replace the list view with a "flat" table: type's icon, type's label, description, layer
-//  * `-> the width of the QFrame is influenced by the description width
+// FIXME: Using the splitter screws the sizing
 InsightPickListWidget::InsightPickListWidget(QWidget *parent) :
     QFrame(parent)
 {
-    //setWindowFlags(Qt::SplashScreen); // Is it right?
-    setLayout(new QVBoxLayout);
     setAutoFillBackground(true);
     setFrameStyle(QFrame::Box);
+    setMaximumHeight(300);
 
-    QSplitter *splitter = new QSplitter;
-    splitter->setOrientation(Qt::Vertical);
-    layout()->addWidget(splitter);
-
-    // Create the view, w/ fixed size
+    // Create the view, we snoop on mouse move for moving ourself
     mView = new ObjectPreview;
-    //mView->setMaximumSize(300, 150); // FIXME
-    splitter->addWidget(mView);
-    // Snoop on mouse move (for moving our self)
     mView->setCursor(Qt::OpenHandCursor);
     mView->viewport()->installEventFilter(this);
-
-    // Create the item list view
-    mList = new QListWidget;
-    mList->viewport()->setAutoFillBackground(false);
-    mList->setFrameStyle(QFrame::NoFrame);
-    // update view when mouse hover items
-    mList->setMouseTracking(true);
-    connect(mList, SIGNAL(itemEntered(QListWidgetItem*)),
-            this, SLOT(activateListItem(QListWidgetItem*)));
-    // emit select when mouse clicked
-    mList->setSelectionMode(QAbstractItemView::SingleSelection);
-    connect(mList, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(selectItem(QModelIndex)));
+    mView->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mView->setMaximumHeight(150);
 
     // Create the item list view
     mTable = new QTableWidget;
@@ -57,37 +34,32 @@ InsightPickListWidget::InsightPickListWidget(QWidget *parent) :
     mTable->horizontalHeader()->hide();
     mTable->verticalHeader()->hide();
     mTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    mTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    //mTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
     mTable->setWordWrap(false);
     mTable->setTextElideMode(Qt::ElideNone);
-    mTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    mTable->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    mTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    mTable->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     // Style it
-    //mTable->viewport()->setAutoFillBackground(false);
     mTable->setFrameStyle(QFrame::NoFrame);
     mTable->setShowGrid(false);
+
     // update view when mouse hover items
     mTable->setMouseTracking(true);
     connect(mTable, SIGNAL(itemEntered(QTableWidgetItem*)),
             this, SLOT(activateTableItem(QTableWidgetItem*)));
+
     // emit select when mouse clicked
     mTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     mTable->setSelectionMode(QAbstractItemView::SingleSelection);
     connect(mTable, SIGNAL(clicked(QModelIndex)),
             this, SLOT(selectItem(QModelIndex)));
 
-    //splitter->addWidget(mList);
-    splitter->addWidget(mTable);
-
-    // More compact layout
+    // Setup layout
+    setLayout(new QVBoxLayout());
+    layout()->addWidget(mView);
+    layout()->addWidget(mTable);
     layout()->setMargin(5);
-
-    // Drive the size ourself
-    setSizePolicy(QSizePolicy::Preferred,
-                  QSizePolicy::Fixed);
-
-    // For debugging
-    //splitter->setFrameStyle(QFrame::Box);
-    //splitter->setLineWidth(1);
 }
 
 InsightPickListWidget::~InsightPickListWidget()
@@ -98,22 +70,12 @@ InsightPickListWidget::~InsightPickListWidget()
 
 void InsightPickListWidget::setPickList(QGraphicsScene *scene, QList<QGraphicsItem *> list)
 {
-    mList->clear();
     mTable->clear();
 
     if (list.count() == 0)
         return;
 
     mView->setScene(scene);
-
-    {
-    QListWidgetItem *item;
-    for (int i=0; i<list.size(); ++i) {
-        item = new QListWidgetItem(QString("Item %1").arg(i), mList);
-        item->setData(Qt::UserRole, QVariant::fromValue(list.at(i)));
-    }
-    activateListItem(mList->item(0));
-    }
 
     mTable->setRowCount(list.size());
     QTableWidgetItem *item;
@@ -136,35 +98,18 @@ void InsightPickListWidget::setPickList(QGraphicsScene *scene, QList<QGraphicsIt
         mTable->setItem(i, 3, item);
     }
     activateTableItem(mTable->item(0, 0));
-    updateGeometry();
-}
-
-QSize InsightPickListWidget::sizeHint() const
-{
-    // FIXME!!!
-    return QSize(mTable->sizeHint().width() + layout()->margin()*4 + 25,
-                 150 + mTable->rowHeight(0)*mTable->rowCount()+15);
-}
-
-void InsightPickListWidget::activateListItem(QListWidgetItem *item)
-{
-    QGraphicsItem *gitem = item->data(Qt::UserRole).value<QGraphicsItem *>();
-    mView->setObjectToPreview(gitem);
 }
 
 void InsightPickListWidget::activateTableItem(QTableWidgetItem *item)
 {
-    for (int r=0; r<mTable->rowCount(); ++r)
-        for (int c=0; c<mTable->columnCount(); ++c)
-            mTable->item(r, c)->setSelected(r==item->row());
-    mTable->setRangeSelected(QTableWidgetSelectionRange(item->row(), 0, item->row(), 4), true);
+    mTable->selectRow(item->row());
     QGraphicsItem *gitem = item->data(Qt::UserRole).value<QGraphicsItem *>();
     mView->setObjectToPreview(gitem);
 }
 
 void InsightPickListWidget::selectItem(const QModelIndex &index)
 {
-    QListWidgetItem *item = mList->item(index.row());
+    QTableWidgetItem *item = mTable->item(index.row(), index.column());
     QGraphicsItem *gitem = item->data(Qt::UserRole).value<QGraphicsItem *>();
     emit itemSelected(gitem);
 }

@@ -22,7 +22,6 @@ public:
 
     void setPickList(QGraphicsScene *scene, QList<QGraphicsItem*> list);
 
-    QSize sizeHint() const;
 
     //void setMovable(bool movable);
     //bool isMovable() const;
@@ -34,7 +33,6 @@ public slots:
 
 
 protected slots:
-    void activateListItem(QListWidgetItem *item);
     void activateTableItem(QTableWidgetItem *item);
     void selectItem(const QModelIndex &index);
 
@@ -43,7 +41,6 @@ protected:
 
 private:
     ObjectPreview *mView;
-    QListWidget *mList;
     QTableWidget *mTable;
     QPoint mMousePos;
 };
