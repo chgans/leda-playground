@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
             QPen pen = readPen(obj["pen"].toObject());
             QBrush brush = readBrush(obj["brush"].toObject());
             double opacity = obj["opacity"].toDouble();
-            int layer = obj["layer"].toInt();
+            int layerIndex = obj["layer"].toInt();
 
             if (type.toLower() == "rectangle") {
                 QGraphicsRectItem *ritem = new QGraphicsRectItem();
@@ -238,8 +238,7 @@ int main(int argc, char *argv[])
             item->setOpacity(opacity);
             item->setFlag(QGraphicsItem::ItemIsMovable, true);
             item->setFlag(QGraphicsItem::ItemIsSelectable, true);
-            scene.activateLayer(layer);
-            scene.addItemToLayer(item);
+            scene.addItemToLayer(item, layerIndex);
         }
     }
 

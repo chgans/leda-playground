@@ -46,6 +46,7 @@ int Scene::addLayer(const QString &name, const QColor &color)
     layer->setColor(color);
     m_layers.append(layer);
     addItem(layer);
+    m_activeLayer = layer;
     return m_layers.count() - 1;
 }
 
@@ -85,12 +86,23 @@ GSceneLayer *Scene::activeLayer() const
     return m_activeLayer;
 }
 
-void Scene::addItemToLayer(QGraphicsItem *item)
+void Scene::addItemToLayer(QGraphicsItem *item, int index)
+{
+    Q_ASSERT(index < m_layers.count());
+    addItemToLayer(item, m_layers.at(index));
+}
+
+void Scene::addItemToLayer(QGraphicsItem *item, GSceneLayer *layer)
 {
     Q_ASSERT(item != 0);
-    Q_ASSERT(m_activeLayer != 0);
+    Q_ASSERT(m_layers.contains(layer));
+    item->setParentItem(layer);
+}
 
-    item->setParentItem(m_activeLayer);
+void Scene::addItemToActiveLayer(QGraphicsItem *item)
+{
+    Q_ASSERT(m_activeLayer != 0);
+    addItemToLayer(item, m_activeLayer);
 }
 
 void Scene::init()

@@ -26,7 +26,9 @@ public:
     void activateLayer(GSceneLayer *layer);
     GSceneLayer *activeLayer() const;
 
-    void addItemToLayer(QGraphicsItem *item);
+    void addItemToLayer(QGraphicsItem *item, int index);
+    void addItemToLayer(QGraphicsItem *item, GSceneLayer *layer);
+    void addItemToActiveLayer(QGraphicsItem *item);
 
 signals:
     void layersChanged();

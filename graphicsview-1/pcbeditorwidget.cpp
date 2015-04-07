@@ -297,8 +297,7 @@ void PcbEditorWidget::setupLayerTabBar()
         mLayerTabBar->addTab(layer->name());
         mLayerTabBar->setTabIcon(i, *icon(layer->color()));
     }
-    int activeLayer = 0;
-    activateLayer(activeLayer);
+    int activeLayer = s->layers().indexOf(s->activeLayer());
     mLayerTabBar->setCurrentIndex(activeLayer);
     connect(mLayerTabBar, SIGNAL(currentChanged(int)),
             this, SLOT(activateLayer(int)));
