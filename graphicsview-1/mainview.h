@@ -13,6 +13,8 @@ class InsightLensWidget;
 class InsightHeadsUpWidget;
 class InsightConnectivityWidget;
 class InsightPickListWidget;
+class Scene;
+class GSceneLayer;
 
 // TODO: rename to Pcb2dView
 //  Add flags to enable tools (lens, ...)
@@ -20,7 +22,22 @@ class InsightPickListWidget;
 class MainView : public QGraphicsView
 {
     Q_OBJECT
+
+    Q_ENUMS(LayerDisplayMode)
+
+    Q_PROPERTY(LayerDisplayMode layerDisplayMode READ layerDisplayMode WRITE setLayerDisplayMode NOTIFY layerDisplayModeChanged)
+
 public:
+    enum LayerDisplayMode {
+        DisplayAllLayers,
+        GreyscaleOtherLayers,
+        MonochromeOtherLayers,
+        HideOtherLayers,
+
+        _BeginDisplayMode = DisplayAllLayers,
+        _EndDisplayMode = HideOtherLayers + 1
+    };
+
     explicit MainView(QWidget *parent = 0);
 
     void addMaskingItem(QGraphicsItem *item);
@@ -29,8 +46,11 @@ public:
     QList<QGraphicsItem*> maskingItems();
     void resetMaskingItems();
 
+    void setLayerDisplayMode(LayerDisplayMode mode);
+    LayerDisplayMode layerDisplayMode() const;
+
     // Needed for magnifier
-    virtual void setScene(QGraphicsScene *scene);
+    virtual void setScene(Scene *scene);
 
     bool headsUpEnabled() const;
     bool headsUpTrackingEnabled() const;
@@ -42,8 +62,11 @@ public:
 
 signals:
     void viewportChanged();
+    void layerDisplayModeChanged(LayerDisplayMode mode);
 
 public slots:
+    LayerDisplayMode cycleLayerDisplayMode();
+
     void enableHeadsUp(bool enabled);
     void enableHeadsUpTracking(bool enabled);
     void resetHeadsUpDeltaOrigin();
@@ -55,6 +78,11 @@ public slots:
     void enableInsightLensSingleLayerMode(bool enabled);
     void toggleInsightLensShape();
 
+protected slots:
+    void onLayersChanged();
+    void onActiveLayerAboutToChange(GSceneLayer *layer);
+    void onActiveLayerChanged(GSceneLayer *layer);
+
 protected:
     void wheelEvent(QWheelEvent *event);
     void drawForeground(QPainter * painter, const QRectF & rect);
@@ -65,6 +93,13 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 private:
+    void updateSceneLayersEffect();
+    void updateSceneLayerEffect(GSceneLayer *layer, bool isActive);
+
+    Scene *m_scene;
+
+    LayerDisplayMode m_layerDisplayMode;
+
     int mDesignInsightDelay;
     QTimer mDesignInsightTimer;
     QGraphicsItem *mDesignInsightItem;
@@ -89,6 +124,7 @@ protected slots:
     void hideDesignInsight();
 
     void onItemSelectedFromPickList(QGraphicsItem* item);
+
 };
 
 #endif // MAINVIEW_H

@@ -32,7 +32,8 @@ public:
 
 signals:
     void layersChanged();
-    void activeLayerchanged();
+    void activeLayerAboutToChange(GSceneLayer *layer);
+    void activeLayerChanged(GSceneLayer *layer);
 
 public slots:
 

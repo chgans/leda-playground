@@ -47,6 +47,7 @@ int Scene::addLayer(const QString &name, const QColor &color)
     m_layers.append(layer);
     addItem(layer);
     m_activeLayer = layer;
+    emit layersChanged();
     return m_layers.count() - 1;
 }
 
@@ -56,6 +57,8 @@ void Scene::activateLayer(int idx)
 
     if (m_layers[idx] == m_activeLayer)
         return;
+
+    emit activeLayerAboutToChange(m_activeLayer);
 
     if (m_activeLayer)
         m_activeLayer->setEnabled(false);
@@ -70,7 +73,7 @@ void Scene::activateLayer(int idx)
     }
     m_layers[idx]->setZValue(i);
 
-    emit activeLayerchanged();
+    emit activeLayerChanged(m_activeLayer);
 }
 
 void Scene::activateLayer(GSceneLayer *layer)

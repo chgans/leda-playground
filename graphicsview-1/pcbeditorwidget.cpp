@@ -129,6 +129,7 @@ void PcbEditorWidget::activateEditor(QMainWindow *window)
     window->addAction(mShiftInsightLensToMouseAction);
     window->addAction(mToggleInsightLensAutoZoomAction);
     window->addAction(mToggleInsightLensSingleLayerModeAction);
+    window->addAction(m_cycleDisplayLayerMode);
 }
 
 void PcbEditorWidget::wheelEvent(QWheelEvent *event)
@@ -245,6 +246,10 @@ void PcbEditorWidget::createActions()
     connect(mToggleInsightLensSingleLayerModeAction, SIGNAL(triggered(bool)),
             mView, SLOT(enableInsightLensSingleLayerMode(bool)));
 
+    m_cycleDisplayLayerMode = new QAction("Cycle Single Layer Mode", this);
+    m_cycleDisplayLayerMode->setShortcut(QKeySequence("Shift+S"));
+    connect(m_cycleDisplayLayerMode, SIGNAL(triggered()),
+            mView, SLOT(cycleLayerDisplayMode()));
 #if 0
     mInsightLensZoomInAction; // Alt+WheelUp
     mInsightLensZoomOutAction; // Alt+WheelDown

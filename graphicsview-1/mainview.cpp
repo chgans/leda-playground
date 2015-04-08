@@ -5,8 +5,12 @@
 #include "insightheadsupwidget.h"
 #include "insightconnectivitywidget.h"
 #include "insightpicklistwidget.h"
+#include "scene.h"
+#include "scenelayer.h"
 
 #include <QGraphicsItem>
+#include <QGraphicsColorizeEffect>
+#include <QGraphicsOpacityEffect>
 #include <QPainter>
 #include <QMouseEvent>
 #include <QFrame>
@@ -19,6 +23,9 @@ MainView::MainView(QWidget *parent) :
     QGraphicsView(parent)
 {
     mPickedItem = 0;
+
+    m_scene = nullptr;
+    m_layerDisplayMode = DisplayAllLayers;
 
     setMouseTracking(true);
     mDesignInsightDelay = 2000;
@@ -76,12 +83,62 @@ void MainView::resetMaskingItems()
     mMaskingItems.clear();
 }
 
-void MainView::setScene(QGraphicsScene *scene)
+void MainView::setLayerDisplayMode(MainView::LayerDisplayMode mode)
 {
+    if (m_layerDisplayMode == mode)
+        return;
+
+    m_layerDisplayMode = mode;
+
+    updateSceneLayersEffect();
+    invalidateScene(QRectF(), QGraphicsScene::ItemLayer);
+
+    emit layerDisplayModeChanged(m_layerDisplayMode);
+}
+
+MainView::LayerDisplayMode MainView::layerDisplayMode() const
+{
+    return m_layerDisplayMode;
+}
+
+MainView::LayerDisplayMode MainView::cycleLayerDisplayMode()
+{
+    LayerDisplayMode mode = LayerDisplayMode(int(m_layerDisplayMode) + 1);
+
+    if (mode == _EndDisplayMode)
+        mode = _BeginDisplayMode;
+
+    setLayerDisplayMode(mode);
+    return layerDisplayMode();
+}
+
+void MainView::setScene(Scene *scene)
+{
+    if (m_scene) {
+        m_scene->disconnect(this);
+        mLens->setBuddyView(nullptr);
+        mConnectivity->setBuddyView(nullptr);
+        mHeadsUp->setBuddyView(nullptr);
+    }
+
+    m_scene = scene;
+
+    if (m_scene == nullptr)
+        return;
+
     QGraphicsView::setScene(scene);
     mLens->setBuddyView(this);
     mConnectivity->setBuddyView(this);
     mHeadsUp->setBuddyView(this);
+
+    updateSceneLayersEffect();
+
+    connect(m_scene, &Scene::layersChanged,
+            this, &MainView::onLayersChanged);
+    connect(m_scene, &Scene::activeLayerAboutToChange,
+            this, &MainView::onActiveLayerAboutToChange);
+    connect(m_scene, &Scene::activeLayerChanged,
+            this, &MainView::onActiveLayerChanged);
 }
 
 // Should we instead provide access to the design insights object and monitor
@@ -166,6 +223,20 @@ bool MainView::insightLensSingleLayerEnabled() const
     return false;
 }
 
+// FIXME: This currently affects *all* views. Other solutions are:
+//  - Use IndirectPainting optimisation flag (deprecated, will likely go away int Qt 6)
+//  - Items make use of the paint function's QWidget parameter
+//    (They could ask if it should draw or not, which painting effect, ...)
+void MainView::onActiveLayerAboutToChange(GSceneLayer *layer)
+{
+    updateSceneLayerEffect(layer, false);
+}
+
+void MainView::onActiveLayerChanged(GSceneLayer *layer)
+{
+    updateSceneLayerEffect(layer, true);
+}
+
 void MainView::enableInsightLensSingleLayerMode(bool enabled)
 {
     // TODO
@@ -175,6 +246,11 @@ void MainView::enableInsightLensSingleLayerMode(bool enabled)
 void MainView::toggleInsightLensShape()
 {
     mLens->toggleLensShape();
+}
+
+void MainView::onLayersChanged()
+{
+    updateSceneLayersEffect();
 }
 
 void MainView::wheelEvent(QWheelEvent *event)
@@ -219,8 +295,10 @@ void MainView::mousePressEvent(QMouseEvent *event)
     qDebug() << "There are" << items(event->pos()).size()
              << "items at position" << mapToScene(event->pos());
 
+    // TODO: Better placement strategy
+    // TODO: PickList population depends on layer display mode too
     if (items(event->pos()).size() > 1) {
-        mPickList->move(mapFromGlobal(QCursor::pos())); // TODO: Better placement strategy
+        mPickList->move(mapFromGlobal(QCursor::pos()));
         mPickList->setPickList(scene(), items(event->pos()));
         mPickList->show();
     }
@@ -255,6 +333,55 @@ void MainView::keyPressEvent(QKeyEvent *event)
 bool MainView::eventFilter(QObject *obj, QEvent *event)
 {
     return QGraphicsView::eventFilter(obj, event);
+}
+
+void MainView::updateSceneLayersEffect()
+{
+    foreach (GSceneLayer *layer, m_scene->layers()) {
+        updateSceneLayerEffect(layer, layer == m_scene->activeLayer());
+    }
+}
+
+void MainView::updateSceneLayerEffect(GSceneLayer *layer, bool isActive)
+{
+    if (isActive) {
+        layer->setGraphicsEffect(nullptr);
+        return;
+    }
+
+    switch (m_layerDisplayMode) {
+    case DisplayAllLayers:
+        layer->setGraphicsEffect(nullptr);
+        break;
+    case GreyscaleOtherLayers:
+    {
+        // TODO: This is not a real grayscale, it is a graying out
+        QGraphicsColorizeEffect *effect = new QGraphicsColorizeEffect();
+        effect->setColor(Qt::gray);
+        effect->setStrength(0.75);
+        layer->setGraphicsEffect(effect);
+        break;
+    }
+    case MonochromeOtherLayers:
+    {
+        QGraphicsColorizeEffect *effect = new QGraphicsColorizeEffect();
+        effect->setColor(Qt::gray);
+        effect->setStrength(1.0);
+        layer->setGraphicsEffect(effect);
+        break;
+    }
+    case HideOtherLayers:
+    {
+        // TODO: Anything better?
+        QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect();
+        effect->setOpacity(0);
+        layer->setGraphicsEffect(effect);
+        break;
+    }
+    default:
+        // Not reached
+        Q_ASSERT(false);
+    }
 }
 
 void MainView::showDesignInsight()

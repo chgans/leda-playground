@@ -84,6 +84,8 @@ private:
     QAction *mActivatePreviousSignalLayerAction; // // KPD/
 
     QAction *mShowViewConfigurationDialogAction; // L
+
+    QAction *m_cycleDisplayLayerMode;
 };
 
 #endif // PCBEDITORWIDGET_H
