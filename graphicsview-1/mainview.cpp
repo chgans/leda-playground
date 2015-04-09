@@ -6,7 +6,7 @@
 #include "insightconnectivitywidget.h"
 #include "insightpicklistwidget.h"
 #include "scene.h"
-#include "scenelayer.h"
+#include "designlayer.h"
 
 #include <QGraphicsItem>
 #include <QGraphicsColorizeEffect>

@@ -1,4 +1,4 @@
-#include "scenelayer.h"
+#include "designlayer.h"
 
 DesignLayer::DesignLayer(QGraphicsItem *parent):
     QGraphicsItem(parent)

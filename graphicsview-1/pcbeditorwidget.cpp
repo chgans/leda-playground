@@ -1,7 +1,7 @@
 #include "pcbeditorwidget.h"
 #include "mainview.h"
 #include "scene.h"
-#include "scenelayer.h"
+#include "designlayer.h"
 
 #include "pcbpalettemanagerdialog.h"
 

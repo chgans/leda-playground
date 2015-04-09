@@ -1,5 +1,5 @@
 #include "scene.h"
-#include "scenelayer.h"
+#include "designlayer.h"
 
 #include <QCursor>
 #include <QGraphicsView>
