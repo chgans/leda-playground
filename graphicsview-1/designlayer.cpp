@@ -36,9 +36,7 @@ void DesignLayer::setColor(const QColor &color)
     if (m_color == color)
         return;
 
-    prepareGeometryChange();
     m_color = color;
-    update();
 
     emit colorChanged(m_color);
 }
