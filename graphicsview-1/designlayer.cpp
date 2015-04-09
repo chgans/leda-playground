@@ -1,7 +1,7 @@
 #include "designlayer.h"
 
 DesignLayer::DesignLayer(QGraphicsItem *parent):
-    QGraphicsItem(parent)
+    QGraphicsObject(parent)
 {
     setFlags(ItemHasNoContents);
 }
@@ -18,7 +18,12 @@ QString DesignLayer::name() const
 
 void DesignLayer::setName(const QString &name)
 {
+    if (m_name == name)
+        return;
+
     m_name = name;
+
+    emit nameChanged(m_name);
 }
 
 const QColor &DesignLayer::color() const
@@ -28,9 +33,14 @@ const QColor &DesignLayer::color() const
 
 void DesignLayer::setColor(const QColor &color)
 {
+    if (m_color == color)
+        return;
+
     prepareGeometryChange();
     m_color = color;
     update();
+
+    emit colorChanged(m_color);
 }
 
 QRectF DesignLayer::boundingRect() const

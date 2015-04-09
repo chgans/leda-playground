@@ -1,13 +1,15 @@
 #ifndef SCENELAYER_H
 #define SCENELAYER_H
 
-#include <QGraphicsItem>
+#include <QGraphicsObject>
 
-// TODO: split between layer (QObject) and layerItem (QGItem) ?
-// to allow to monitor property changes
-
-class DesignLayer : public QGraphicsItem
+class DesignLayer : public QGraphicsObject
 {
+    Q_OBJECT
+
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+
 public:
 #if 0
     enum LayerType {
@@ -60,6 +62,10 @@ public:
 
     const QColor &color() const;
     void setColor(const QColor &color);
+
+signals:
+    void nameChanged(const QString &name);
+    void colorChanged(const QColor &color);
 
 private:
     QString m_name;
