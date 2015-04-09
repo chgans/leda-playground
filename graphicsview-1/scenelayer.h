@@ -6,7 +6,7 @@
 // TODO: split between layer (QObject) and layerItem (QGItem) ?
 // to allow to monitor property changes
 
-class GSceneLayer : public QGraphicsItem
+class DesignLayer : public QGraphicsItem
 {
 public:
 #if 0
@@ -52,8 +52,8 @@ public:
     void setNames(const QString &names);
 #endif
 
-    GSceneLayer(QGraphicsItem *parent = 0);
-    ~GSceneLayer();
+    DesignLayer(QGraphicsItem *parent = 0);
+    ~DesignLayer();
 
     QString name() const;
     void setName(const QString &name);

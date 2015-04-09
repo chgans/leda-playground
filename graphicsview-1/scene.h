@@ -6,7 +6,7 @@
 #include <QSize>
 #include <QList>
 
-class GSceneLayer;
+class DesignLayer;
 
 class Scene : public QGraphicsScene
 {
@@ -17,23 +17,23 @@ public:
     explicit Scene(qreal x, qreal y, qreal width, qreal height,
                    QObject * parent = 0);
 
-    QList<GSceneLayer *> layers() const;
-    void setLayers(const QList<GSceneLayer *> layers);
+    QList<DesignLayer *> layers() const;
+    void setLayers(const QList<DesignLayer *> layers);
     // Convenience function
     int addLayer(const QString &name, const QColor &color);
 
     void activateLayer(int idx);
-    void activateLayer(GSceneLayer *layer);
-    GSceneLayer *activeLayer() const;
+    void activateLayer(DesignLayer *layer);
+    DesignLayer *activeLayer() const;
 
     void addItemToLayer(QGraphicsItem *item, int index);
-    void addItemToLayer(QGraphicsItem *item, GSceneLayer *layer);
+    void addItemToLayer(QGraphicsItem *item, DesignLayer *layer);
     void addItemToActiveLayer(QGraphicsItem *item);
 
 signals:
     void layersChanged();
-    void activeLayerAboutToChange(GSceneLayer *layer);
-    void activeLayerChanged(GSceneLayer *layer);
+    void activeLayerAboutToChange(DesignLayer *layer);
+    void activeLayerChanged(DesignLayer *layer);
 
 public slots:
 
@@ -42,8 +42,8 @@ protected:
 
 private:
     void init();
-    QList <GSceneLayer *> m_layers;
-    GSceneLayer *m_activeLayer;
+    QList <DesignLayer *> m_layers;
+    DesignLayer *m_activeLayer;
 
 
     QPointF snapScenePos(QPointF pos);

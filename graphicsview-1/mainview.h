@@ -14,7 +14,7 @@ class InsightHeadsUpWidget;
 class InsightConnectivityWidget;
 class InsightPickListWidget;
 class Scene;
-class GSceneLayer;
+class DesignLayer;
 
 // TODO: rename to Pcb2dView
 //  Add flags to enable tools (lens, ...)
@@ -80,8 +80,8 @@ public slots:
 
 protected slots:
     void onLayersChanged();
-    void onActiveLayerAboutToChange(GSceneLayer *layer);
-    void onActiveLayerChanged(GSceneLayer *layer);
+    void onActiveLayerAboutToChange(DesignLayer *layer);
+    void onActiveLayerChanged(DesignLayer *layer);
 
 protected:
     void wheelEvent(QWheelEvent *event);
@@ -94,7 +94,7 @@ protected:
 
 private:
     void updateSceneLayersEffect();
-    void updateSceneLayerEffect(GSceneLayer *layer, bool isActive);
+    void updateSceneLayerEffect(DesignLayer *layer, bool isActive);
 
     Scene *m_scene;
 

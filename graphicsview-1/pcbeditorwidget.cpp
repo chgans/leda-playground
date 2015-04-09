@@ -298,7 +298,7 @@ void PcbEditorWidget::setupLayerTabBar()
 {
     Scene *s = scene();
     for (int i = 0; i < s->layers().count(); i++) {
-        GSceneLayer *layer = s->layers()[i];
+        DesignLayer *layer = s->layers()[i];
         mLayerTabBar->addTab(layer->name());
         mLayerTabBar->setTabIcon(i, *icon(layer->color()));
     }

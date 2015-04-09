@@ -1,44 +1,44 @@
 #include "scenelayer.h"
 
-GSceneLayer::GSceneLayer(QGraphicsItem *parent):
+DesignLayer::DesignLayer(QGraphicsItem *parent):
     QGraphicsItem(parent)
 {
     setFlags(ItemHasNoContents);
 }
 
-GSceneLayer::~GSceneLayer()
+DesignLayer::~DesignLayer()
 {
 
 }
 
-QString GSceneLayer::name() const
+QString DesignLayer::name() const
 {
     return m_name;
 }
 
-void GSceneLayer::setName(const QString &name)
+void DesignLayer::setName(const QString &name)
 {
     m_name = name;
 }
 
-const QColor &GSceneLayer::color() const
+const QColor &DesignLayer::color() const
 {
     return m_color;
 }
 
-void GSceneLayer::setColor(const QColor &color)
+void DesignLayer::setColor(const QColor &color)
 {
     prepareGeometryChange();
     m_color = color;
     update();
 }
 
-QRectF GSceneLayer::boundingRect() const
+QRectF DesignLayer::boundingRect() const
 {
     return QRectF();
 }
 
-void GSceneLayer::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void DesignLayer::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(painter);
     Q_UNUSED(option);

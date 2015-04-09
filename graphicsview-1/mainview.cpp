@@ -227,12 +227,12 @@ bool MainView::insightLensSingleLayerEnabled() const
 //  - Use IndirectPainting optimisation flag (deprecated, will likely go away int Qt 6)
 //  - Items make use of the paint function's QWidget parameter
 //    (They could ask if it should draw or not, which painting effect, ...)
-void MainView::onActiveLayerAboutToChange(GSceneLayer *layer)
+void MainView::onActiveLayerAboutToChange(DesignLayer *layer)
 {
     updateSceneLayerEffect(layer, false);
 }
 
-void MainView::onActiveLayerChanged(GSceneLayer *layer)
+void MainView::onActiveLayerChanged(DesignLayer *layer)
 {
     updateSceneLayerEffect(layer, true);
 }
@@ -336,12 +336,12 @@ bool MainView::eventFilter(QObject *obj, QEvent *event)
 
 void MainView::updateSceneLayersEffect()
 {
-    foreach (GSceneLayer *layer, m_scene->layers()) {
+    foreach (DesignLayer *layer, m_scene->layers()) {
         updateSceneLayerEffect(layer, layer == m_scene->activeLayer());
     }
 }
 
-void MainView::updateSceneLayerEffect(GSceneLayer *layer, bool isActive)
+void MainView::updateSceneLayerEffect(DesignLayer *layer, bool isActive)
 {
     if (isActive) {
         layer->setGraphicsEffect(nullptr);

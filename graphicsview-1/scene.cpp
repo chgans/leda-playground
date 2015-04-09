@@ -26,12 +26,12 @@ Scene::Scene(qreal x, qreal y, qreal width, qreal height, QObject *parent):
     init();
 }
 
-QList<GSceneLayer *> Scene::layers() const
+QList<DesignLayer *> Scene::layers() const
 {
     return m_layers;
 }
 
-void Scene::setLayers(const QList<GSceneLayer *> layers)
+void Scene::setLayers(const QList<DesignLayer *> layers)
 {
     if (m_layers == layers)
         return;
@@ -41,7 +41,7 @@ void Scene::setLayers(const QList<GSceneLayer *> layers)
 
 int Scene::addLayer(const QString &name, const QColor &color)
 {
-    GSceneLayer *layer = new GSceneLayer();
+    DesignLayer *layer = new DesignLayer();
     layer->setName(name);
     layer->setColor(color);
     m_layers.append(layer);
@@ -76,7 +76,7 @@ void Scene::activateLayer(int idx)
     emit activeLayerChanged(m_activeLayer);
 }
 
-void Scene::activateLayer(GSceneLayer *layer)
+void Scene::activateLayer(DesignLayer *layer)
 {
     Q_ASSERT(m_layers.contains(layer));
 
@@ -84,7 +84,7 @@ void Scene::activateLayer(GSceneLayer *layer)
     activateLayer(idx);
 }
 
-GSceneLayer *Scene::activeLayer() const
+DesignLayer *Scene::activeLayer() const
 {
     return m_activeLayer;
 }
@@ -95,7 +95,7 @@ void Scene::addItemToLayer(QGraphicsItem *item, int index)
     addItemToLayer(item, m_layers.at(index));
 }
 
-void Scene::addItemToLayer(QGraphicsItem *item, GSceneLayer *layer)
+void Scene::addItemToLayer(QGraphicsItem *item, DesignLayer *layer)
 {
     Q_ASSERT(item != 0);
     Q_ASSERT(m_layers.contains(layer));
