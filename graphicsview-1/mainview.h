@@ -107,12 +107,6 @@ private:
 
     QList<QGraphicsItem*> mMaskingItems;
 
-    QPoint mLastMousePos;
-
-    bool mMagnifier;
-    QFrame *mMagnifierFrame;
-    DetailView *mMagnifierView;
-
     InsightLensWidget *mLens;
     InsightHeadsUpWidget *mHeadsUp;
 

@@ -307,7 +307,6 @@ void MainView::mousePressEvent(QMouseEvent *event)
 
 void MainView::mouseMoveEvent(QMouseEvent *event)
 {
-    mLastMousePos = event->pos();
     hideDesignInsight();
     mDesignInsightTimer.stop();
     if (items(event->pos()).size() > 0) {
