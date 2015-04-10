@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     pcbpalettemanagerdialog.cpp \
     pcbphysicallayer.cpp \
     pcbphysicalboard.cpp \
-    designlayer.cpp
+    designlayer.cpp \
+    primitive.cpp
 
 HEADERS  += mainwindow.h \
     detailview.h \
@@ -53,7 +54,8 @@ HEADERS  += mainwindow.h \
     pcbpalettemanagerdialog.h \
     pcbphysicallayer.h \
     pcbphysicalboard.h \
-    designlayer.h
+    designlayer.h \
+    primitive.h
 
 FORMS    += mainwindow.ui \
     pcbpalettesettingsdialog.ui
