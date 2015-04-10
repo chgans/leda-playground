@@ -136,6 +136,10 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    QCoreApplication::setOrganizationName("Libre EDA");
+    QCoreApplication::setOrganizationDomain("libreeda.org");
+    QCoreApplication::setApplicationName("graphicsview-1");
+
     PcbPaletteManager *mng = PcbPaletteManager::instance();
     mng->setPalettesPath(QDir::currentPath());
     mng->loadPalettes();
