@@ -95,9 +95,9 @@ void DesignLayerManager::loadFromDefaults()
             break;
         case DesignLayer::SilkscreenLayerSet:
             topLayer = addLayer(set, DesignLayer::SilkscreenCategory, stackPosition++);
-            topLayer->setName("Top Solder");
+            topLayer->setName("Top Overlay");
             bottomLayer = addLayer(set, DesignLayer::SilkscreenCategory, stackPosition++);
-            bottomLayer->setName("Bottom Solder");
+            bottomLayer->setName("Bottom Overlay");
             topLayer->setPairedLayer(bottomLayer);
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
