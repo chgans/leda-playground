@@ -1,9 +1,16 @@
 #include "designlayer.h"
 
 DesignLayer::DesignLayer(QGraphicsItem *parent):
-    QGraphicsObject(parent)
+    QGraphicsObject(parent),
+    m_stackPosition(-1),
+    m_category(InvalidCategory),
+    m_face(InvalidFace),
+    m_pairedLayer(nullptr)
 {
     setFlags(ItemHasNoContents);
+    for (Primitive::Type type = Primitive::_BeginType; type < Primitive::_EndType; type = Primitive::Type(type + 1)) {
+        m_primitiveOpacityMap[type] = 1.0;
+    }
 }
 
 DesignLayer::~DesignLayer()
@@ -51,5 +58,93 @@ void DesignLayer::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     Q_UNUSED(painter);
     Q_UNUSED(option);
     Q_UNUSED(widget);
+}
+
+DesignLayer::LayerSet DesignLayer::layerSet() const
+{
+    return m_LayerSet;
+}
+
+DesignLayer *DesignLayer::pairedLayer() const
+{
+    return m_pairedLayer;
+}
+
+bool DesignLayer::isValid() const
+{
+    return !m_name.isEmpty() && m_color.isValid() && m_stackPosition != -1 &&
+            m_category != InvalidCategory && m_face != InvalidFace;
+}
+
+qreal DesignLayer::opacityForPrimitive(Primitive::Type type)
+{
+    Q_ASSERT(m_primitiveOpacityMap.contains(type));
+    return m_primitiveOpacityMap[type];
+}
+
+void DesignLayer::setOpacityForPrimitive(Primitive::Type type, qreal opacity)
+{
+    Q_ASSERT(m_primitiveOpacityMap.contains(type));
+    m_primitiveOpacityMap[type] = opacity;
+}
+
+DesignLayer::Face DesignLayer::face() const
+{
+    return m_face;
+}
+
+int DesignLayer::stackPosition() const
+{
+    return m_stackPosition;
+}
+
+DesignLayer::Category DesignLayer::category() const
+{
+    return m_category;
+}
+
+void DesignLayer::setStackPosition(int position)
+{
+    if (m_stackPosition == position)
+        return;
+
+    m_stackPosition = position;
+    emit stackPositionChanged(position);
+}
+
+void DesignLayer::setCategory(DesignLayer::Category category)
+{
+    if (m_category == category)
+        return;
+
+    m_category = category;
+    emit categoryChanged(category);
+}
+
+void DesignLayer::setFace(DesignLayer::Face arg)
+{
+    if (m_face == arg)
+        return;
+
+    m_face = arg;
+    emit faceChanged(arg);
+}
+
+void DesignLayer::setPairedLayer(DesignLayer *layer)
+{
+    if (m_pairedLayer == layer)
+        return;
+
+    m_pairedLayer = layer;
+    emit pairedLayerChanged(layer);
+}
+
+void DesignLayer::setLayerSet(DesignLayer::LayerSet set)
+{
+    if (m_LayerSet == set)
+        return;
+
+    m_LayerSet = set;
+    emit layerSetChanged(set);
 }
 
