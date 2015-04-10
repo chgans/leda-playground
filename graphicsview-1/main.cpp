@@ -129,6 +129,7 @@ QPainterPath axialSymetricPath(const QPainterPath &path)
 #include "pcbpalettesettingsdialog.h"
 #include "pcbpalettemanager.h"
 #include "pcbpalettemanagerdialog.h"
+#include "designlayermanager.h"
 
 #include <QDir>
 
@@ -144,24 +145,13 @@ int main(int argc, char *argv[])
     mng->setPalettesPath(QDir::currentPath());
     mng->loadPalettes();
 
+    DesignLayerManager *layerManager = DesignLayerManager::instance();
+    layerManager->loadFromDefaults();
+
     Scene scene(-500, -500, 1000, 1000);
+
     MainWindow *w = new MainWindow;
-    scene.addLayer("Top layer", QColor("#ff0000"));
-    scene.addLayer("Bottom layer", QColor("#0000ff"));
-    scene.addLayer("Mechanical 1", QColor("#ff00ff"));
-    scene.addLayer("Mechanical 13", QColor("#ff00ff"));
-    scene.addLayer("Mechanical 15", QColor("#008000"));
-    scene.addLayer("Top overlay", QColor("#ffff00"));
-    scene.addLayer("Bottom overlay", QColor("#808000"));
-    scene.addLayer("Top paste", QColor("#808080"));
-    scene.addLayer("Bottom paste", QColor("#800000"));
-    scene.addLayer("Top solder", QColor("#800080"));
-    scene.addLayer("Bottom solder", QColor("#ff00ff"));
-    scene.addLayer("Drill guide", QColor("#800000"));
-    scene.addLayer("Keep-Out layer", QColor("#ff00ff"));
-    scene.addLayer("Drill drawing", QColor("#ff002a"));
-    scene.addLayer("Multi-Layer", QColor("#c0c0c0"));
-    scene.activateLayer(0);;
+    scene.activateLayer(0);
     w->setGraphicsScene(&scene);
     w->show();
 

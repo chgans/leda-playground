@@ -1,5 +1,6 @@
 #include "scene.h"
 #include "designlayer.h"
+#include "designlayermanager.h"
 
 #include <QCursor>
 #include <QGraphicsView>
@@ -26,36 +27,11 @@ Scene::Scene(qreal x, qreal y, qreal width, qreal height, QObject *parent):
     init();
 }
 
-QList<DesignLayer *> Scene::layers() const
-{
-    return m_layers;
-}
-
-void Scene::setLayers(const QList<DesignLayer *> layers)
-{
-    if (m_layers == layers)
-        return;
-    m_layers = layers;
-    emit layersChanged();
-}
-
-int Scene::addLayer(const QString &name, const QColor &color)
-{
-    DesignLayer *layer = new DesignLayer();
-    layer->setName(name);
-    layer->setColor(color);
-    m_layers.append(layer);
-    addItem(layer);
-    m_activeLayer = layer;
-    emit layersChanged();
-    return m_layers.count() - 1;
-}
-
 void Scene::activateLayer(int idx)
 {
-    Q_ASSERT(idx < m_layers.count());
+    DesignLayer *newLayer = m_layerManager->layerAt(idx);
 
-    if (m_layers[idx] == m_activeLayer)
+    if (newLayer == m_activeLayer)
         return;
 
     emit activeLayerAboutToChange(m_activeLayer);
@@ -63,25 +39,18 @@ void Scene::activateLayer(int idx)
     if (m_activeLayer)
         m_activeLayer->setEnabled(false);
 
-    m_activeLayer = m_layers[idx];
+    m_activeLayer = newLayer;
     m_activeLayer->setEnabled(true);
 
+    // TODO: move the concept of active layer into the manager?
     int i;
-    for (i = 0; i < m_layers.count(); i++) {
+    for (i = 0; i < m_layerManager->layerCount(); i++) {
         if (i != idx)
-            m_layers[i]->setZValue(i);
+            m_layerManager->layerAt(i)->setZValue(i);
     }
-    m_layers[idx]->setZValue(i);
+    m_layerManager->layerAt(idx)->setZValue(i);
 
     emit activeLayerChanged(m_activeLayer);
-}
-
-void Scene::activateLayer(DesignLayer *layer)
-{
-    Q_ASSERT(m_layers.contains(layer));
-
-    int idx = m_layers.indexOf(layer);
-    activateLayer(idx);
 }
 
 DesignLayer *Scene::activeLayer() const
@@ -91,26 +60,24 @@ DesignLayer *Scene::activeLayer() const
 
 void Scene::addItemToLayer(QGraphicsItem *item, int index)
 {
-    Q_ASSERT(index < m_layers.count());
-    addItemToLayer(item, m_layers.at(index));
-}
-
-void Scene::addItemToLayer(QGraphicsItem *item, DesignLayer *layer)
-{
-    Q_ASSERT(item != 0);
-    Q_ASSERT(m_layers.contains(layer));
-    item->setParentItem(layer);
+    item->setParentItem(m_layerManager->layerAt(index));
 }
 
 void Scene::addItemToActiveLayer(QGraphicsItem *item)
 {
-    Q_ASSERT(m_activeLayer != 0);
-    addItemToLayer(item, m_activeLayer);
+    Q_ASSERT(m_activeLayer != nullptr);
+    item->setParentItem(m_activeLayer);
 }
 
 void Scene::init()
 {
-    m_activeLayer = 0;
+    // TODO: connect to the manager
+    m_layerManager = DesignLayerManager::instance();
+    foreach (DesignLayer *layer, m_layerManager->allLayers()) {
+        addItem(layer);
+    }
+    m_activeLayer = m_layerManager->layerAt(0);
+
     mCellSize.setHeight(25);
     mCellSize.setWidth(25);
 }

@@ -2,6 +2,7 @@
 #include "mainview.h"
 #include "scene.h"
 #include "designlayer.h"
+#include "designlayermanager.h"
 
 #include "pcbpalettemanagerdialog.h"
 
@@ -28,6 +29,8 @@ static QIcon *icon(const QColor &color)
 PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     QWidget(parent)
 {
+    m_layerManager = DesignLayerManager::instance();
+
     mLayerTabBar = new QTabBar;
     mLayerTabBar->setShape(QTabBar::RoundedSouth);
     mLayerTabBar->setDrawBase(false);
@@ -296,14 +299,12 @@ Scene *PcbEditorWidget::scene() const
 
 void PcbEditorWidget::setupLayerTabBar()
 {
-    Scene *s = scene();
-    for (int i = 0; i < s->layers().count(); i++) {
-        DesignLayer *layer = s->layers()[i];
+    for (int i = 0; i < m_layerManager->layerCount(); i++) {
+        DesignLayer *layer = m_layerManager->layerAt(i);
         mLayerTabBar->addTab(layer->name());
         mLayerTabBar->setTabIcon(i, *icon(layer->color()));
     }
-    int activeLayer = s->layers().indexOf(s->activeLayer());
-    mLayerTabBar->setCurrentIndex(activeLayer);
+    mLayerTabBar->setCurrentIndex(0);
     connect(mLayerTabBar, SIGNAL(currentChanged(int)),
             this, SLOT(activateLayer(int)));
 

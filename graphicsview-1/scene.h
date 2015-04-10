@@ -7,6 +7,7 @@
 #include <QList>
 
 class DesignLayer;
+class DesignLayerManager;
 
 class Scene : public QGraphicsScene
 {
@@ -17,21 +18,13 @@ public:
     explicit Scene(qreal x, qreal y, qreal width, qreal height,
                    QObject * parent = 0);
 
-    QList<DesignLayer *> layers() const;
-    void setLayers(const QList<DesignLayer *> layers);
-    // Convenience function
-    int addLayer(const QString &name, const QColor &color);
-
     void activateLayer(int idx);
-    void activateLayer(DesignLayer *layer);
     DesignLayer *activeLayer() const;
 
     void addItemToLayer(QGraphicsItem *item, int index);
-    void addItemToLayer(QGraphicsItem *item, DesignLayer *layer);
     void addItemToActiveLayer(QGraphicsItem *item);
 
 signals:
-    void layersChanged();
     void activeLayerAboutToChange(DesignLayer *layer);
     void activeLayerChanged(DesignLayer *layer);
 
@@ -42,7 +35,7 @@ protected:
 
 private:
     void init();
-    QList <DesignLayer *> m_layers;
+    DesignLayerManager * m_layerManager;
     DesignLayer *m_activeLayer;
 
 

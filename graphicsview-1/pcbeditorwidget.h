@@ -11,6 +11,7 @@ class QToolButton;
 
 class MainView;
 class Scene;
+class DesignLayerManager;
 
 class PcbEditorWidget : public QWidget
 {
@@ -44,6 +45,7 @@ protected:
 
 private:
     MainView *mView;
+    DesignLayerManager *m_layerManager;
     QTabBar *mLayerTabBar;
     QToolButton *mCurrentLayerButton;
     QToolButton *mLayerSetButton;

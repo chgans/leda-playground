@@ -15,6 +15,7 @@ class InsightConnectivityWidget;
 class InsightPickListWidget;
 class Scene;
 class DesignLayer;
+class DesignLayerManager;
 
 // TODO: rename to Pcb2dView
 //  Add flags to enable tools (lens, ...)
@@ -97,7 +98,7 @@ private:
     void updateSceneLayerEffect(DesignLayer *layer, bool isActive);
 
     Scene *m_scene;
-
+    DesignLayerManager *m_layerManager;
     LayerDisplayMode m_layerDisplayMode;
 
     int mDesignInsightDelay;

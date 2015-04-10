@@ -7,6 +7,7 @@
 #include "insightpicklistwidget.h"
 #include "scene.h"
 #include "designlayer.h"
+#include "designlayermanager.h"
 
 #include <QGraphicsItem>
 #include <QGraphicsColorizeEffect>
@@ -25,6 +26,8 @@ MainView::MainView(QWidget *parent) :
     mPickedItem = 0;
 
     m_scene = nullptr;
+    m_layerManager = DesignLayerManager::instance();
+
     m_layerDisplayMode = DisplayAllLayers;
 
     setMouseTracking(true);
@@ -133,8 +136,6 @@ void MainView::setScene(Scene *scene)
 
     updateSceneLayersEffect();
 
-    connect(m_scene, &Scene::layersChanged,
-            this, &MainView::onLayersChanged);
     connect(m_scene, &Scene::activeLayerAboutToChange,
             this, &MainView::onActiveLayerAboutToChange);
     connect(m_scene, &Scene::activeLayerChanged,
@@ -336,7 +337,7 @@ bool MainView::eventFilter(QObject *obj, QEvent *event)
 
 void MainView::updateSceneLayersEffect()
 {
-    foreach (DesignLayer *layer, m_scene->layers()) {
+    foreach (DesignLayer *layer, m_layerManager->allLayers()) {
         updateSceneLayerEffect(layer, layer == m_scene->activeLayer());
     }
 }
