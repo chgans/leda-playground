@@ -34,7 +34,7 @@ protected slots:
     void showBoardInsightPopUpMenu();
 
     // TODO: QAction for that
-    void activateLayer(int index);
+    void activateLayer(int tabIndex);
     void activateNextLayer();
     void activatePreviousLayer();
     void activateNextSignalLayer();

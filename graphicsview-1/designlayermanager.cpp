@@ -50,10 +50,14 @@ void DesignLayerManager::loadFromDefaults()
                 if (i == 0) {
                     topLayer->setName(QString("Top Layer"));
                     bottomLayer->setName(QString("Bottom Layer"));
+                    topLayer->setVisible(true);
+                    bottomLayer->setVisible(true);
                 }
                 else {
                     topLayer->setName(QString("Mid Layer %1").arg(i + 1)); // 1 based
                     bottomLayer->setName(QString("Mid Layer %1").arg(32 - i)); // 1 based
+                    topLayer->setVisible(false);
+                    bottomLayer->setVisible(false);
                 }
                 topLayer->setPairedLayer(bottomLayer);
                 bottomLayer->setPairedLayer(topLayer);
@@ -72,6 +76,8 @@ void DesignLayerManager::loadFromDefaults()
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
                 bottomLayer->setFace(DesignLayer::BottomFace);
+                topLayer->setVisible(false);
+                bottomLayer->setVisible(false);
             }
             stackPosition += 32;
             break;
@@ -84,6 +90,8 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
             bottomLayer->setFace(DesignLayer::BottomFace);
+            topLayer->setVisible(true);
+            bottomLayer->setVisible(true);
             topLayer = addLayer(set, DesignLayer::MaskCategory, stackPosition++);
             topLayer->setName("Top Paste");
             bottomLayer = addLayer(set, DesignLayer::MaskCategory, stackPosition++);
@@ -92,6 +100,8 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
             bottomLayer->setFace(DesignLayer::BottomFace);
+            topLayer->setVisible(true);
+            bottomLayer->setVisible(true);
             break;
         case DesignLayer::SilkscreenLayerSet:
             topLayer = addLayer(set, DesignLayer::SilkscreenCategory, stackPosition++);
@@ -102,6 +112,8 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
             bottomLayer->setFace(DesignLayer::BottomFace);
+            topLayer->setVisible(true);
+            bottomLayer->setVisible(true);
             break;
         case DesignLayer::MechanicalLayerSet:
             for (int i = 0; i < 16; i++) {
@@ -113,6 +125,8 @@ void DesignLayerManager::loadFromDefaults()
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
                 bottomLayer->setFace(DesignLayer::BottomFace);
+                topLayer->setVisible(false);
+                bottomLayer->setVisible(false);
             }
             stackPosition += 32;
             break;
@@ -158,6 +172,31 @@ DesignLayer *DesignLayerManager::layerAt(int stackPosition) const
 {
     Q_ASSERT(m_layerMap.contains(stackPosition));
     return m_layerMap[stackPosition];
+}
+
+void DesignLayerManager::setLayerEnabled(int stackPosition, bool enabled)
+{
+    Q_ASSERT(m_layerMap.contains(stackPosition));
+    if (m_layerMap[stackPosition]->isVisible() == enabled)
+        return;
+    m_layerMap[stackPosition]->setVisible(enabled);
+    emit layerEnabledChanged(stackPosition, enabled);
+}
+
+bool DesignLayerManager::isLayerEnabled(int stackPosition) const
+{
+    Q_ASSERT(m_layerMap.contains(stackPosition));
+    return m_layerMap[stackPosition]->isVisible();
+}
+
+DesignLayerList DesignLayerManager::enabledLayers() const
+{
+    DesignLayerList list;
+    foreach (DesignLayer *layer, m_layerMap.values()) {
+        if (layer->isVisible())
+            list.append(layer);
+    }
+    return list;
 }
 
 // TODO: What do we do with names?

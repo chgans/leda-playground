@@ -63,7 +63,7 @@
             },
             "opacity": 0.8,
             "locked": 0,
-            "layer": 1
+            "layer": 31
         },
         {
             "type": "polygon",
@@ -81,7 +81,7 @@
             },
             "opacity": 0.8,
             "locked": 0,
-            "layer": 1
+            "layer": 31
         },
         {
             "type": "rectangle",
@@ -99,7 +99,7 @@
             },
             "opacity": 0.8,
             "locked": 0,
-            "layer": 2
+            "layer": 64
         },
         {
             "type": "rectangle",
@@ -117,7 +117,7 @@
             },
             "opacity": 0.8,
             "locked": 0,
-            "layer": 2
+            "layer": 64
         }
     ]
 }

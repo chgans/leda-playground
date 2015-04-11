@@ -73,7 +73,7 @@ void Scene::init()
 {
     // TODO: connect to the manager
     m_layerManager = DesignLayerManager::instance();
-    foreach (DesignLayer *layer, m_layerManager->allLayers()) {
+    foreach (DesignLayer *layer, m_layerManager->enabledLayers()) {
         addItem(layer);
     }
     m_activeLayer = m_layerManager->layerAt(0);

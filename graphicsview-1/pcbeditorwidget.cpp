@@ -147,11 +147,12 @@ void PcbEditorWidget::wheelEvent(QWheelEvent *event)
     }
 }
 
-void PcbEditorWidget::activateLayer(int index)
+void PcbEditorWidget::activateLayer(int tabIndex)
 {
-    qDebug() << "Activating layer" << index;
-    mCurrentLayerButton->setIcon(mLayerTabBar->tabIcon(index));
-    scene()->activateLayer(index);
+    DesignLayer *layer = mLayerTabBar->tabData(tabIndex).value<DesignLayer *>();
+    qDebug() << "Activating layer" << layer->stackPosition() << layer->name();
+    mCurrentLayerButton->setIcon(mLayerTabBar->tabIcon(tabIndex));
+    scene()->activateLayer(layer->stackPosition());
 }
 
 void PcbEditorWidget::activateNextLayer()
@@ -299,15 +300,14 @@ Scene *PcbEditorWidget::scene() const
 
 void PcbEditorWidget::setupLayerTabBar()
 {
-    for (int i = 0; i < m_layerManager->layerCount(); i++) {
-        DesignLayer *layer = m_layerManager->layerAt(i);
-        mLayerTabBar->addTab(layer->name());
-        mLayerTabBar->setTabIcon(i, *icon(layer->color()));
+    foreach (DesignLayer *layer, m_layerManager->enabledLayers()) {
+        int tabIndex = mLayerTabBar->addTab(layer->name());
+        mLayerTabBar->setTabIcon(tabIndex, *icon(layer->color()));
+        mLayerTabBar->setTabData(tabIndex, QVariant::fromValue<DesignLayer *>(layer));
     }
-    mLayerTabBar->setCurrentIndex(0);
+    activateLayer(0);
     connect(mLayerTabBar, SIGNAL(currentChanged(int)),
             this, SLOT(activateLayer(int)));
-
 }
 
 void PcbEditorWidget::showColorDialog()

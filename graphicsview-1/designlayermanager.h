@@ -29,6 +29,7 @@ public:
     DesignLayerList allLayers() const;
     DesignLayer * layerAt(int stackPosition) const;
     void setLayerEnabled(int stackPosition, bool enabled);
+    bool isLayerEnabled(int stackPosition) const;
     DesignLayerList enabledLayers() const;
 
 signals:
@@ -36,6 +37,7 @@ signals:
     void layerRemoved(DesignLayer *layer);
     void customLayerSetAdded(int id);
     void customLayerSetRemoved(int id);
+    void layerEnabledChanged(int stackPosition, bool enabled);
 
 public slots:
     DesignLayerList addCustomLayerSet(int id, const QString &name);
