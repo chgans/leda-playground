@@ -10,19 +10,6 @@
 class PcbPalette
 {
 public:
-#if 0
-    enum PhysicalColorRole { // TBD: use role + index (Ndiel = Ncond+1, Ncond = Nsignal + Nplane = 64)
-        NoRole = 0,
-        ConductorLayer,
-        DielectricLayer,
-        SurfaceLayer, // top vs bot, + rigid vs flex (depend on the stack area number)
-        OverlayLayer, // top vs bot
-        // TBD: tin plating and/or solder
-    };
-#endif
-    // => physical layer, design layer and system colors
-    // => Split system colors between 2 modes: 2D and 3D, or even 3 w/ board def
-    // Opacity: layer vs object type or familly (track, arc, via, fill, pour, dim, ...)
 
     // TBD: use role + index
     enum ColorRole {
@@ -59,7 +46,7 @@ public:
         SignalLayer30 = 30,
         SignalLayer31 = 31,
         SignalLayer32 = 32,
-        TopLayer = SignalLayer1, // FIXME, Z goes up, so SignalLayer32
+        TopLayer = SignalLayer1,
         MidLayer1 = SignalLayer2,
         MidLayer2 = SignalLayer3,
         MidLayer3 = SignalLayer4,
@@ -165,10 +152,8 @@ public:
         KeepOutLayer = 102,
         DrillDrawingLayer = 103,
         MultiLayerLayer = 104,
-        TopOverlayLayer = 105, // TBD: labels on TopOverlayLabelLayer
-        BottomOverlayLayer = 106, // TBD: assy drawing vs overlay
-        // TBD: glue spot mask
-        // TBD: See library expert
+        TopOverlayLayer = 105,
+        BottomOverlayLayer = 106,
 
         Selection = 107,
         Connection = 108,

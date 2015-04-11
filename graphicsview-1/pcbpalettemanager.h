@@ -16,19 +16,18 @@ public:
 
     static PcbPaletteManager *instance();
 
-    const PcbPalette &palette(const QString &identifier) const;
-
     QStringList paletteIdentifiers() const;
 
+    PcbPalette *palette(const QString &identifier) const;
     void setPalette(const QString &identifier,
-                    PcbPalette &palette);
+                    PcbPalette *palette);
 
     void addPalette(const QString &identifier,
-                    PcbPalette &palette);
+                    PcbPalette *palette);
     void removePalette(const QString &identifier);
 
-    const PcbPalette &activePalette() const;
-    const QString &activePaletteIdentifier() const;
+    PcbPalette *activePalette() const;
+    QString activePaletteIdentifier() const;
 
     void setActivePalette(const QString &identifier);
 
@@ -48,7 +47,7 @@ public slots:
 
 private:
     QString mPath;
-    QMap<QString, PcbPalette> mPaletteMap;
+    QMap<QString, PcbPalette*> mPaletteMap;
     QString mActivePaletteId;
 };
 

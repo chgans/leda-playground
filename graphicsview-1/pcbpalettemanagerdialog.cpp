@@ -45,7 +45,6 @@ static const QColor fromAltium(const QString &str)
 {
     QRegularExpression re("^00[0-9a-fA-f]{6}$");
     QRegularExpressionMatch rem = re.match(str);
-    qDebug() << str << re << rem;
     if (!re.isValid() || !rem.isValid() || !rem.hasMatch()) {
         return QColor();
     }
@@ -121,7 +120,6 @@ void PcbPaletteManagerDialog::initialise()
 {
     PcbPaletteManager *mng = PcbPaletteManager::instance();
     QString current = mng->activePaletteIdentifier();
-    qDebug() << __FUNCTION__ << current;
     mPaletteList->clear();
     mColorList->clear();
     foreach (QString id, mng->paletteIdentifiers()) {
@@ -138,12 +136,12 @@ void PcbPaletteManagerDialog::activatePalette(QListWidgetItem *item)
 {
     PcbPaletteManager *mng = PcbPaletteManager::instance();
     QString id = item->text();
-    const PcbPalette &palette = mng->palette(id);
+    PcbPalette *palette = mng->palette(id);
     mColorList->clear();
-    foreach(PcbPalette::ColorRole role, palette.allValidColorRoles()) {
-        QColor color = palette.color(role);
+    foreach(PcbPalette::ColorRole role, palette->allValidColorRoles()) {
+        QColor color = palette->color(role);
         QIcon icon = makeIcon(color);
-        QString text = palette.colorRoleLabel(role);
+        QString text = palette->colorRoleLabel(role);
         QListWidgetItem *item = new QListWidgetItem(icon, text);
         item->setData(Qt::UserRole, id);
         item->setData(Qt::UserRole+1, role);
@@ -164,9 +162,8 @@ void PcbPaletteManagerDialog::setActiveColor(const QColor &color)
     PcbPalette::ColorRole role;
     role = static_cast<PcbPalette::ColorRole>(item->data(Qt::UserRole+1).toInt());
     PcbPaletteManager *mng = PcbPaletteManager::instance();
-    PcbPalette palette = mng->palette(id);
-    palette.setColor(role, color);
-    mng->setPalette(id, palette);
+    PcbPalette *palette = mng->palette(id);
+    palette->setColor(role, color);
 
     QIcon icon = makeIcon(color);
     item->setIcon(icon);
@@ -180,7 +177,7 @@ void PcbPaletteManagerDialog::saveCurrentProfileAs()
 
     QString id = item->text();
     PcbPaletteManager *mng = PcbPaletteManager::instance();
-    const PcbPalette &palette = mng->palette(id);
+    PcbPalette *palette = mng->palette(id);
 
     QString fileSuffix = "LedaPcbPalette";
     QString fileFilter = QString("*.%1").arg(fileSuffix);
@@ -197,10 +194,11 @@ void PcbPaletteManagerDialog::saveCurrentProfileAs()
         filename.append(QString(".%1").arg(fileSuffix));
 
     QSettings settings(filename, QSettings::IniFormat);
-    palette.saveToSettings(settings);
+    palette->saveToSettings(settings);
     settings.sync();
 
-    PcbPalette newPalette(palette);
+    PcbPalette *newPalette = new PcbPalette;
+    newPalette->loadFromSettings(settings);
     mng->addPalette(newId, newPalette);
     initialise(); // FIXME: monitor paletteAdded/Removed
 }
@@ -245,17 +243,17 @@ void PcbPaletteManagerDialog::importAltiumProfile()
             continue;
         }
 
-        PcbPalette palette;
+        PcbPalette *palette = new PcbPalette;
         //settings.beginGroup("LayerColors");
         int errors = 0;
-        foreach(PcbPalette::ColorRole role, palette.allValidColorRoles()) {
-            QString name = palette.colorRoleToAltiumName(role);
+        foreach(PcbPalette::ColorRole role, palette->allValidColorRoles()) {
+            QString name = palette->colorRoleToAltiumName(role);
             QString value = settings.value(name).toString();
             QColor color = fromAltium(value);
             if (!color.isValid())
                 errors++;
             else
-                palette.setColor(role, color);
+                palette->setColor(role, color);
         }
         if (errors > 16) {
             QMessageBox::warning(this, "Altium import",

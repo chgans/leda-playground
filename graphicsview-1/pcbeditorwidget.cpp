@@ -312,7 +312,6 @@ void PcbEditorWidget::setupLayerTabBar()
 
 void PcbEditorWidget::showColorDialog()
 {
-    qDebug() << __FUNCTION__;
     PcbPaletteManagerDialog dlg;
     dlg.initialise();
     dlg.exec();

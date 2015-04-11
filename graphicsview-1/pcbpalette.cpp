@@ -1,12 +1,8 @@
 #include "pcbpalette.h"
 
 /* TODO:
- *  - Implicit sharing
- *  - system vs user settings (RO vs R/W)
- *  - system path
- *  - split layer vs system colors, get layer enums from PcbLayer* class
- * DONE:
- * - import Altium
+ *  - Layer color vs system colors
+ *  - Use layer enum from DesignLayer
  */
 
 
@@ -14,8 +10,8 @@
 
 PcbPalette::PcbPalette()
 {
-    //memset(this->mPalette, qRgba(0xff, 0xff, 0xff, 0xff), sizeof(mPalette));
-    memset(this->mPalette, qintptr(-1), sizeof(mPalette));
+    memset(this->mPalette, qRgba(0xff, 0xff, 0xff, 0xff), sizeof(mPalette));
+    //memset(this->mPalette, qintptr(-1), sizeof(mPalette));
 }
 
 PcbPalette::PcbPalette(const PcbPalette &other)
@@ -45,18 +41,7 @@ void PcbPalette::loadFromSettings(QSettings &settings)
         setColor(role, color);
     }
     settings.endArray();
-    /*
-    settings.beginReadArray("opacity");
-    for (int i=0; i<128; ++i) {
-        ColorRole role = static_cast<ColorRole>(i);
-        qreal opacity = settings.value(QString("%1").arg(i),
-                                       1.0).toReal();
-        setOpacity(role, opacity);
-    }
-    settings.endArray();
-    */
     settings.endGroup();
-
 }
 
 void PcbPalette::saveToSettings(QSettings &settings) const
@@ -70,15 +55,6 @@ void PcbPalette::saveToSettings(QSettings &settings) const
                           argb);
     }
     settings.endArray();
-    /*
-    settings.beginReadArray("opacity");
-    for (int i=0; i<128; ++i) {
-        ColorRole role = static_cast<ColorRole>(i);
-        settings.setValue(QString("%1").arg(i),
-                          opacity(role));
-    }
-    settings.endArray();
-    */
     settings.endGroup();
 }
 

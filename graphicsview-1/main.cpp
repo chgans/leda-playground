@@ -142,10 +142,12 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("graphicsview-1");
 
     PcbPaletteManager *mng = PcbPaletteManager::instance();
-    mng->setPalettesPath(QDir::currentPath());
+    mng->setPalettesPath(QDir::currentPath() + "/../graphicsview-1/");
     mng->loadPalettes();
 
     DesignLayerManager *layerManager = DesignLayerManager::instance();
+    // layerManager->setProfilePath();
+    // layerManager->loadProfiles();
     layerManager->loadFromDefaults();
 
     Scene scene(-500, -500, 1000, 1000);
