@@ -23,6 +23,18 @@ QString DesignLayer::name() const
     return m_name;
 }
 
+QString DesignLayer::customName() const
+{
+    return m_customName;
+}
+
+QString DesignLayer::effectiveName() const
+{
+    if (m_customName.isEmpty())
+        return m_name;
+    return m_customName;
+}
+
 void DesignLayer::setName(const QString &name)
 {
     if (m_name == name)
@@ -31,6 +43,16 @@ void DesignLayer::setName(const QString &name)
     m_name = name;
 
     emit nameChanged(m_name);
+}
+
+void DesignLayer::setCustomName(const QString &name)
+{
+    if (m_customName == name)
+        return;
+
+    m_customName = name;
+
+    emit customNameChanged(m_customName);
 }
 
 const QColor &DesignLayer::color() const

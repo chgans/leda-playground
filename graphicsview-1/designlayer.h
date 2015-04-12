@@ -3,6 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QMap>
+#include <QString>
 
 #include "primitive.h"
 
@@ -57,6 +58,8 @@ public:
     ~DesignLayer();
 
     QString name() const;
+    QString customName() const;
+    QString effectiveName() const;
     const QColor &color() const;
     int stackPosition() const;
     Category category() const;
@@ -69,6 +72,7 @@ public:
 
 signals:
     void nameChanged(const QString &name);
+    void customNameChanged(const QString &name);
     void colorChanged(const QColor &color);
     void stackPositionChanged(int position);
     void categoryChanged(Category category);
@@ -78,6 +82,7 @@ signals:
 
 public slots:
     void setName(const QString &name);
+    void setCustomName(const QString &name);
     void setColor(const QColor &color);
     void setStackPosition(int position);
     void setCategory(Category category);
@@ -87,6 +92,7 @@ public slots:
 
 private:
     QString m_name;
+    QString m_customName;
     QColor m_color;
     int m_stackPosition;
     Category m_category;
