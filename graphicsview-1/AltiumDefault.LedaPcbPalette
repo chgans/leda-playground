@@ -1,4 +1,5 @@
 [PcbPalette]
+system=true
 colors\size=128
 colors\0=#ffffffff
 colors\1=#ffff0000
