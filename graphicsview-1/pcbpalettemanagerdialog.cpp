@@ -122,7 +122,8 @@ void PcbPaletteManagerDialog::initialise()
     QString current = mng->activePaletteIdentifier();
     mPaletteList->clear();
     mColorList->clear();
-    foreach (QString id, mng->paletteIdentifiers()) {
+    foreach (const PcbPalette *palette, mng->palettes()) {
+        QString id = palette->name();
         QListWidgetItem *item = new QListWidgetItem(id);
         mPaletteList->addItem(item);
         if (id == current) {
@@ -136,7 +137,7 @@ void PcbPaletteManagerDialog::activatePalette(QListWidgetItem *item)
 {
     PcbPaletteManager *mng = PcbPaletteManager::instance();
     QString id = item->text();
-    PcbPalette *palette = mng->palette(id);
+    const PcbPalette *palette = mng->palette(id);
     mColorList->clear();
     foreach(PcbPalette::ColorRole role, palette->allValidColorRoles()) {
         QColor color = palette->color(role);
@@ -162,7 +163,8 @@ void PcbPaletteManagerDialog::setActiveColor(const QColor &color)
     PcbPalette::ColorRole role;
     role = static_cast<PcbPalette::ColorRole>(item->data(Qt::UserRole+1).toInt());
     PcbPaletteManager *mng = PcbPaletteManager::instance();
-    PcbPalette *palette = mng->palette(id);
+    mng->setPaletteColor()
+    const PcbPalette *palette = mng->palette(id);
     palette->setColor(role, color);
 
     QIcon icon = makeIcon(color);
@@ -218,7 +220,7 @@ void PcbPaletteManagerDialog::importAltiumProfile()
         QFileInfo fileInfo(filename);
         QString id = fileInfo.baseName();
         // FIXME: do a lowercase compare + unix vs windoz vs mac
-        if (mng->paletteIdentifiers().contains(id)) {
+        if (mng->palettes().contains(id)) {
             QMessageBox::warning(this, "Altium import",
                                  QString("A color palette with the \"%1\" identifier "
                                          "already exists").arg(id));

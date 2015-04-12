@@ -7,7 +7,7 @@
 #include "designlayermanager.h"
 
 #include <QTreeWidgetItem>
-#include <QListWidgetItem>
+#include <QTableWidgetItem>
 
 #include <QDebug>
 
@@ -22,7 +22,6 @@ ColorProfileEditor::ColorProfileEditor(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ColorProfileEditor),
     m_manager(nullptr),
-    m_activeProfileItem(nullptr),
     m_activeProfile(nullptr)
 {
     ui->setupUi(this);
@@ -36,15 +35,20 @@ ColorProfileEditor::ColorProfileEditor(QWidget *parent) :
     //ui->profileFilter->setButtonVisible(Utils::FancyLineEdit::Left, true);
     //ui->colorFilter->setButtonVisible(Utils::FancyLineEdit::Left, true);
 
-    ui->profileList->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->profileList->setSelectionBehavior(QAbstractItemView::SelectRows);
-    connect(ui->profileList, &QListWidget::itemActivated,
-            this, &ColorProfileEditor::profileActivated);
+    ui->profileTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->profileTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->profileTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui->profileTable->horizontalHeader()->setStretchLastSection(true);
+    ui->profileTable->horizontalHeader()->hide();
+    ui->profileTable->verticalHeader()->hide();
+    connect(ui->profileTable, &QTableWidget::itemSelectionChanged,
+            this, &ColorProfileEditor::profileSelectionChanged);
 
     ui->colorTree->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->colorTree->setSelectionBehavior(QAbstractItemView::SelectRows);
-    connect(ui->colorTree, &QTreeWidget::itemActivated,
-            this, &ColorProfileEditor::colorActivated);
+    connect(ui->colorTree, &QTreeWidget::itemSelectionChanged,
+            this, &ColorProfileEditor::colorSelectionChanged);
+
 }
 
 ColorProfileEditor::~ColorProfileEditor()
@@ -55,7 +59,27 @@ ColorProfileEditor::~ColorProfileEditor()
 void ColorProfileEditor::initialise()
 {
     m_manager = PcbPaletteManager::instance();
-    ui->profileList->addItems(m_manager->paletteIdentifiers());
+    ui->profileTable->clear();
+    ui->profileTable->setRowCount(m_manager->palettes().count());
+    ui->profileTable->setColumnCount(2);
+    int i = 0;
+    foreach (const PcbPalette *palette, m_manager->palettes()) {
+        QString id = palette->name();
+        QTableWidgetItem *nameItem = new QTableWidgetItem();
+        nameItem->setText(id);
+        nameItem->setData(Qt::UserRole, QVariant::fromValue<const PcbPalette*>(palette));
+        if (!palette->isSystemPalette())
+            nameItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable|Qt::ItemIsEditable);
+        else
+            nameItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+        QTableWidgetItem *attItem = new QTableWidgetItem();
+        attItem->setText(palette->isSystemPalette() ? "System" : "User");
+        attItem->setData(Qt::UserRole, QVariant::fromValue<const PcbPalette*>(palette));
+        attItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+        ui->profileTable->setItem(i, 0, nameItem);
+        ui->profileTable->setItem(i, 1, attItem);
+        i++;
+    }
 }
 
 void ColorProfileEditor::cleanColorView()
@@ -98,24 +122,34 @@ void ColorProfileEditor::populateColorView()
     ui->colorTree->resizeColumnToContents(0);
 }
 
-void ColorProfileEditor::profileActivated(QListWidgetItem *item)
+void ColorProfileEditor::profileSelectionChanged()
 {
-    qDebug() << item->text();
-    if (m_activeProfileItem == item)
+    if (ui->profileTable->selectedItems().count() == 0)
         return;
-    if (m_activeProfileItem)
+
+    QTableWidgetItem *item = ui->profileTable->selectedItems().first();
+    const PcbPalette *profile = item->data(Qt::UserRole).value<const PcbPalette *>();
+    if (m_activeProfile == profile)
+        return;
+    m_activeProfile = profile;
+    ui->colorWidget->setVisible(false);
+    if (m_activeProfile) {
+        ui->colorWidget->setEnabled(!m_activeProfile->isSystemPalette());
         cleanColorView();
-    m_activeProfileItem = item;
-    m_activeProfile = m_manager->palette(m_activeProfileItem->text());
-    populateColorView();
+        populateColorView();
+        qDebug() << m_activeProfile->name();
+    }
 }
 
-void ColorProfileEditor::colorActivated(QTreeWidgetItem *item)
+void ColorProfileEditor::colorSelectionChanged()
 {
+    if (ui->colorTree->selectedItems().count() == 0)
+        return;
+
+    QTreeWidgetItem *item = ui->colorTree->selectedItems().first();
     bool isColor = item->data(0, Qt::UserRole).canConvert<QColor>();
-    ui->colorWidget->setEnabled(isColor);
+    ui->colorWidget->setVisible(isColor);
+    qDebug() << item->text(0);
     if (isColor)
         ui->colorWidget->setColor(item->data(0, Qt::UserRole).value<QColor>());
-    else
-        ui->colorWidget->setColor(Qt::white);
 }

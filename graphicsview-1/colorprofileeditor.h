@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class QListWidgetItem;
+class QTableWidgetItem;
 class QTreeWidgetItem;
 
 namespace Ui {
@@ -28,14 +28,13 @@ protected:
     void populateColorView();
 
 protected slots:
-    void profileActivated(QListWidgetItem *item);
-    void colorActivated(QTreeWidgetItem *item);
+    void profileSelectionChanged();
+    void colorSelectionChanged();
 
 private:
     Ui::ColorProfileEditor *ui;
     PcbPaletteManager *m_manager;
-    QListWidgetItem *m_activeProfileItem;
-    PcbPalette *m_activeProfile;
+    const PcbPalette *m_activeProfile;
 };
 
 #endif // COLORPROFILEEDITOR_H

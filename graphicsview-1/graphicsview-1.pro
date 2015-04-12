@@ -30,7 +30,6 @@ SOURCES += main.cpp\
     pcbpalette.cpp \
     pcbpalettesettingsdialog.cpp \
     pcbpalettemanager.cpp \
-    pcbpalettemanagerdialog.cpp \
     pcbphysicallayer.cpp \
     pcbphysicalboard.cpp \
     designlayer.cpp \
@@ -41,7 +40,9 @@ SOURCES += main.cpp\
     widgets/gradientslider.cpp \
     widgets/hueslider.cpp \
     widgets/colorwidget.cpp \
-    colorprofileeditor.cpp
+    colorprofileeditor.cpp \
+    colorprofilecombobox.cpp \
+    colorprofiletoolbutton.cpp
 
 HEADERS  += mainwindow.h \
     detailview.h \
@@ -58,7 +59,6 @@ HEADERS  += mainwindow.h \
     pcbpalette.h \
     pcbpalettesettingsdialog.h \
     pcbpalettemanager.h \
-    pcbpalettemanagerdialog.h \
     pcbphysicallayer.h \
     pcbphysicalboard.h \
     designlayer.h \
@@ -70,7 +70,9 @@ HEADERS  += mainwindow.h \
     widgets/hueslider.h \
     widgets/paintborder.h \
     widgets/colorwidget.h \
-    colorprofileeditor.h
+    colorprofileeditor.h \
+    colorprofilecombobox.h \
+    colorprofiletoolbutton.h
 
 FORMS    += mainwindow.ui \
     pcbpalettesettingsdialog.ui \

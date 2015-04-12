@@ -11,6 +11,7 @@ class QToolButton;
 
 class MainView;
 class Scene;
+class PcbPalette;
 class PcbPaletteManager;
 class DesignLayerManager;
 
@@ -42,7 +43,7 @@ protected slots:
     void activatePreviousSignalLayer();
 
     // Palette stuff
-    void onColorProfileChanged(const QString &identifier);
+    void onColorProfileChanged(const PcbPalette *palette);
 
 protected:
     void wheelEvent(QWheelEvent *event);

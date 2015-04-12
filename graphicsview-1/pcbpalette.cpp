@@ -19,6 +19,18 @@ PcbPalette::PcbPalette(const PcbPalette &other)
     memcpy(this->mPalette, other.mPalette, sizeof(mPalette));
 }
 
+QString PcbPalette::name() const
+{
+    return mName;
+}
+
+void PcbPalette::setName(const QString &name)
+{
+    if (mName == name)
+        return;
+    mName = name;
+}
+
 QColor PcbPalette::color(PcbPalette::ColorRole role) const
 {
     return QColor::fromRgba(mPalette[role]);
@@ -33,6 +45,8 @@ void PcbPalette::setColor(PcbPalette::ColorRole role, const QColor &color)
 void PcbPalette::loadFromSettings(QSettings &settings)
 {
     settings.beginGroup("PcbPalette");
+    //setName(settings.value("name", "Unnamed").toString());
+    setAttribute(SystemPalette, settings.value("system", false).toBool());
     settings.beginReadArray("colors");
     for (int i=0; i<128; ++i) {
         ColorRole role = static_cast<ColorRole>(i);
@@ -47,6 +61,8 @@ void PcbPalette::loadFromSettings(QSettings &settings)
 void PcbPalette::saveToSettings(QSettings &settings) const
 {
     settings.beginGroup("PcbPalette");
+    //settings.setValue("name", mName);
+    settings.setValue("system", mAttributes.testFlag(SystemPalette));
     settings.beginWriteArray("colors", 128);
     for (int i=0; i<128; ++i) {
         ColorRole role = static_cast<ColorRole>(i);
@@ -56,6 +72,27 @@ void PcbPalette::saveToSettings(QSettings &settings) const
     }
     settings.endArray();
     settings.endGroup();
+}
+
+PcbPalette::Attributes PcbPalette::attributes() const
+{
+    return mAttributes;
+}
+
+void PcbPalette::setAttributes(Attributes attributes)
+{
+    mAttributes = attributes;
+}
+
+void PcbPalette::setAttribute(PcbPalette::Attribute attribute, bool enabled)
+{
+    if (mAttributes.testFlag(attribute) != enabled)
+        mAttributes ^= attribute;
+}
+
+bool PcbPalette::isSystemPalette() const
+{
+    return mAttributes.testFlag(SystemPalette);
 }
 
 bool PcbPalette::operator!=(const PcbPalette &p) const

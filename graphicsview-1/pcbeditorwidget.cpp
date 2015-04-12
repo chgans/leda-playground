@@ -5,6 +5,8 @@
 #include "designlayermanager.h"
 #include "pcbpalette.h"
 #include "pcbpalettemanager.h"
+#include "colorprofilecombobox.h"
+#include "colorprofiletoolbutton.h"
 #include "colorprofileeditor.h"
 
 #include <QMainWindow>
@@ -105,6 +107,8 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     toolLayout->addWidget(mSnapButton);
     toolLayout->addWidget(mMaskButton);
     toolLayout->addWidget(mClearButton);
+    toolLayout->addWidget(new ColorProfileComboBox);
+    toolLayout->addWidget(new ColorProfileToolButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(mView);
@@ -122,7 +126,7 @@ void PcbEditorWidget::setScene(Scene *scene)
     mView->setScene(scene);
     mView->scale(0.75, 0.75);
     setupLayerTabBar();
-    onColorProfileChanged(m_paletteManager->activePaletteIdentifier());
+    onColorProfileChanged(m_paletteManager->activePalette());
 }
 
 void PcbEditorWidget::activateEditor(QMainWindow *window)
@@ -181,16 +185,16 @@ void PcbEditorWidget::activatePreviousSignalLayer()
     activatePreviousLayer();
 }
 
-void PcbEditorWidget::onColorProfileChanged(const QString &identifier)
+void PcbEditorWidget::onColorProfileChanged(const PcbPalette *palette)
 {
     for (PcbPalette::ColorRole role = PcbPalette::TopLayer;
          role < PcbPalette::BottomLayer;
          role = PcbPalette::ColorRole(role + 1)) {
-        m_layerManager->layerAt(role - 1)->setColor(m_paletteManager->palette(identifier)->color(role));
+        m_layerManager->layerAt(role - 1)->setColor(palette->color(role));
     }
     for (int tabIndex = 0; tabIndex < mLayerTabBar->count(); tabIndex++) {
         DesignLayer *layer = mLayerTabBar->tabData(tabIndex).value<DesignLayer *>();
-        QColor color = m_paletteManager->palette(identifier)->color(PcbPalette::ColorRole(layer->stackPosition() + 1));
+        QColor color = palette->color(PcbPalette::ColorRole(layer->stackPosition() + 1));
         layer->setColor(color);
         mLayerTabBar->setTabIcon(tabIndex, icon(layer->color()));
     }

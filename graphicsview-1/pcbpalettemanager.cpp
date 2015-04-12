@@ -17,6 +17,14 @@
 //  - DesignPalette vs Physical palette (as in DesignLayer and PhysicalLayer)
 //  - Add opacity
 
+template< class T >
+inline QList<T const*>& constList( QList<T*> const& list )
+{
+    return reinterpret_cast< QList<T const*>& >(
+        const_cast< QList<T*>& >( list )
+        );
+}
+
 static PcbPaletteManager *gPaletteManager = 0;
 
 PcbPaletteManager::PcbPaletteManager(QObject *parent) :
@@ -33,56 +41,64 @@ PcbPaletteManager *PcbPaletteManager::instance()
     return gPaletteManager;
 }
 
-PcbPalette *PcbPaletteManager::palette(const QString &identifier) const
+const PcbPalette *PcbPaletteManager::palette(const QString &identifier) const
 {
     Q_ASSERT(mPaletteMap.contains(identifier));
     return mPaletteMap[identifier];
 }
 
-QStringList PcbPaletteManager::paletteIdentifiers() const
+QList<const PcbPalette *> PcbPaletteManager::palettes() const
 {
-    return mPaletteMap.keys();
+    return constList<PcbPalette>(mPaletteMap.values());
 }
 
-void PcbPaletteManager::setPalette(const QString &identifier, PcbPalette *palette)
-{
-    Q_ASSERT(mPaletteMap.contains(identifier));
-    mPaletteMap[identifier] = palette;
-    emit paletteChanged(identifier);
-}
-
-void PcbPaletteManager::addPalette(const QString &identifier, PcbPalette *palette)
+const PcbPalette * PcbPaletteManager::addPalette(const QString &identifier)
 {
     Q_ASSERT(!mPaletteMap.contains(identifier));
+    PcbPalette *palette = new PcbPalette;
+    palette->setName(identifier);
     mPaletteMap.insert(identifier, palette);
-    emit paletteAdded(identifier);
+    emit paletteAdded(palette);
+    return palette;
 }
 
-void PcbPaletteManager::removePalette(const QString &identifier)
+const PcbPalette *PcbPaletteManager::addPalette(const QString &identifier, QSettings &settings)
 {
-    Q_ASSERT(mPaletteMap.contains(identifier));
-    mPaletteMap.remove(identifier);
-    if (mActivePaletteId == identifier) {
-        setActivePalette(mPaletteMap.keys().last());
+    Q_ASSERT(!mPaletteMap.contains(identifier));
+    PcbPalette *palette = new PcbPalette;
+    palette->loadFromSettings(settings);
+    palette->setName(identifier);
+    mPaletteMap.insert(identifier, palette);
+    emit paletteAdded(palette);
+    return palette;
+}
+
+void PcbPaletteManager::removePalette(const PcbPalette *palette)
+{
+    Q_ASSERT(mPaletteMap.contains(palette->name()));
+    mPaletteMap.remove(palette->name());
+    if (mActivePalette == palette) {
+        setActivePalette(mPaletteMap.values().last());
     }
-    emit paletteRemoved(identifier);
+    emit paletteRemoved(palette);
+    delete palette;
 }
 
-PcbPalette *PcbPaletteManager::activePalette() const
+const PcbPalette *PcbPaletteManager::activePalette() const
 {
-    return mPaletteMap[mActivePaletteId];
+    return mActivePalette;
 }
 
 QString PcbPaletteManager::activePaletteIdentifier() const
 {
-    return mActivePaletteId;
+    return mActivePalette->name();
 }
 
-void PcbPaletteManager::setActivePalette(const QString &identifier)
+void PcbPaletteManager::setActivePalette(const PcbPalette *palette)
 {
-    Q_ASSERT(mPaletteMap.contains(identifier));
-    mActivePaletteId = identifier;
-    emit paletteActivated(identifier);
+    Q_ASSERT(mPaletteMap.contains(palette->name()));
+    mActivePalette = palette;
+    emit paletteActivated(palette);
 }
 
 void PcbPaletteManager::loadPalettes()
@@ -91,6 +107,7 @@ void PcbPaletteManager::loadPalettes()
     QDir dir(mPath);
     QStringList filters;
     filters << "*.LedaPcbPalette";
+    const PcbPalette *palette = nullptr;
     foreach (QFileInfo fileInfo, dir.entryInfoList(filters)) {
         QString id = fileInfo.baseName();
         QFile file(fileInfo.filePath());
@@ -98,11 +115,9 @@ void PcbPaletteManager::loadPalettes()
             continue;
         file.close();
         QSettings settings(fileInfo.filePath(), QSettings::IniFormat);
-        PcbPalette *palette = new PcbPalette;
-        palette->loadFromSettings(settings);
+        palette = addPalette(id, settings);
         qDebug() << "Adding" << id;
-        addPalette(id, palette);
     }
     if (!mPaletteMap.isEmpty()) // Fix me: from user settings
-        setActivePalette(mPaletteMap.keys().first());
+        setActivePalette(palette);
 }

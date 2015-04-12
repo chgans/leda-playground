@@ -11,6 +11,11 @@ class PcbPalette
 {
 public:
 
+    enum Attribute {
+        SystemPalette = 0x01,
+    };
+    Q_DECLARE_FLAGS(Attributes, Attribute)
+
     // TBD: use role + index
     enum ColorRole {
         NoRole = 0,
@@ -181,11 +186,19 @@ public:
     PcbPalette();
     PcbPalette(const PcbPalette &other);
 
+    QString name() const;
+    void setName(const QString &name);
+
     QColor color(ColorRole role) const;
     void setColor(ColorRole role, const QColor &color);
 
     void loadFromSettings(QSettings &settings);
     void saveToSettings(QSettings &settings) const;
+
+    Attributes attributes() const;
+    void setAttributes(Attributes attributes);
+    void setAttribute(Attribute attribute, bool enabled = true);
+    bool isSystemPalette() const;
 
     //TBD: operator QVariant() const;
     bool operator!=(const PcbPalette & p) const;
@@ -198,8 +211,15 @@ public:
     QString colorRoleToAltiumName(ColorRole role) const;
 
 private:
+    QString mName;
     QRgb mPalette[128];
+    Attributes mAttributes;
 };
+
+Q_DECLARE_METATYPE(PcbPalette*)
+Q_DECLARE_METATYPE(const PcbPalette*)
+Q_DECLARE_METATYPE(PcbPalette::Attributes)
+Q_DECLARE_OPERATORS_FOR_FLAGS(PcbPalette::Attributes)
 
 // TBD:
 // QDataStream &operator<<(QDataStream &s, const PcbPalette &p);

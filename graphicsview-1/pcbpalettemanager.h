@@ -16,20 +16,18 @@ public:
 
     static PcbPaletteManager *instance();
 
-    QStringList paletteIdentifiers() const;
+    QList<const PcbPalette *> palettes() const;
 
-    PcbPalette *palette(const QString &identifier) const;
-    void setPalette(const QString &identifier,
-                    PcbPalette *palette);
+    const PcbPalette *palette(const QString &identifier) const;
 
-    void addPalette(const QString &identifier,
-                    PcbPalette *palette);
-    void removePalette(const QString &identifier);
+    const PcbPalette *addPalette(const QString &identifier);
+    const PcbPalette *addPalette(const QString &identifier, QSettings &settings);
+    void removePalette(const PcbPalette *palette);
 
-    PcbPalette *activePalette() const;
+    const PcbPalette *activePalette() const;
     QString activePaletteIdentifier() const;
 
-    void setActivePalette(const QString &identifier);
+    void setActivePalette(const PcbPalette *palette);
 
     // TODO: system, user and project path?
     QString palettesPath() const { return mPath; }
@@ -38,17 +36,17 @@ public:
     void loadPalettes();
 
 signals:
-    void paletteChanged(const QString &identifier);
-    void paletteAdded(const QString &identifier);
-    void paletteRemoved(const QString &identifier);
-    void paletteActivated(const QString &identifier);
+    void paletteChanged(const PcbPalette *palette);
+    void paletteAdded(const PcbPalette *palette);
+    void paletteRemoved(const PcbPalette *palette);
+    void paletteActivated(const PcbPalette *palette);
 
 public slots:
 
 private:
     QString mPath;
     QMap<QString, PcbPalette*> mPaletteMap;
-    QString mActivePaletteId;
+    const PcbPalette *mActivePalette;
 };
 
 #endif // PCBPALETTEMANAGER_H

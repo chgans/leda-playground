@@ -187,19 +187,26 @@
         </layout>
        </item>
        <item>
-        <widget class="QListWidget" name="profileList">
+        <widget class="QTableWidget" name="profileTable">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>200</width>
-           <height>0</height>
-          </size>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
          </property>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Kind</string>
+          </property>
+         </column>
         </widget>
        </item>
       </layout>
