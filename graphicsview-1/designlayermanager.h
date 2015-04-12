@@ -27,10 +27,13 @@ public:
     DesignLayerList layerSet(DesignLayer::LayerSet set) const;
     DesignLayerList customLayerSet(int id) const;
     DesignLayerList allLayers() const;
+    DesignLayerList layersForCategory(DesignLayer::Category category) const;
     DesignLayer * layerAt(int stackPosition) const;
     void setLayerEnabled(int stackPosition, bool enabled);
     bool isLayerEnabled(int stackPosition) const;
     DesignLayerList enabledLayers() const;
+    static QString layerName(DesignLayer::Category category, int categoryIndex);
+    static QString categoryName(DesignLayer::Category category);
 
 signals:
     void layerAdded(DesignLayer *layer);
@@ -42,12 +45,13 @@ signals:
 public slots:
     DesignLayerList addCustomLayerSet(int id, const QString &name);
     void removeCustomLayerSet(int id);
-    DesignLayer *addLayer(DesignLayer::LayerSet set, DesignLayer::Category category, int stackPosition);
+    DesignLayer *addLayer(DesignLayer::Category category, int stackPosition);
     void removeLayer(DesignLayer *layer);
 
 private:
     static DesignLayerManager *m_instance;
     QMap<int, DesignLayer*> m_layerMap;
+    QMap<int, DesignLayerList> m_layerCategoryMap;
     QMap<int, DesignLayerList> m_layerSetMap;
     QMap<int, DesignLayerList> m_customLayerSetMap;
 };

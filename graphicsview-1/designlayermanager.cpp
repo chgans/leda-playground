@@ -38,24 +38,24 @@ void DesignLayerManager::loadFromDefaults()
     DesignLayer *topLayer;
     DesignLayer *bottomLayer;
 
-    for (DesignLayer::LayerSet set = DesignLayer::_BeginLayerSet;
-         set < DesignLayer::_EndLayerSet;
-         set = DesignLayer::LayerSet(set + 1)) {
-        m_layerSetMap[set] = DesignLayerList();
-        switch (set) {
-        case DesignLayer::SignalLayerSet:
+    for (DesignLayer::Category category = DesignLayer::SignalCategory;
+         category <= DesignLayer::OtherCategory;
+         category = DesignLayer::Category(category + 1)) {
+
+        m_layerCategoryMap[category] = DesignLayerList();
+
+        switch (category) {
+        case DesignLayer::SignalCategory:
             for (int i = 0; i < 16; i++) {
-                topLayer = addLayer(set, DesignLayer::SignalCategory, stackPosition + i);
-                bottomLayer = addLayer(set, DesignLayer::SignalCategory, stackPosition + 32 - 1 - i);
+                topLayer = addLayer(category, stackPosition + i);
+                bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
+                topLayer->setName(layerName(category, i));
+                bottomLayer->setName(layerName(category, 32 - i));
                 if (i == 0) {
-                    topLayer->setName(QString("Top Layer"));
-                    bottomLayer->setName(QString("Bottom Layer"));
                     topLayer->setVisible(true);
                     bottomLayer->setVisible(true);
                 }
                 else {
-                    topLayer->setName(QString("Mid Layer %1").arg(i + 1)); // 1 based
-                    bottomLayer->setName(QString("Mid Layer %1").arg(32 - i)); // 1 based
                     topLayer->setVisible(false);
                     bottomLayer->setVisible(false);
                 }
@@ -66,12 +66,12 @@ void DesignLayerManager::loadFromDefaults()
             }
             stackPosition += 32;
             break;
-        case DesignLayer::PlaneLayerSet:
+        case DesignLayer::PlaneCategory:
             for (int i = 0; i < 16; i++) {
-                topLayer = addLayer(set, DesignLayer::PlaneCategory, stackPosition + i);
-                bottomLayer = addLayer(set, DesignLayer::PlaneCategory, stackPosition + 32 - 1 - i);
-                topLayer->setName(QString("Internal Plane %1").arg(i + 1)); // 1 based
-                bottomLayer->setName(QString("Internal Plane %1").arg(32 - i)); // 1 based
+                topLayer = addLayer(category, stackPosition + i);
+                bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
+                topLayer->setName(layerName(category, i));
+                bottomLayer->setName(layerName(category, 32 - i));
                 topLayer->setPairedLayer(bottomLayer);
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
@@ -81,33 +81,21 @@ void DesignLayerManager::loadFromDefaults()
             }
             stackPosition += 32;
             break;
-        case DesignLayer::MaskLayerSet:
-            topLayer = addLayer(set, DesignLayer::MaskCategory, stackPosition++);
-            topLayer->setName("Top Solder");
-            bottomLayer = addLayer(set, DesignLayer::MaskCategory, stackPosition++);
-            bottomLayer->setName("Bottom Solder");
+        case DesignLayer::MaskCategory:
+            topLayer = addLayer(category, stackPosition++);
+            topLayer->setName(layerName(category, 0));
+            bottomLayer = addLayer(category, stackPosition++);
+            bottomLayer->setName(layerName(category, 1));
             topLayer->setPairedLayer(bottomLayer);
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
             bottomLayer->setFace(DesignLayer::BottomFace);
             topLayer->setVisible(true);
             bottomLayer->setVisible(true);
-            topLayer = addLayer(set, DesignLayer::MaskCategory, stackPosition++);
-            topLayer->setName("Top Paste");
-            bottomLayer = addLayer(set, DesignLayer::MaskCategory, stackPosition++);
-            bottomLayer->setName("Bottom Paste");
-            topLayer->setPairedLayer(bottomLayer);
-            bottomLayer->setPairedLayer(topLayer);
-            topLayer->setFace(DesignLayer::TopFace);
-            bottomLayer->setFace(DesignLayer::BottomFace);
-            topLayer->setVisible(true);
-            bottomLayer->setVisible(true);
-            break;
-        case DesignLayer::SilkscreenLayerSet:
-            topLayer = addLayer(set, DesignLayer::SilkscreenCategory, stackPosition++);
-            topLayer->setName("Top Overlay");
-            bottomLayer = addLayer(set, DesignLayer::SilkscreenCategory, stackPosition++);
-            bottomLayer->setName("Bottom Overlay");
+            topLayer = addLayer(category, stackPosition++);
+            topLayer->setName(layerName(category, 2));
+            bottomLayer = addLayer(category, stackPosition++);
+            bottomLayer->setName(layerName(category, 3));
             topLayer->setPairedLayer(bottomLayer);
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
@@ -115,12 +103,24 @@ void DesignLayerManager::loadFromDefaults()
             topLayer->setVisible(true);
             bottomLayer->setVisible(true);
             break;
-        case DesignLayer::MechanicalLayerSet:
+        case DesignLayer::SilkscreenCategory:
+            topLayer = addLayer(category, stackPosition++);
+            topLayer->setName(layerName(category, 0));
+            bottomLayer = addLayer(category, stackPosition++);
+            bottomLayer->setName(layerName(category, 1));
+            topLayer->setPairedLayer(bottomLayer);
+            bottomLayer->setPairedLayer(topLayer);
+            topLayer->setFace(DesignLayer::TopFace);
+            bottomLayer->setFace(DesignLayer::BottomFace);
+            topLayer->setVisible(true);
+            bottomLayer->setVisible(true);
+            break;
+        case DesignLayer::MechanicalCategory:
             for (int i = 0; i < 16; i++) {
-                topLayer = addLayer(set, DesignLayer::MechanicalCategory, stackPosition + i);
-                bottomLayer = addLayer(set, DesignLayer::MechanicalCategory, stackPosition + 32 - 1 - i);
-                topLayer->setName(QString("Mechanical %1").arg(i + 1)); // 1 based
-                bottomLayer->setName(QString("Mechanical %1").arg(32 - i)); // 1 based
+                topLayer = addLayer(category, stackPosition + i);
+                bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
+                topLayer->setName(layerName(category, i));
+                bottomLayer->setName(layerName(category, 32 - i));
                 topLayer->setPairedLayer(bottomLayer);
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
@@ -129,6 +129,9 @@ void DesignLayerManager::loadFromDefaults()
                 bottomLayer->setVisible(false);
             }
             stackPosition += 32;
+            break;
+        case DesignLayer::OtherCategory:
+            // Empty for now
             break;
         default:
             break;
@@ -168,6 +171,17 @@ DesignLayerList DesignLayerManager::allLayers() const
     return m_layerMap.values();
 }
 
+DesignLayerList DesignLayerManager::layersForCategory(DesignLayer::Category category) const
+{
+    Q_ASSERT(m_layerCategoryMap.contains(category));
+    DesignLayerList list = m_layerCategoryMap[category];
+    qSort(list.begin(), list.end(),
+          [](DesignLayer *first, DesignLayer *second) {
+       return first->stackPosition() < second->stackPosition();
+    });
+    return list;
+}
+
 DesignLayer *DesignLayerManager::layerAt(int stackPosition) const
 {
     Q_ASSERT(m_layerMap.contains(stackPosition));
@@ -199,6 +213,69 @@ DesignLayerList DesignLayerManager::enabledLayers() const
     return list;
 }
 
+QString DesignLayerManager::layerName(DesignLayer::Category category, int categoryIndex)
+{
+    switch (category) {
+    case DesignLayer::SignalCategory:
+        switch (categoryIndex) {
+        case 0:
+            return QString("Top Layer");
+        case 31:
+            return QString("Bottom Layer");
+        default:
+            return QString("Signal Layer %1").arg(categoryIndex + 1);
+        }
+    case DesignLayer::PlaneCategory:
+        return QString("Internal Plane %1").arg(categoryIndex + 1);
+    case DesignLayer::MaskCategory:
+        switch (categoryIndex) {
+        case 0:
+            return QString("Top Solder");
+        case 1:
+            return QString("Bottom Solder");
+        case 2:
+            return QString("Top Paste");
+        case 3:
+            return QString("Bottom Paste");
+        default:
+            return QString("Invalid Mask Layer!");
+        }
+    case DesignLayer::SilkscreenCategory:
+        switch (categoryIndex) {
+        case 0:
+            return QString("Top Overlay");
+        case 1:
+            return QString("Bottom Overlay");
+        default:
+            return QString("Invalid Silkscreen Layer!");
+        }
+    case DesignLayer::MechanicalCategory:
+        return QString("Mechanical %1").arg(categoryIndex + 1);
+    default:
+        return QString("Invalid Layer!");
+    }
+}
+
+QString DesignLayerManager::categoryName(DesignLayer::Category category)
+{
+    switch (category) {
+    case DesignLayer::SignalCategory:
+         return QString("Signal Layers");
+    case DesignLayer::PlaneCategory:
+        return QString("Internal Planes");
+    case DesignLayer::MaskCategory:
+        return QString("Mask Layers");
+    case DesignLayer::SilkscreenCategory:
+        return QString("Silkscreen Layers");
+    case DesignLayer::MechanicalCategory:
+        return QString("Mechanical Layers");
+    case DesignLayer::OtherCategory:
+        return QString("Other Layers");
+    default:
+        return QString("Invalid Layer!");
+    }
+}
+
 // TODO: What do we do with names?
 DesignLayerList DesignLayerManager::addCustomLayerSet(int id, const QString &name)
 {
@@ -216,16 +293,15 @@ void DesignLayerManager::removeCustomLayerSet(int id)
 }
 
 // TODO: private?
-DesignLayer *DesignLayerManager::addLayer(DesignLayer::LayerSet set, DesignLayer::Category category, int stackPosition)
+DesignLayer *DesignLayerManager::addLayer(DesignLayer::Category category, int stackPosition)
 {
     Q_ASSERT(!m_layerMap.contains(stackPosition));
-    Q_ASSERT(m_layerSetMap.contains(int(set)));
+    Q_ASSERT(m_layerCategoryMap.contains(int(category)));
     DesignLayer *layer = new DesignLayer();
-    layer->setLayerSet(set);
     layer->setCategory(category);
     layer->setStackPosition(stackPosition);
     m_layerMap[stackPosition] = layer;
-    m_layerSetMap[int(set)].append(layer);
+    m_layerCategoryMap[int(category)].append(layer);
     emit layerAdded(layer);
     return layer;
 }
