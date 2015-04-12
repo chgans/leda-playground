@@ -61,7 +61,7 @@ public:
     QString customName() const;
     QString effectiveName() const;
     const QColor &color() const;
-    int stackPosition() const;
+    int stackPosition() const; // TODO: Rename to index()
     Category category() const;
     Face face() const;
     DesignLayer* pairedLayer() const;
