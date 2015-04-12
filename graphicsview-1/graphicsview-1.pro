@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     widgets/colorwheel.cpp \
     widgets/gradientslider.cpp \
     widgets/hueslider.cpp \
-    widgets/colorwidget.cpp
+    widgets/colorwidget.cpp \
+    colorprofileeditor.cpp
 
 HEADERS  += mainwindow.h \
     detailview.h \
@@ -68,11 +69,12 @@ HEADERS  += mainwindow.h \
     widgets/gradientslider.h \
     widgets/hueslider.h \
     widgets/paintborder.h \
-    widgets/colorwidget.h
+    widgets/colorwidget.h \
+    colorprofileeditor.h
 
 FORMS    += mainwindow.ui \
     pcbpalettesettingsdialog.ui \
-    widgets/colorwidget.ui
+    colorprofileeditor.ui
 
 OTHER_FILES += \
     test.js \
