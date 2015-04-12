@@ -50,7 +50,7 @@ void DesignLayerManager::loadFromDefaults()
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
                 topLayer->setName(layerName(category, i));
-                bottomLayer->setName(layerName(category, 32 - i));
+                bottomLayer->setName(layerName(category, 32 - 1 - i));
                 if (i == 0) {
                     topLayer->setVisible(true);
                     bottomLayer->setVisible(true);
@@ -71,7 +71,7 @@ void DesignLayerManager::loadFromDefaults()
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
                 topLayer->setName(layerName(category, i));
-                bottomLayer->setName(layerName(category, 32 - i));
+                bottomLayer->setName(layerName(category, 32 -1 - i));
                 topLayer->setPairedLayer(bottomLayer);
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
@@ -80,6 +80,31 @@ void DesignLayerManager::loadFromDefaults()
                 bottomLayer->setVisible(false);
             }
             stackPosition += 32;
+            break;
+        case DesignLayer::MechanicalCategory:
+            for (int i = 0; i < 16; i++) {
+                topLayer = addLayer(category, stackPosition + i);
+                bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
+                topLayer->setName(layerName(category, i));
+                bottomLayer->setName(layerName(category, 32 - 1 - i));
+                topLayer->setPairedLayer(bottomLayer);
+                bottomLayer->setPairedLayer(topLayer);
+                topLayer->setFace(DesignLayer::TopFace);
+                bottomLayer->setFace(DesignLayer::BottomFace);
+                topLayer->setVisible(false);
+                bottomLayer->setVisible(false);
+            }
+            stackPosition += 32;
+            break;
+        case DesignLayer::OtherCategory:
+            topLayer = addLayer(category, stackPosition++);
+            topLayer->setName(layerName(category, 0));
+            topLayer = addLayer(category, stackPosition++);
+            topLayer->setName(layerName(category, 1));
+            topLayer = addLayer(category, stackPosition++);
+            topLayer->setName(layerName(category, 2));
+            topLayer = addLayer(category, stackPosition++);
+            topLayer->setName(layerName(category, 3));
             break;
         case DesignLayer::MaskCategory:
             topLayer = addLayer(category, stackPosition++);
@@ -114,24 +139,6 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setFace(DesignLayer::BottomFace);
             topLayer->setVisible(true);
             bottomLayer->setVisible(true);
-            break;
-        case DesignLayer::MechanicalCategory:
-            for (int i = 0; i < 16; i++) {
-                topLayer = addLayer(category, stackPosition + i);
-                bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
-                topLayer->setName(layerName(category, i));
-                bottomLayer->setName(layerName(category, 32 - i));
-                topLayer->setPairedLayer(bottomLayer);
-                bottomLayer->setPairedLayer(topLayer);
-                topLayer->setFace(DesignLayer::TopFace);
-                bottomLayer->setFace(DesignLayer::BottomFace);
-                topLayer->setVisible(false);
-                bottomLayer->setVisible(false);
-            }
-            stackPosition += 32;
-            break;
-        case DesignLayer::OtherCategory:
-            // Empty for now
             break;
         default:
             break;
@@ -223,20 +230,20 @@ QString DesignLayerManager::layerName(DesignLayer::Category category, int catego
         case 31:
             return QString("Bottom Layer");
         default:
-            return QString("Signal Layer %1").arg(categoryIndex + 1);
+            return QString("Signal Layer %1").arg(categoryIndex);
         }
     case DesignLayer::PlaneCategory:
         return QString("Internal Plane %1").arg(categoryIndex + 1);
     case DesignLayer::MaskCategory:
         switch (categoryIndex) {
         case 0:
-            return QString("Top Solder");
-        case 1:
-            return QString("Bottom Solder");
-        case 2:
             return QString("Top Paste");
-        case 3:
+        case 1:
             return QString("Bottom Paste");
+        case 2:
+            return QString("Top Solder");
+        case 3:
+            return QString("Bottom Solder");
         default:
             return QString("Invalid Mask Layer!");
         }
@@ -251,6 +258,19 @@ QString DesignLayerManager::layerName(DesignLayer::Category category, int catego
         }
     case DesignLayer::MechanicalCategory:
         return QString("Mechanical %1").arg(categoryIndex + 1);
+    case DesignLayer::OtherCategory:
+        switch (categoryIndex) {
+        case 0:
+            return QString("Drill Guide");
+        case 1:
+            return QString("Keep Out");
+        case 2:
+            return QString("Drill Drawing");
+        case 3:
+            return QString("Multi Layer");
+        default:
+            return QString("Invalid Other Layer!");
+        }
     default:
         return QString("Invalid Layer!");
     }

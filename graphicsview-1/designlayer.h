@@ -37,8 +37,8 @@ public:
         PlaneCategory,
         MechanicalCategory,
         MaskCategory,
-        SilkscreenCategory,
-        OtherCategory
+        OtherCategory,
+        SilkscreenCategory
     };
 
     // TODO: NonSignalLayerSet

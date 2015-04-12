@@ -80,7 +80,7 @@ void ColorProfileEditor::populateColorView()
 
         foreach (DesignLayer *layer, manager->layersForCategory(category)) {
             QTreeWidgetItem *colorItem =  new QTreeWidgetItem();
-            PcbPalette::ColorRole role = PcbPalette::ColorRole(layer->stackPosition());
+            PcbPalette::ColorRole role = PcbPalette::ColorRole(layer->stackPosition() + 1);
             QColor color = m_activeProfile->color(role);
             colorItem->setText(0, layer->name());
             colorItem->setBackgroundColor(1, color);
