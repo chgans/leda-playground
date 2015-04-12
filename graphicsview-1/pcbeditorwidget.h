@@ -11,6 +11,7 @@ class QToolButton;
 
 class MainView;
 class Scene;
+class PcbPaletteManager;
 class DesignLayerManager;
 
 class PcbEditorWidget : public QWidget
@@ -40,11 +41,15 @@ protected slots:
     void activateNextSignalLayer();
     void activatePreviousSignalLayer();
 
+    // Palette stuff
+    void onColorProfileChanged(const QString &identifier);
+
 protected:
     void wheelEvent(QWheelEvent *event);
 
 private:
     MainView *mView;
+    PcbPaletteManager *m_paletteManager;
     DesignLayerManager *m_layerManager;
     QTabBar *mLayerTabBar;
     QToolButton *mCurrentLayerButton;

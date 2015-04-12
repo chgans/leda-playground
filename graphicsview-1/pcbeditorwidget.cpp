@@ -3,8 +3,9 @@
 #include "scene.h"
 #include "designlayer.h"
 #include "designlayermanager.h"
-
-#include "pcbpalettemanagerdialog.h"
+#include "pcbpalette.h"
+#include "pcbpalettemanager.h"
+#include "colorprofileeditor.h"
 
 #include <QMainWindow>
 #include <QVBoxLayout>
@@ -19,17 +20,21 @@
 
 #include <QDebug>
 
-static QIcon *icon(const QColor &color)
+static QIcon icon(const QColor &color)
 {
     QPixmap pix(16, 16);
     pix.fill(color);
-    return new QIcon(pix);
+    return QIcon(pix);
 }
 
 PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_layerManager = DesignLayerManager::instance();
+    m_paletteManager = PcbPaletteManager::instance();
+
+    connect(m_paletteManager, &PcbPaletteManager::paletteActivated,
+            this, &PcbEditorWidget::onColorProfileChanged);
 
     mLayerTabBar = new QTabBar;
     mLayerTabBar->setShape(QTabBar::RoundedSouth);
@@ -117,6 +122,7 @@ void PcbEditorWidget::setScene(Scene *scene)
     mView->setScene(scene);
     mView->scale(0.75, 0.75);
     setupLayerTabBar();
+    onColorProfileChanged(m_paletteManager->activePaletteIdentifier());
 }
 
 void PcbEditorWidget::activateEditor(QMainWindow *window)
@@ -173,6 +179,23 @@ void PcbEditorWidget::activateNextSignalLayer()
 void PcbEditorWidget::activatePreviousSignalLayer()
 {
     activatePreviousLayer();
+}
+
+void PcbEditorWidget::onColorProfileChanged(const QString &identifier)
+{
+    for (PcbPalette::ColorRole role = PcbPalette::TopLayer;
+         role < PcbPalette::BottomLayer;
+         role = PcbPalette::ColorRole(role + 1)) {
+        m_layerManager->layerAt(role - 1)->setColor(m_paletteManager->palette(identifier)->color(role));
+    }
+    for (int tabIndex = 0; tabIndex < mLayerTabBar->count(); tabIndex++) {
+        DesignLayer *layer = mLayerTabBar->tabData(tabIndex).value<DesignLayer *>();
+        QColor color = m_paletteManager->palette(identifier)->color(PcbPalette::ColorRole(layer->stackPosition() + 1));
+        layer->setColor(color);
+        mLayerTabBar->setTabIcon(tabIndex, icon(layer->color()));
+    }
+    mCurrentLayerButton->setIcon(mLayerTabBar->tabIcon(mLayerTabBar->currentIndex()));
+    mView->invalidateScene();
 }
 
 void PcbEditorWidget::createActions()
@@ -302,7 +325,7 @@ void PcbEditorWidget::setupLayerTabBar()
 {
     foreach (DesignLayer *layer, m_layerManager->enabledLayers()) {
         int tabIndex = mLayerTabBar->addTab(layer->name());
-        mLayerTabBar->setTabIcon(tabIndex, *icon(layer->color()));
+        mLayerTabBar->setTabIcon(tabIndex, icon(layer->color()));
         mLayerTabBar->setTabData(tabIndex, QVariant::fromValue<DesignLayer *>(layer));
     }
     activateLayer(0);
@@ -312,9 +335,10 @@ void PcbEditorWidget::setupLayerTabBar()
 
 void PcbEditorWidget::showColorDialog()
 {
-    PcbPaletteManagerDialog dlg;
-    dlg.initialise();
-    dlg.exec();
+    ColorProfileEditor *dlg = new ColorProfileEditor(this);
+    dlg->setWindowFlags(Qt::Dialog);
+    dlg->initialise();
+    dlg->show();
 }
 
 void PcbEditorWidget::showBoardInsightPopUpMenu()
