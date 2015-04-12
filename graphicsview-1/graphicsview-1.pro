@@ -35,7 +35,12 @@ SOURCES += main.cpp\
     pcbphysicalboard.cpp \
     designlayer.cpp \
     primitive.cpp \
-    designlayermanager.cpp
+    designlayermanager.cpp \
+    widgets/colorpreview.cpp \
+    widgets/colorwheel.cpp \
+    widgets/gradientslider.cpp \
+    widgets/hueslider.cpp \
+    widgets/colorwidget.cpp
 
 HEADERS  += mainwindow.h \
     detailview.h \
@@ -57,10 +62,17 @@ HEADERS  += mainwindow.h \
     pcbphysicalboard.h \
     designlayer.h \
     primitive.h \
-    designlayermanager.h
+    designlayermanager.h \
+    widgets/colorpreview.h \
+    widgets/colorwheel.h \
+    widgets/gradientslider.h \
+    widgets/hueslider.h \
+    widgets/paintborder.h \
+    widgets/colorwidget.h
 
 FORMS    += mainwindow.ui \
-    pcbpalettesettingsdialog.ui
+    pcbpalettesettingsdialog.ui \
+    widgets/colorwidget.ui
 
 OTHER_FILES += \
     test.js \

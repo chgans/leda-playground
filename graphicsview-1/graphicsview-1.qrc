@@ -2,5 +2,6 @@
     <qresource prefix="/img">
         <file>chip-package.png</file>
         <file>PCB-icon.png</file>
+        <file>alpha-background.png</file>
     </qresource>
 </RCC>
