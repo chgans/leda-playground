@@ -21,31 +21,31 @@ ColorProfileComboBox::ColorProfileComboBox(QWidget *parent) :
     connect(this, signal,
             this, &ColorProfileComboBox::activatePalette);
 
-    foreach (const PcbPalette *palette, manager->palettes()) {
+    foreach (PcbPalette *palette, manager->palettes()) {
         addItem(palette);
     }
     updateCurrentIndex(manager->activePalette());
 }
 
-void ColorProfileComboBox::addItem(const PcbPalette *palette)
+void ColorProfileComboBox::addItem(PcbPalette *palette)
 {
-    QComboBox::addItem(palette->name(), QVariant::fromValue<const PcbPalette *>(palette));
+    QComboBox::addItem(palette->name(), QVariant::fromValue<PcbPalette *>(palette));
 }
 
-void ColorProfileComboBox::removeItem(const PcbPalette *palette)
+void ColorProfileComboBox::removeItem(PcbPalette *palette)
 {
     for (int i = 0; i < count(); i++) {
-        if (itemData(i).value<const PcbPalette *>() == palette) {
+        if (itemData(i).value<PcbPalette *>() == palette) {
             QComboBox::removeItem(i);
             return;
         }
     }
 }
 
-void ColorProfileComboBox::updateItem(const PcbPalette *palette)
+void ColorProfileComboBox::updateItem(PcbPalette *palette)
 {
     for (int i = 0; i < count(); i++) {
-        if (itemData(i).value<const PcbPalette *>() == palette) {
+        if (itemData(i).value<PcbPalette *>() == palette) {
             setItemText(i, palette->name());
             return;
         }
@@ -57,12 +57,12 @@ void ColorProfileComboBox::activatePalette(int index)
     PcbPaletteManager::instance()->setActivePalette(paletteAt(index));
 }
 
-void ColorProfileComboBox::updateCurrentIndex(const PcbPalette *palette)
+void ColorProfileComboBox::updateCurrentIndex(PcbPalette *palette)
 {
     setCurrentIndex(index(palette));
 }
 
-int ColorProfileComboBox::index(const PcbPalette *palette)
+int ColorProfileComboBox::index(PcbPalette *palette)
 {
     for (int i = 0; i < count(); i++) {
         if (paletteAt(i) == palette) {
@@ -73,7 +73,7 @@ int ColorProfileComboBox::index(const PcbPalette *palette)
     return 0;
 }
 
-const PcbPalette *ColorProfileComboBox::paletteAt(int index)
+PcbPalette *ColorProfileComboBox::paletteAt(int index)
 {
-    return itemData(index).value<const PcbPalette *>();
+    return itemData(index).value<PcbPalette *>();
 }

@@ -16,15 +16,15 @@ signals:
 public slots:
 
 protected slots:
-    void addItem(const PcbPalette *palette);
-    void removeItem(const PcbPalette *palette);
-    void updateItem(const PcbPalette *palette);
+    void addItem(PcbPalette *palette);
+    void removeItem(PcbPalette *palette);
+    void updateItem(PcbPalette *palette);
     void activatePalette(int index);
-    void updateCurrentIndex(const PcbPalette *palette);
+    void updateCurrentIndex(PcbPalette *palette);
 
 private:
-    int index(const PcbPalette *paletteAt);
-    const PcbPalette *paletteAt(int index);
+    int index(PcbPalette *paletteAt);
+    PcbPalette *paletteAt(int index);
 };
 
 #endif // COLORPROFILECOMBOBOX_H

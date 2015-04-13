@@ -82,11 +82,6 @@ void DesignLayer::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     Q_UNUSED(widget);
 }
 
-DesignLayer::LayerSet DesignLayer::layerSet() const
-{
-    return m_LayerSet;
-}
-
 DesignLayer *DesignLayer::pairedLayer() const
 {
     return m_pairedLayer;
@@ -160,13 +155,3 @@ void DesignLayer::setPairedLayer(DesignLayer *layer)
     m_pairedLayer = layer;
     emit pairedLayerChanged(layer);
 }
-
-void DesignLayer::setLayerSet(DesignLayer::LayerSet set)
-{
-    if (m_LayerSet == set)
-        return;
-
-    m_LayerSet = set;
-    emit layerSetChanged(set);
-}
-

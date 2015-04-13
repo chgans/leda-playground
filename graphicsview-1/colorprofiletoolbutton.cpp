@@ -41,41 +41,39 @@ ColorProfileToolButton::ColorProfileToolButton(QWidget *parent) :
     connect(manager, &PcbPaletteManager::paletteChanged,
             this, &ColorProfileToolButton::updatePalette);
     connect(manager, &PcbPaletteManager::paletteActivated,
-            this, [this](const PcbPalette *palette) {
+            this, [this](PcbPalette *palette) {
         qDebug() << "Updating index";
         action(palette)->setChecked(true);
     });
 
-    foreach (const PcbPalette *palette, manager->palettes()) {
+    foreach (PcbPalette *palette, manager->palettes()) {
         addPalette(palette);
     }
-
-
 }
 
-void ColorProfileToolButton::addPalette(const PcbPalette *palette)
+void ColorProfileToolButton::addPalette(PcbPalette *palette)
 {
     QAction *action = m_actionGroup->addAction(palette->name());
-    action->setData(QVariant::fromValue<const PcbPalette *>(palette));
+    action->setData(QVariant::fromValue<PcbPalette *>(palette));
     action->setCheckable(true);
     action->setChecked(true);
     m_menu->addAction(action);
 }
 
-void ColorProfileToolButton::removePalette(const PcbPalette *palette)
+void ColorProfileToolButton::removePalette(PcbPalette *palette)
 {
     m_actionGroup->removeAction(action(palette));
 }
 
-void ColorProfileToolButton::updatePalette(const PcbPalette *palette)
+void ColorProfileToolButton::updatePalette(PcbPalette *palette)
 {
     action(palette)->setText(palette->name());
 }
 
-QAction *ColorProfileToolButton::action(const PcbPalette *palette)
+QAction *ColorProfileToolButton::action(PcbPalette *palette)
 {
     foreach (QAction *action, m_actionGroup->actions()) {
-        if (action->data().value<const PcbPalette *>() == palette) {
+        if (action->data().value<PcbPalette *>() == palette) {
             return action;
         }
     }
@@ -83,9 +81,9 @@ QAction *ColorProfileToolButton::action(const PcbPalette *palette)
     return nullptr;
 }
 
-const PcbPalette *ColorProfileToolButton::palette(QAction *action)
+PcbPalette *ColorProfileToolButton::palette(QAction *action)
 {
-    return action->data().value<const PcbPalette *>();
+    return action->data().value<PcbPalette *>();
     Q_ASSERT(false);
     return nullptr;
 }

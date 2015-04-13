@@ -60,12 +60,15 @@ private:
     QToolButton *mClearButton;
 
     void createActions();
-    void createMenus();
+    void createViewConfigurationMenu();
+    void createLayerTabBar();
+
     Scene *scene() const;
     void setupLayerTabBar();
 
     /** 2D Board Insight System **/
 private:
+    void createBoardInsightMenu();
     QAction *mToggleHeadsUpDisplayAction; // Shift+H
     QAction *mToggleHeadsUpTrackingAction; // Shift+G
     QAction *mResetHeadsUpDeltaOriginAction; // Ins

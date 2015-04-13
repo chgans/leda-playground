@@ -8,7 +8,8 @@
 
 #include "QDebug"
 
-PcbPalette::PcbPalette()
+PcbPalette::PcbPalette():
+    m_system(false)
 {
     memset(this->mPalette, qRgba(0xff, 0xff, 0xff, 0xff), sizeof(mPalette));
     //memset(this->mPalette, qintptr(-1), sizeof(mPalette));
@@ -17,6 +18,7 @@ PcbPalette::PcbPalette()
 PcbPalette::PcbPalette(const PcbPalette &other)
 {
     memcpy(this->mPalette, other.mPalette, sizeof(mPalette));
+    m_system = other.m_system;
 }
 
 QString PcbPalette::name() const
@@ -41,12 +43,18 @@ void PcbPalette::setColor(PcbPalette::ColorRole role, const QColor &color)
     mPalette[role] = color.rgba();
 }
 
+void PcbPalette::setSystemPalette(bool system)
+{
+    if (m_system == system)
+        return;
+    m_system = system;
+}
+
 // FIXME: return sucess/failure
 void PcbPalette::loadFromSettings(QSettings &settings)
 {
     settings.beginGroup("PcbPalette");
-    //setName(settings.value("name", "Unnamed").toString());
-    setAttribute(SystemPalette, settings.value("system", false).toBool());
+    setSystemPalette(settings.value("system", false).toBool());
     settings.beginReadArray("colors");
     for (int i=0; i<128; ++i) {
         ColorRole role = static_cast<ColorRole>(i);
@@ -62,7 +70,7 @@ void PcbPalette::saveToSettings(QSettings &settings) const
 {
     settings.beginGroup("PcbPalette");
     //settings.setValue("name", mName);
-    settings.setValue("system", mAttributes.testFlag(SystemPalette));
+    settings.setValue("system", isSystemPalette());
     settings.beginWriteArray("colors", 128);
     for (int i=0; i<128; ++i) {
         ColorRole role = static_cast<ColorRole>(i);
@@ -74,25 +82,9 @@ void PcbPalette::saveToSettings(QSettings &settings) const
     settings.endGroup();
 }
 
-PcbPalette::Attributes PcbPalette::attributes() const
-{
-    return mAttributes;
-}
-
-void PcbPalette::setAttributes(Attributes attributes)
-{
-    mAttributes = attributes;
-}
-
-void PcbPalette::setAttribute(PcbPalette::Attribute attribute, bool enabled)
-{
-    if (mAttributes.testFlag(attribute) != enabled)
-        mAttributes ^= attribute;
-}
-
 bool PcbPalette::isSystemPalette() const
 {
-    return mAttributes.testFlag(SystemPalette);
+    return m_system;
 }
 
 bool PcbPalette::operator!=(const PcbPalette &p) const

@@ -17,14 +17,6 @@
 //  - DesignPalette vs Physical palette (as in DesignLayer and PhysicalLayer)
 //  - Add opacity
 
-template< class T >
-inline QList<T const*>& constList( QList<T*> const& list )
-{
-    return reinterpret_cast< QList<T const*>& >(
-        const_cast< QList<T*>& >( list )
-        );
-}
-
 static PcbPaletteManager *gPaletteManager = 0;
 
 PcbPaletteManager::PcbPaletteManager(QObject *parent) :
@@ -41,18 +33,18 @@ PcbPaletteManager *PcbPaletteManager::instance()
     return gPaletteManager;
 }
 
-const PcbPalette *PcbPaletteManager::palette(const QString &identifier) const
+PcbPalette *PcbPaletteManager::palette(const QString &identifier) const
 {
     Q_ASSERT(mPaletteMap.contains(identifier));
     return mPaletteMap[identifier];
 }
 
-QList<const PcbPalette *> PcbPaletteManager::palettes() const
+QList<PcbPalette *> PcbPaletteManager::palettes() const
 {
-    return constList<PcbPalette>(mPaletteMap.values());
+    return mPaletteMap.values();
 }
 
-const PcbPalette * PcbPaletteManager::addPalette(const QString &identifier)
+PcbPalette *PcbPaletteManager::addPalette(const QString &identifier)
 {
     Q_ASSERT(!mPaletteMap.contains(identifier));
     PcbPalette *palette = new PcbPalette;
@@ -62,7 +54,7 @@ const PcbPalette * PcbPaletteManager::addPalette(const QString &identifier)
     return palette;
 }
 
-const PcbPalette *PcbPaletteManager::addPalette(const QString &identifier, QSettings &settings)
+PcbPalette *PcbPaletteManager::addPalette(const QString &identifier, QSettings &settings)
 {
     Q_ASSERT(!mPaletteMap.contains(identifier));
     PcbPalette *palette = new PcbPalette;
@@ -73,7 +65,7 @@ const PcbPalette *PcbPaletteManager::addPalette(const QString &identifier, QSett
     return palette;
 }
 
-void PcbPaletteManager::removePalette(const PcbPalette *palette)
+void PcbPaletteManager::removePalette(PcbPalette *palette)
 {
     Q_ASSERT(mPaletteMap.contains(palette->name()));
     mPaletteMap.remove(palette->name());
@@ -84,7 +76,7 @@ void PcbPaletteManager::removePalette(const PcbPalette *palette)
     delete palette;
 }
 
-const PcbPalette *PcbPaletteManager::activePalette() const
+PcbPalette *PcbPaletteManager::activePalette() const
 {
     return mActivePalette;
 }
@@ -94,7 +86,7 @@ QString PcbPaletteManager::activePaletteIdentifier() const
     return mActivePalette->name();
 }
 
-void PcbPaletteManager::setActivePalette(const PcbPalette *palette)
+void PcbPaletteManager::setActivePalette(PcbPalette *palette)
 {
     Q_ASSERT(mPaletteMap.contains(palette->name()));
     mActivePalette = palette;
@@ -107,7 +99,7 @@ void PcbPaletteManager::loadPalettes()
     QDir dir(mPath);
     QStringList filters;
     filters << "*.LedaPcbPalette";
-    const PcbPalette *palette = nullptr;
+    PcbPalette *palette = nullptr;
     foreach (QFileInfo fileInfo, dir.entryInfoList(filters)) {
         QString id = fileInfo.baseName();
         QFile file(fileInfo.filePath());

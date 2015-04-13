@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     widgets/colorwidget.cpp \
     colorprofileeditor.cpp \
     colorprofilecombobox.cpp \
-    colorprofiletoolbutton.cpp
+    colorprofiletoolbutton.cpp \
+    designlayerset.cpp
 
 HEADERS  += mainwindow.h \
     detailview.h \
@@ -72,7 +73,8 @@ HEADERS  += mainwindow.h \
     widgets/colorwidget.h \
     colorprofileeditor.h \
     colorprofilecombobox.h \
-    colorprofiletoolbutton.h
+    colorprofiletoolbutton.h \
+    designlayerset.h
 
 FORMS    += mainwindow.ui \
     pcbpalettesettingsdialog.ui \

@@ -32,11 +32,12 @@ static QIcon icon(const QColor &color)
 PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     QWidget(parent)
 {
-    m_layerManager = DesignLayerManager::instance();
     m_paletteManager = PcbPaletteManager::instance();
-
+    m_layerManager = DesignLayerManager::instance();
     connect(m_paletteManager, &PcbPaletteManager::paletteActivated,
             this, &PcbEditorWidget::onColorProfileChanged);
+
+    m_layerManager = DesignLayerManager::instance();
 
     mLayerTabBar = new QTabBar;
     mLayerTabBar->setShape(QTabBar::RoundedSouth);
@@ -62,26 +63,53 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     mLayerSetButton->setAutoRaise(true);
     mLayerSetButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     QMenu *menu = new QMenu(this);
-    menu->addAction("Board layer sets...");
-    menu->addSeparator();
-    QActionGroup *actionGroup = new QActionGroup(this);
+    QMenu *submenu = new QMenu(this);
+    QActionGroup *actionGroup;
+    QAction *action;
+
+    actionGroup = new QActionGroup(this);
+    menu->addAction("View configuration...");
+
+    actionGroup = new QActionGroup(this);
+    submenu = menu->addMenu("Color profiles");
+    submenu->addAction("Configuration...");
+    submenu->addSeparator();
     actionGroup->setExclusive(true);
-    QAction *action = actionGroup->addAction("All layers");
-    action->setCheckable(true);
-    action->setChecked(true);
-    menu->addAction(action);
-    action = actionGroup->addAction("Signal layers");
-    action->setCheckable(true);
-    menu->addAction(action);
-    action = actionGroup->addAction("Plane layers");
-    action->setCheckable(true);
-    menu->addAction(action);
-    action = actionGroup->addAction("Non-Signal layers");
-    action->setCheckable(true);
-    menu->addAction(action);
-    action = actionGroup->addAction("Mechanical layers");
-    action->setCheckable(true);
-    menu->addAction(action);
+    foreach (PcbPalette *palette, PcbPaletteManager::instance()->palettes()) {
+        action = actionGroup->addAction(palette->name());
+        action->setData(QVariant::fromValue<PcbPalette *>(palette));
+        action->setCheckable(true);
+        submenu->addAction(action);
+    }
+    connect(actionGroup, &QActionGroup::triggered,
+            this, [this](QAction *action) {
+        PcbPalette *palette = action->data().value<PcbPalette *>();
+        PcbPaletteManager::instance()->setActivePalette(palette);
+    });
+    actionGroup = new QActionGroup(this);
+    submenu = menu->addMenu("Opacity profiles");
+    submenu->addAction("Configuration...");
+    submenu->addSeparator();
+    actionGroup->setExclusive(true);/*
+    foreach (PcbPalette *palette, PcbPaletteManager::instance()->palettes()) {
+        action = actionGroup->addAction(palette->name());
+        action->setData(QVariant::fromValue<PcbPalette *>(palette));
+        action->setCheckable(true);
+        submenu->addAction(action);
+    }*/
+    actionGroup = new QActionGroup(this);
+    submenu = menu->addMenu("Layer sets...");
+    submenu->addAction("Configuration...");
+    submenu->addSeparator();
+    // TODO: trigger layer set dialog
+    actionGroup->setExclusive(true);
+    foreach (DesignLayerSet *set, DesignLayerManager::instance()->allLayerSets()) {
+        action = actionGroup->addAction(set->effectiveName());
+        action->setData(QVariant::fromValue<DesignLayerSet *>(set));
+        action->setCheckable(true);
+        submenu->addAction(action);
+    }
+
     mLayerSetButton->setMenu(menu);
     mLayerSetButton->setPopupMode(QToolButton::InstantPopup);
 
@@ -118,7 +146,7 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     setLayout(mainLayout);
 
     createActions();
-    createMenus();
+    createBoardInsightMenu();
 }
 
 void PcbEditorWidget::setScene(Scene *scene)
@@ -298,13 +326,8 @@ void PcbEditorWidget::createActions()
 #endif
 }
 
-void PcbEditorWidget::createMenus()
+void PcbEditorWidget::createBoardInsightMenu()
 {
-#if 0
-    setContextMenuPolicy(Qt::ActionsContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(showBoardInsightPopUpMenu(QPoint)));
-#endif
     mBoardInsightPopUpMenu = new QMenu("Board Insight Pop-Up Menu", this);
     mBoardInsightPopUpMenu->addAction(mToggleHeadsUpDisplayAction);
     mBoardInsightPopUpMenu->addAction(mToggleHeadsUpTrackingAction);
@@ -317,6 +340,16 @@ void PcbEditorWidget::createMenus()
     mBoardInsightPopUpMenu->addAction(mToggleInsightLensTrackingAction);
     mBoardInsightPopUpMenu->addAction(mToggleInsightLensAutoZoomAction);
     mBoardInsightPopUpMenu->addAction(mToggleInsightLensSingleLayerModeAction);
+}
+
+void PcbEditorWidget::createViewConfigurationMenu()
+{
+
+}
+
+void PcbEditorWidget::createLayerTabBar()
+{
+
 }
 
 Scene *PcbEditorWidget::scene() const

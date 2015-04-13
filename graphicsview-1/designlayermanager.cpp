@@ -1,4 +1,5 @@
 #include "designlayermanager.h"
+#include "designlayerset.h"
 
 // FIXME: use SOFT_ASSERT in some places to generate warning/error messages
 
@@ -38,6 +39,13 @@ void DesignLayerManager::loadFromDefaults()
     DesignLayer *topLayer;
     DesignLayer *bottomLayer;
 
+    addBuiltInLayerSet(DesignLayerSet::Signal);
+    addBuiltInLayerSet(DesignLayerSet::Plane);
+    addBuiltInLayerSet(DesignLayerSet::Mask);
+    addBuiltInLayerSet(DesignLayerSet::Silkscreen);
+    addBuiltInLayerSet(DesignLayerSet::Mechanical);
+    addBuiltInLayerSet(DesignLayerSet::NonSignal);
+
     for (DesignLayer::Category category = DesignLayer::SignalCategory;
          category <= DesignLayer::OtherCategory;
          category = DesignLayer::Category(category + 1)) {
@@ -49,8 +57,8 @@ void DesignLayerManager::loadFromDefaults()
             for (int i = 0; i < 16; i++) {
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
-                topLayer->setName(layerName(category, i));
-                bottomLayer->setName(layerName(category, 32 - 1 - i));
+                topLayer->setName(defaultLayerName(category, i));
+                bottomLayer->setName(defaultLayerName(category, 32 - 1 - i));
                 if (i == 0) {
                     topLayer->setVisible(true);
                     bottomLayer->setVisible(true);
@@ -70,8 +78,8 @@ void DesignLayerManager::loadFromDefaults()
             for (int i = 0; i < 16; i++) {
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
-                topLayer->setName(layerName(category, i));
-                bottomLayer->setName(layerName(category, 32 -1 - i));
+                topLayer->setName(defaultLayerName(category, i));
+                bottomLayer->setName(defaultLayerName(category, 32 -1 - i));
                 topLayer->setPairedLayer(bottomLayer);
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
@@ -85,8 +93,8 @@ void DesignLayerManager::loadFromDefaults()
             for (int i = 0; i < 16; i++) {
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
-                topLayer->setName(layerName(category, i));
-                bottomLayer->setName(layerName(category, 32 - 1 - i));
+                topLayer->setName(defaultLayerName(category, i));
+                bottomLayer->setName(defaultLayerName(category, 32 - 1 - i));
                 topLayer->setPairedLayer(bottomLayer);
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
@@ -98,19 +106,19 @@ void DesignLayerManager::loadFromDefaults()
             break;
         case DesignLayer::OtherCategory:
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(layerName(category, 0));
+            topLayer->setName(defaultLayerName(category, 0));
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(layerName(category, 1));
+            topLayer->setName(defaultLayerName(category, 1));
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(layerName(category, 2));
+            topLayer->setName(defaultLayerName(category, 2));
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(layerName(category, 3));
+            topLayer->setName(defaultLayerName(category, 3));
             break;
         case DesignLayer::MaskCategory:
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(layerName(category, 0));
+            topLayer->setName(defaultLayerName(category, 0));
             bottomLayer = addLayer(category, stackPosition++);
-            bottomLayer->setName(layerName(category, 1));
+            bottomLayer->setName(defaultLayerName(category, 1));
             topLayer->setPairedLayer(bottomLayer);
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
@@ -118,9 +126,9 @@ void DesignLayerManager::loadFromDefaults()
             topLayer->setVisible(true);
             bottomLayer->setVisible(true);
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(layerName(category, 2));
+            topLayer->setName(defaultLayerName(category, 2));
             bottomLayer = addLayer(category, stackPosition++);
-            bottomLayer->setName(layerName(category, 3));
+            bottomLayer->setName(defaultLayerName(category, 3));
             topLayer->setPairedLayer(bottomLayer);
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
@@ -130,9 +138,9 @@ void DesignLayerManager::loadFromDefaults()
             break;
         case DesignLayer::SilkscreenCategory:
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(layerName(category, 0));
+            topLayer->setName(defaultLayerName(category, 0));
             bottomLayer = addLayer(category, stackPosition++);
-            bottomLayer->setName(layerName(category, 1));
+            bottomLayer->setName(defaultLayerName(category, 1));
             topLayer->setPairedLayer(bottomLayer);
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
@@ -144,6 +152,7 @@ void DesignLayerManager::loadFromDefaults()
             break;
         }
     }
+
 }
 
 int DesignLayerManager::layerCount() const
@@ -156,21 +165,15 @@ int DesignLayerManager::layerSetCount() const
     return m_layerSetMap.count();
 }
 
-int DesignLayerManager::customLayerSetCount() const
+QList<DesignLayerSet *> DesignLayerManager::allLayerSets() const
 {
-    return m_customLayerSetMap.count();
+    return m_layerSetMap.values();
 }
 
-DesignLayerList DesignLayerManager::layerSet(DesignLayer::LayerSet set) const
+DesignLayerSet *DesignLayerManager::layerSet(int type) const
 {
-    Q_ASSERT(m_layerSetMap.contains(int(set)));
-    return m_layerSetMap[int(set)];
-}
-
-DesignLayerList DesignLayerManager::customLayerSet(int id) const
-{
-    Q_ASSERT(m_customLayerSetMap.contains(id));
-    return m_customLayerSetMap[id];
+    Q_ASSERT(m_layerSetMap.contains(int(type)));
+    return m_layerSetMap[int(type)];
 }
 
 DesignLayerList DesignLayerManager::allLayers() const
@@ -201,7 +204,7 @@ void DesignLayerManager::setLayerEnabled(int stackPosition, bool enabled)
     if (m_layerMap[stackPosition]->isVisible() == enabled)
         return;
     m_layerMap[stackPosition]->setVisible(enabled);
-    emit layerEnabledChanged(stackPosition, enabled);
+    emit layerChanged(m_layerMap[stackPosition]);
 }
 
 bool DesignLayerManager::isLayerEnabled(int stackPosition) const
@@ -220,7 +223,7 @@ DesignLayerList DesignLayerManager::enabledLayers() const
     return list;
 }
 
-QString DesignLayerManager::layerName(DesignLayer::Category category, int categoryIndex)
+QString DesignLayerManager::defaultLayerName(DesignLayer::Category category, int categoryIndex)
 {
     switch (category) {
     case DesignLayer::SignalCategory:
@@ -276,6 +279,27 @@ QString DesignLayerManager::layerName(DesignLayer::Category category, int catego
     }
 }
 
+QString DesignLayerManager::builtInLayerSetName(int type)
+{
+    switch (type) {
+    case DesignLayerSet::Signal:
+        return QString("Signal layers");
+    case DesignLayerSet::Plane:
+        return QString("Plane layers");
+    case DesignLayerSet::Mask:
+        return QString("Mask layers");
+    case DesignLayerSet::Silkscreen:
+        return QString("Silkscreen layers");
+    case DesignLayerSet::Mechanical:
+        return QString("Mechnical layers");
+    case DesignLayerSet::NonSignal:
+        return QString("Non Signal layers");
+    case DesignLayerSet::Custom:
+        return QString("Custom layer set");
+    }
+    return QString("Invalid layer set!");
+}
+
 QString DesignLayerManager::categoryName(DesignLayer::Category category)
 {
     switch (category) {
@@ -296,20 +320,30 @@ QString DesignLayerManager::categoryName(DesignLayer::Category category)
     }
 }
 
-// TODO: What do we do with names?
-DesignLayerList DesignLayerManager::addCustomLayerSet(int id, const QString &name)
+DesignLayerSet *DesignLayerManager::addLayerSet(int id)
 {
-    Q_UNUSED(name)
-    Q_ASSERT(!m_customLayerSetMap.contains(id));
-    m_customLayerSetMap[id] = DesignLayerList();
-    return m_customLayerSetMap[id];
+    Q_ASSERT(!m_layerSetMap.contains(id));
+    DesignLayerSet *set = new DesignLayerSet();
+    set->setType(id);
+    m_layerSetMap[id] = set;
+    return m_layerSetMap[id];
 }
 
-void DesignLayerManager::removeCustomLayerSet(int id)
+DesignLayerSet *DesignLayerManager::addBuiltInLayerSet(int type)
+{
+    DesignLayerSet *set = addLayerSet(type);
+    set->setBuiltIn(true);
+    set->setName(builtInLayerSetName(type));
+    set->setType(type);
+    emit layerSetAdded(set);
+    return set;
+}
+
+void DesignLayerManager::removeLayerSet(int id)
 {
     // FIXME: use SOFT_ASSERT to generate warning/error messages
-    Q_ASSERT(m_customLayerSetMap.contains(id));
-    m_customLayerSetMap.remove(id);
+    Q_ASSERT(m_layerSetMap.contains(id));
+    m_layerSetMap.remove(id);
 }
 
 // TODO: private?
@@ -332,8 +366,15 @@ void DesignLayerManager::removeLayer(DesignLayer *layer)
 {
     Q_ASSERT(m_layerMap.values().contains(layer));
     Q_ASSERT(m_layerMap.contains(layer->stackPosition()));
-    Q_ASSERT(m_layerSetMap.contains(layer->layerSet()));
     m_layerMap.remove(layer->stackPosition());
-    m_layerSetMap[layer->layerSet()].removeOne(layer);
+    foreach (DesignLayerSet *set, m_layerSetMap.values()) {
+        if (set->contains(layer))
+            set->remove(layer);
+    }
+}
+
+void DesignLayerManager::addLayerToSet(DesignLayer *layer, DesignLayerSet *set)
+{
+    set->add(layer);
 }
 
