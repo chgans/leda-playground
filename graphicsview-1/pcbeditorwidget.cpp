@@ -8,6 +8,7 @@
 #include "colorprofilecombobox.h"
 #include "colorprofiletoolbutton.h"
 #include "colorprofileeditor.h"
+#include "layerbar.h"
 
 #include <QMainWindow>
 #include <QVBoxLayout>
@@ -34,30 +35,28 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
 {
     m_paletteManager = PcbPaletteManager::instance();
     m_layerManager = DesignLayerManager::instance();
-    connect(m_paletteManager, &PcbPaletteManager::paletteActivated,
-            this, &PcbEditorWidget::onColorProfileChanged);
 
     m_layerManager = DesignLayerManager::instance();
 
-    mLayerTabBar = new QTabBar;
-    mLayerTabBar->setShape(QTabBar::RoundedSouth);
-    mLayerTabBar->setDrawBase(false);
+    m_layerBar = new LayerBar;
 
     mView = new MainView();
     mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-
+#if 0
     mCurrentLayerButton = new QToolButton;
     mCurrentLayerButton->setAutoRaise(true);
-    mCurrentLayerButton->setIcon(mLayerTabBar->tabIcon(0));
+    mCurrentLayerButton->setIcon(m_layerBar->tabIcon(0));
     mCurrentLayerButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     // TODO: menu to pick up a profile + edit profiles
     //QAction *editColor = new QAction(this);
     connect(mCurrentLayerButton, SIGNAL(clicked()),
             this, SLOT(showColorDialog()));
     //mCurrentLayerButton->addAction(editColor);
+#endif
 
+#if 1
     mLayerSetButton = new QToolButton;
     mLayerSetButton->setText("LS ");
     mLayerSetButton->setAutoRaise(true);
@@ -112,6 +111,7 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
 
     mLayerSetButton->setMenu(menu);
     mLayerSetButton->setPopupMode(QToolButton::InstantPopup);
+#endif
 
     mSnapButton = new QToolButton;
     mSnapButton->setText("Snap");
@@ -129,12 +129,12 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     mClearButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
 
     QHBoxLayout *toolLayout = new QHBoxLayout;
-    toolLayout->addWidget(mCurrentLayerButton);
+//    toolLayout->addWidget(mCurrentLayerButton);
     toolLayout->addWidget(mLayerSetButton);
-    toolLayout->addWidget(mLayerTabBar);
-    toolLayout->addWidget(mSnapButton);
-    toolLayout->addWidget(mMaskButton);
-    toolLayout->addWidget(mClearButton);
+    toolLayout->addWidget(m_layerBar);
+//    toolLayout->addWidget(mSnapButton);
+//    toolLayout->addWidget(mMaskButton);
+//    toolLayout->addWidget(mClearButton);
     toolLayout->addWidget(new ColorProfileComboBox);
     toolLayout->addWidget(new ColorProfileToolButton);
 
@@ -149,12 +149,17 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     createBoardInsightMenu();
 }
 
+PcbEditorWidget::~PcbEditorWidget()
+{
+
+}
+
 void PcbEditorWidget::setScene(Scene *scene)
 {
     mView->setScene(scene);
     mView->scale(0.75, 0.75);
-    setupLayerTabBar();
-    onColorProfileChanged(m_paletteManager->activePalette());
+    //setupLayerTabBar();
+    //onColorProfileChanged(m_paletteManager->activePalette());
 }
 
 void PcbEditorWidget::activateEditor(QMainWindow *window)
@@ -177,57 +182,12 @@ void PcbEditorWidget::wheelEvent(QWheelEvent *event)
 {
     // FIXME: doesn't work here, wheel events on MainView
     // Move activate/previous/next layer in view?
-    if (event->modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {
-        if (event->delta() > 0)
-            activateNextLayer();
-        else
-            activatePreviousLayer();
-    }
-}
-
-void PcbEditorWidget::activateLayer(int tabIndex)
-{
-    DesignLayer *layer = mLayerTabBar->tabData(tabIndex).value<DesignLayer *>();
-    qDebug() << "Activating layer" << layer->stackPosition() << layer->name();
-    mCurrentLayerButton->setIcon(mLayerTabBar->tabIcon(tabIndex));
-    scene()->activateLayer(layer->stackPosition());
-}
-
-void PcbEditorWidget::activateNextLayer()
-{
-    activateLayer((mLayerTabBar->currentIndex() + 1 ) % mLayerTabBar->count());
-}
-
-void PcbEditorWidget::activatePreviousLayer()
-{
-    activateLayer((mLayerTabBar->currentIndex() - 1 ) % mLayerTabBar->count());
-}
-
-void PcbEditorWidget::activateNextSignalLayer()
-{
-    activateNextLayer();
-}
-
-void PcbEditorWidget::activatePreviousSignalLayer()
-{
-    activatePreviousLayer();
-}
-
-void PcbEditorWidget::onColorProfileChanged(const PcbPalette *palette)
-{
-    for (PcbPalette::ColorRole role = PcbPalette::TopLayer;
-         role < PcbPalette::BottomLayer;
-         role = PcbPalette::ColorRole(role + 1)) {
-        m_layerManager->layerAt(role - 1)->setColor(palette->color(role));
-    }
-    for (int tabIndex = 0; tabIndex < mLayerTabBar->count(); tabIndex++) {
-        DesignLayer *layer = mLayerTabBar->tabData(tabIndex).value<DesignLayer *>();
-        QColor color = palette->color(PcbPalette::ColorRole(layer->stackPosition() + 1));
-        layer->setColor(color);
-        mLayerTabBar->setTabIcon(tabIndex, icon(layer->color()));
-    }
-    mCurrentLayerButton->setIcon(mLayerTabBar->tabIcon(mLayerTabBar->currentIndex()));
-    mView->invalidateScene();
+//    if (event->modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {
+//        if (event->delta() > 0)
+//            m_layerBar->activateNextLayer();
+//        else
+//            m_layerBar->activatePreviousLayer();
+//    }
 }
 
 void PcbEditorWidget::createActions()
@@ -356,18 +316,6 @@ Scene *PcbEditorWidget::scene() const
 {
     Q_ASSERT(mView && mView->scene());
     return static_cast<Scene *>(mView->scene());
-}
-
-void PcbEditorWidget::setupLayerTabBar()
-{
-    foreach (DesignLayer *layer, m_layerManager->enabledLayers()) {
-        int tabIndex = mLayerTabBar->addTab(layer->name());
-        mLayerTabBar->setTabIcon(tabIndex, icon(layer->color()));
-        mLayerTabBar->setTabData(tabIndex, QVariant::fromValue<DesignLayer *>(layer));
-    }
-    activateLayer(0);
-    connect(mLayerTabBar, SIGNAL(currentChanged(int)),
-            this, SLOT(activateLayer(int)));
 }
 
 void PcbEditorWidget::showColorDialog()

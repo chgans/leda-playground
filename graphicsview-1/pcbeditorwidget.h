@@ -6,11 +6,11 @@
 class QMainWindow;
 class QAction;
 class QMenu;
-class QTabBar;
 class QToolButton;
 
 class MainView;
 class Scene;
+class LayerBar;
 class PcbPalette;
 class PcbPaletteManager;
 class DesignLayerManager;
@@ -20,6 +20,7 @@ class PcbEditorWidget : public QWidget
     Q_OBJECT
 public:
     explicit PcbEditorWidget(QWidget *parent = 0);
+    ~PcbEditorWidget();
 
     MainView *graphicsView() { return mView; }
 
@@ -35,16 +36,6 @@ protected slots:
     void showColorDialog();
     void showBoardInsightPopUpMenu();
 
-    // TODO: QAction for that
-    void activateLayer(int tabIndex);
-    void activateNextLayer();
-    void activatePreviousLayer();
-    void activateNextSignalLayer();
-    void activatePreviousSignalLayer();
-
-    // Palette stuff
-    void onColorProfileChanged(const PcbPalette *palette);
-
 protected:
     void wheelEvent(QWheelEvent *event);
 
@@ -52,7 +43,7 @@ private:
     MainView *mView;
     PcbPaletteManager *m_paletteManager;
     DesignLayerManager *m_layerManager;
-    QTabBar *mLayerTabBar;
+    LayerBar *m_layerBar;
     QToolButton *mCurrentLayerButton;
     QToolButton *mLayerSetButton;
     QToolButton *mSnapButton;
@@ -64,7 +55,6 @@ private:
     void createLayerTabBar();
 
     Scene *scene() const;
-    void setupLayerTabBar();
 
     /** 2D Board Insight System **/
 private:
