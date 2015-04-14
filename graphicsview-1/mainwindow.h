@@ -36,10 +36,6 @@ protected:
 
 private:
     PcbEditorWidget *m_editor;
-    QDockWidget *dw;
-    ObjectPreview *opv;
-    DetailView *dv;
-    OverView *ov;
 };
 
 #endif // MAINWINDOW_H

@@ -44,7 +44,8 @@ SOURCES += main.cpp\
     colorprofilecombobox.cpp \
     colorprofiletoolbutton.cpp \
     designlayerset.cpp \
-    layerbar.cpp
+    layerbar.cpp \
+    insightdockwidget.cpp
 
 HEADERS  += mainwindow.h \
     detailview.h \
@@ -76,7 +77,8 @@ HEADERS  += mainwindow.h \
     colorprofilecombobox.h \
     colorprofiletoolbutton.h \
     designlayerset.h \
-    layerbar.h
+    layerbar.h \
+    insightdockwidget.h
 
 FORMS    += mainwindow.ui \
     pcbpalettesettingsdialog.ui \
