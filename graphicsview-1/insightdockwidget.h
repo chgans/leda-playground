@@ -6,6 +6,7 @@
 class ObjectPreview;
 class DetailView;
 class OverView;
+class MainView;
 
 class InsightDockWidget : public QDockWidget
 {
@@ -13,11 +14,16 @@ class InsightDockWidget : public QDockWidget
 public:
     explicit InsightDockWidget(QWidget *parent = 0);
 
+    void attachView(MainView *view);
+    void detachView();
+    MainView *attachedView() const;
+
 signals:
 
 public slots:
 
 private:
+    MainView *m_mainView;
     ObjectPreview *m_objectPreview;
     DetailView *m_detailView;
     OverView *m_overview;

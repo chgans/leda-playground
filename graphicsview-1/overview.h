@@ -43,6 +43,10 @@ private:
     QRectF mObservedRect;
     Move mMove;
     QPointF mLastPos;
+
+    // QWidget interface
+protected:
+    void showEvent(QShowEvent *event);
 };
 
 #endif // OVERVIEW_H

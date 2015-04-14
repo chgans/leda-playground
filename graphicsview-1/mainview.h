@@ -64,6 +64,8 @@ public:
 signals:
     void viewportChanged();
     void layerDisplayModeChanged(LayerDisplayMode mode);
+    void sceneAdded();
+    void sceneRemoved();
 
 public slots:
     LayerDisplayMode cycleLayerDisplayMode();

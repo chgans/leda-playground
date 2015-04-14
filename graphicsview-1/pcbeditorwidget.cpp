@@ -9,6 +9,7 @@
 #include "colorprofiletoolbutton.h"
 #include "colorprofileeditor.h"
 #include "layerbar.h"
+#include "insightdockwidget.h"
 
 #include <QMainWindow>
 #include <QVBoxLayout>
@@ -37,6 +38,8 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     mView = new MainView();
     mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    m_insightDockWidget = new InsightDockWidget();
 
     m_layerBar = new LayerBar;
 
@@ -81,6 +84,7 @@ void PcbEditorWidget::setScene(Scene *scene)
 {
     mView->setScene(scene);
     mView->scale(0.75, 0.75);
+    m_insightDockWidget->attachView(mView);
 }
 
 void PcbEditorWidget::activateEditor(QMainWindow *window)
@@ -97,6 +101,8 @@ void PcbEditorWidget::activateEditor(QMainWindow *window)
     window->addAction(mToggleInsightLensAutoZoomAction);
     window->addAction(mToggleInsightLensSingleLayerModeAction);
     window->addAction(m_cycleDisplayLayerMode);
+
+    window->addDockWidget(Qt::LeftDockWidgetArea, m_insightDockWidget);
 }
 
 void PcbEditorWidget::wheelEvent(QWheelEvent *event)

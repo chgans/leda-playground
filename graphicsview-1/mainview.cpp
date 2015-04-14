@@ -122,6 +122,7 @@ void MainView::setScene(Scene *scene)
         mLens->setBuddyView(nullptr);
         mConnectivity->setBuddyView(nullptr);
         mHeadsUp->setBuddyView(nullptr);
+        emit sceneRemoved();
     }
 
     m_scene = scene;
@@ -140,6 +141,8 @@ void MainView::setScene(Scene *scene)
             this, &MainView::onActiveLayerAboutToChange);
     connect(m_scene, &Scene::activeLayerChanged,
             this, &MainView::onActiveLayerChanged);
+
+    emit sceneAdded();
 }
 
 // Should we instead provide access to the design insights object and monitor

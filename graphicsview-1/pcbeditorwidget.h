@@ -14,6 +14,7 @@ class LayerBar;
 class PcbPalette;
 class PcbPaletteManager;
 class DesignLayerManager;
+class InsightDockWidget;
 
 class PcbEditorWidget : public QWidget
 {
@@ -41,6 +42,7 @@ protected:
 private:
     MainView *mView;
     LayerBar *m_layerBar;
+    InsightDockWidget *m_insightDockWidget;
     QToolButton *mSnapButton;
     QToolButton *mMaskButton;
     QToolButton *mClearButton;

@@ -5,7 +5,7 @@
 
 OverView::OverView(QWidget *parent) :
     QGraphicsView(parent),
-    mObservedView(0),
+    mObservedView(nullptr),
     mMove(NoMove)
 {
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -23,11 +23,12 @@ void OverView::setScene(QGraphicsScene *scene)
 
 void OverView::setObservedView(QGraphicsView *view)
 {
-    if(mObservedView)
+    if (mObservedView && mObservedView->viewport())
         mObservedView->viewport()->removeEventFilter(this);
-    view->viewport()->installEventFilter(this);
     mObservedView = view;
-    setScene(mObservedView->scene());
+
+    if (mObservedView && mObservedView->scene())
+        setScene(mObservedView->scene());
 }
 
 void OverView::getObservedRect()
@@ -57,8 +58,9 @@ void OverView::drawForeground(QPainter *painter, const QRectF &rect)
 void OverView::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
-    fitInView(scene()->sceneRect().adjusted(-50, -50, 50, 50),
-              Qt::KeepAspectRatio);
+    if (mObservedView && scene())
+        fitInView(scene()->sceneRect().adjusted(-50, -50, 50, 50),
+                  Qt::KeepAspectRatio);
 }
 
 void OverView::mousePressEvent(QMouseEvent *event)
@@ -162,4 +164,11 @@ void OverView::forceRedraw()
 {
     // TODO: get something better?
     viewport()->update();
+}
+
+
+void OverView::showEvent(QShowEvent *event)
+{
+    if (mObservedView != nullptr)
+        mObservedView->viewport()->installEventFilter(this);
 }

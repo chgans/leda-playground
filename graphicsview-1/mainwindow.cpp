@@ -32,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
     createMenus();
     createDockWidgets();
 
-    m_editor->activateEditor(this);
 }
 
 MainWindow::~MainWindow()
@@ -43,6 +42,7 @@ MainWindow::~MainWindow()
 void MainWindow::setGraphicsScene(Scene *scene)
 {
     m_editor->setScene(scene);
+    m_editor->activateEditor(this);
 }
 
 void MainWindow::createActions()
