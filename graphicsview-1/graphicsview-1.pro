@@ -26,7 +26,6 @@ SOURCES += main.cpp\
     pcbeditorwidget.cpp \
     insightconnectivitywidget.cpp \
     insightpicklistwidget.cpp \
-    pcbeditorlayer.cpp \
     pcbpalette.cpp \
     pcbpalettesettingsdialog.cpp \
     pcbpalettemanager.cpp \
@@ -58,7 +57,6 @@ HEADERS  += mainwindow.h \
     pcbeditorwidget.h \
     insightconnectivitywidget.h \
     insightpicklistwidget.h \
-    pcbeditorlayer.h \
     pcbpalette.h \
     pcbpalettesettingsdialog.h \
     pcbpalettemanager.h \
@@ -80,7 +78,7 @@ HEADERS  += mainwindow.h \
     layerbar.h \
     insightdockwidget.h
 
-FORMS    += mainwindow.ui \
+FORMS    += \
     pcbpalettesettingsdialog.ui \
     colorprofileeditor.ui
 
