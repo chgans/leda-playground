@@ -33,85 +33,12 @@ static QIcon icon(const QColor &color)
 PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     QWidget(parent)
 {
-    m_paletteManager = PcbPaletteManager::instance();
-    m_layerManager = DesignLayerManager::instance();
-
-    m_layerManager = DesignLayerManager::instance();
-
-    m_layerBar = new LayerBar;
 
     mView = new MainView();
     mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-#if 0
-    mCurrentLayerButton = new QToolButton;
-    mCurrentLayerButton->setAutoRaise(true);
-    mCurrentLayerButton->setIcon(m_layerBar->tabIcon(0));
-    mCurrentLayerButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    // TODO: menu to pick up a profile + edit profiles
-    //QAction *editColor = new QAction(this);
-    connect(mCurrentLayerButton, SIGNAL(clicked()),
-            this, SLOT(showColorDialog()));
-    //mCurrentLayerButton->addAction(editColor);
-#endif
-
-#if 1
-    mLayerSetButton = new QToolButton;
-    mLayerSetButton->setText("LS ");
-    mLayerSetButton->setAutoRaise(true);
-    mLayerSetButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    QMenu *menu = new QMenu(this);
-    QMenu *submenu = new QMenu(this);
-    QActionGroup *actionGroup;
-    QAction *action;
-
-    actionGroup = new QActionGroup(this);
-    menu->addAction("View configuration...");
-
-    actionGroup = new QActionGroup(this);
-    submenu = menu->addMenu("Color profiles");
-    submenu->addAction("Configuration...");
-    submenu->addSeparator();
-    actionGroup->setExclusive(true);
-    foreach (PcbPalette *palette, PcbPaletteManager::instance()->palettes()) {
-        action = actionGroup->addAction(palette->name());
-        action->setData(QVariant::fromValue<PcbPalette *>(palette));
-        action->setCheckable(true);
-        submenu->addAction(action);
-    }
-    connect(actionGroup, &QActionGroup::triggered,
-            this, [this](QAction *action) {
-        PcbPalette *palette = action->data().value<PcbPalette *>();
-        PcbPaletteManager::instance()->setActivePalette(palette);
-    });
-    actionGroup = new QActionGroup(this);
-    submenu = menu->addMenu("Opacity profiles");
-    submenu->addAction("Configuration...");
-    submenu->addSeparator();
-    actionGroup->setExclusive(true);/*
-    foreach (PcbPalette *palette, PcbPaletteManager::instance()->palettes()) {
-        action = actionGroup->addAction(palette->name());
-        action->setData(QVariant::fromValue<PcbPalette *>(palette));
-        action->setCheckable(true);
-        submenu->addAction(action);
-    }*/
-    actionGroup = new QActionGroup(this);
-    submenu = menu->addMenu("Layer sets...");
-    submenu->addAction("Configuration...");
-    submenu->addSeparator();
-    // TODO: trigger layer set dialog
-    actionGroup->setExclusive(true);
-    foreach (DesignLayerSet *set, DesignLayerManager::instance()->allLayerSets()) {
-        action = actionGroup->addAction(set->effectiveName());
-        action->setData(QVariant::fromValue<DesignLayerSet *>(set));
-        action->setCheckable(true);
-        submenu->addAction(action);
-    }
-
-    mLayerSetButton->setMenu(menu);
-    mLayerSetButton->setPopupMode(QToolButton::InstantPopup);
-#endif
+    m_layerBar = new LayerBar;
 
     mSnapButton = new QToolButton;
     mSnapButton->setText("Snap");
@@ -129,14 +56,10 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     mClearButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
 
     QHBoxLayout *toolLayout = new QHBoxLayout;
-//    toolLayout->addWidget(mCurrentLayerButton);
-    toolLayout->addWidget(mLayerSetButton);
     toolLayout->addWidget(m_layerBar);
-//    toolLayout->addWidget(mSnapButton);
-//    toolLayout->addWidget(mMaskButton);
-//    toolLayout->addWidget(mClearButton);
-    toolLayout->addWidget(new ColorProfileComboBox);
-    toolLayout->addWidget(new ColorProfileToolButton);
+    toolLayout->addWidget(mSnapButton);
+    toolLayout->addWidget(mMaskButton);
+    toolLayout->addWidget(mClearButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(mView);
@@ -158,8 +81,6 @@ void PcbEditorWidget::setScene(Scene *scene)
 {
     mView->setScene(scene);
     mView->scale(0.75, 0.75);
-    //setupLayerTabBar();
-    //onColorProfileChanged(m_paletteManager->activePalette());
 }
 
 void PcbEditorWidget::activateEditor(QMainWindow *window)
@@ -276,13 +197,6 @@ void PcbEditorWidget::createActions()
     mShowInsightSystemViolationAction; // Shift+X
     mShowInsightSystemOtherAction; // Shift+V
     mCycleSingleLayerModeAction; // Shift+S
-
-    mActivateNextLayerAction; // Ctrl+Shfit+WheelUp or KPD+
-    mActivatePreviousLayerAction; // // Ctrl+Shfit+WheelDown or KPD-
-    mActivateNextSignalLayerAction; // KPD*
-    mActivatePreviousSignalLayerAction; // // KPD/
-
-    mShowViewConfigurationDialogAction; // L
 #endif
 }
 
@@ -302,28 +216,11 @@ void PcbEditorWidget::createBoardInsightMenu()
     mBoardInsightPopUpMenu->addAction(mToggleInsightLensSingleLayerModeAction);
 }
 
-void PcbEditorWidget::createViewConfigurationMenu()
-{
-
-}
-
-void PcbEditorWidget::createLayerTabBar()
-{
-
-}
 
 Scene *PcbEditorWidget::scene() const
 {
     Q_ASSERT(mView && mView->scene());
     return static_cast<Scene *>(mView->scene());
-}
-
-void PcbEditorWidget::showColorDialog()
-{
-    ColorProfileEditor *dlg = new ColorProfileEditor(this);
-    dlg->setWindowFlags(Qt::Dialog);
-    dlg->initialise();
-    dlg->show();
 }
 
 void PcbEditorWidget::showBoardInsightPopUpMenu()

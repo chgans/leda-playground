@@ -33,7 +33,6 @@ signals:
 public slots:
 
 protected slots:
-    void showColorDialog();
     void showBoardInsightPopUpMenu();
 
 protected:
@@ -41,18 +40,12 @@ protected:
 
 private:
     MainView *mView;
-    PcbPaletteManager *m_paletteManager;
-    DesignLayerManager *m_layerManager;
     LayerBar *m_layerBar;
-    QToolButton *mCurrentLayerButton;
-    QToolButton *mLayerSetButton;
     QToolButton *mSnapButton;
     QToolButton *mMaskButton;
     QToolButton *mClearButton;
 
     void createActions();
-    void createViewConfigurationMenu();
-    void createLayerTabBar();
 
     Scene *scene() const;
 
@@ -78,13 +71,6 @@ private:
     QAction *mShowInsightSystemViolationAction; // Shift+X
     QAction *mShowInsightSystemOtherAction; // Shift+V
     QAction *mCycleSingleLayerModeAction; // Shift+S
-
-    QAction *mActivateNextLayerAction; // Ctrl+Shfit+WheelUp or KPD+
-    QAction *mActivatePreviousLayerAction; // // Ctrl+Shfit+WheelDown or KPD-
-    QAction *mActivateNextSignalLayerAction; // KPD*
-    QAction *mActivatePreviousSignalLayerAction; // // KPD/
-
-    QAction *mShowViewConfigurationDialogAction; // L
 
     QAction *m_cycleDisplayLayerMode;
 };

@@ -7,6 +7,7 @@ class QTabBar;
 class QAction;
 class QActionGroup;
 class QToolButton;
+class QMenu;
 
 class PcbPalette;
 class PcbPaletteManager;
@@ -32,15 +33,15 @@ protected slots:
     void activateNextSignalLayer();
     void activatePreviousSignalLayer();
 
-    void onActivePaletteChanged(PcbPalette *palette);
+    void setActivePalette(PcbPalette *palette);
     void onPaletteChanged(PcbPalette *palette);
-    void onPaletteAdded(PcbPalette *palette);
-    void onPaletteRemoved(PcbPalette *palette);
+    void addPalette(PcbPalette *palette);
+    void removePalette(PcbPalette *palette);
 
-    void onActiveLayerSetChanged(DesignLayerSet *set);
+    void setActiveLayerSet(DesignLayerSet *set);
     void onLayerSetChanged(DesignLayerSet *set);
-    void onLayerSetAdded(DesignLayerSet *set);
-    void onLayerSetRemoved(DesignLayerSet *set);
+    void addLaterSet(DesignLayerSet *set);
+    void removeLayerSet(DesignLayerSet *set);
 
 private:
     // Profile and conf
@@ -53,30 +54,37 @@ private:
 
     // Widgets
     QTabBar *m_tabBar;
-    QToolButton *m_layerToolButton;
+    QToolButton *m_configToolButton;
     void createTabBar();
-    void createLayerToolButton();
+    void createConfigToolButton();
     void updateTabIcons();
     void updateLayerIcon();
     void repopulateLayerTabs();
+    void populateConfigMenu();
     void disconnectTabBar();
     void connectTabBar();
 
-    // Actions
+    // Actions and menus
     void createActions();
+    void createMenus();
     void connectActions();
     void disconnectActions();
     QAction *m_activateNextAction;
     QAction *m_activatePreviousAction;
     QAction *m_activateNextSignalAction;
     QAction *m_activatePreviousSignalAction;
-    QActionGroup *m_layerColorActionGroup;
-    QList<QAction *> m_layerColorActions;
-    QActionGroup *m_layerSetActionGroup;
-    QList<QAction *> m_layerSetActions;
-    QActionGroup *m_layerOpacityActionGroup;
-    QList<QAction *> m_layerOpacityActions;
-
+    QMenu *m_configMenu;
+    QAction *m_showConfigDialogAction;
+    QMenu *m_colorMenu;
+    QAction *m_showColorDialogAction;
+    QActionGroup *m_colorActionGroup;
+    QMenu *m_setMenu;
+    QAction *m_showSetDialogAction;
+    QActionGroup *m_setActionGroup;
+    QMenu *m_opacityMenu;
+    QAction *m_showOpacityDialogAction;
+    QActionGroup *m_opacityActionGroup;
+    QMenu *m_tabMenu;
 };
 
 #endif // LAYERBAR_H
