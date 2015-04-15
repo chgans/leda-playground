@@ -80,7 +80,7 @@ signals:
 public slots:
 
 protected:
-    QList<DocumentObject *> mObjects;
+    QList<DocumentObject *> m_objects;
 };
 
 #endif // DOCUMENT_H

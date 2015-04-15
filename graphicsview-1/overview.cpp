@@ -5,8 +5,8 @@
 
 OverView::OverView(QWidget *parent) :
     QGraphicsView(parent),
-    mObservedView(nullptr),
-    mMove(NoMove)
+    m_observedView(nullptr),
+    m_move(NoMove)
 {
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -23,19 +23,19 @@ void OverView::setScene(QGraphicsScene *scene)
 
 void OverView::setObservedView(QGraphicsView *view)
 {
-    if (mObservedView && mObservedView->viewport())
-        mObservedView->viewport()->removeEventFilter(this);
-    mObservedView = view;
+    if (m_observedView && m_observedView->viewport())
+        m_observedView->viewport()->removeEventFilter(this);
+    m_observedView = view;
 
-    if (mObservedView && mObservedView->scene())
-        setScene(mObservedView->scene());
+    if (m_observedView && m_observedView->scene())
+        setScene(m_observedView->scene());
 }
 
 void OverView::getObservedRect()
 {
-    QTransform t = mObservedView->viewportTransform();
-    QRectF r = mObservedView->viewport()->rect();
-    mObservedRect = t.inverted().mapRect(r);
+    QTransform t = m_observedView->viewportTransform();
+    QRectF r = m_observedView->viewport()->rect();
+    m_observedRect = t.inverted().mapRect(r);
 }
 
 // All painting is done in scene coordinates. rect is the exposed rectangle
@@ -52,13 +52,13 @@ void OverView::drawForeground(QPainter *painter, const QRectF &rect)
     QGraphicsView::drawForeground(painter, rect);
     painter->setBrush(Qt::NoBrush);
     painter->setPen(QPen(Qt::red, 3.0/transform().m11()));
-    painter->drawRect(mObservedRect);
+    painter->drawRect(m_observedRect);
 }
 
 void OverView::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
-    if (mObservedView && scene())
+    if (m_observedView && scene())
         fitInView(scene()->sceneRect().adjusted(-50, -50, 50, 50),
                   Qt::KeepAspectRatio);
 }
@@ -70,90 +70,90 @@ void OverView::mousePressEvent(QMouseEvent *event)
 
     QPointF pos = mapToScene(event->pos());
     qreal radius = 5.0/transform().m11();
-    mLastPos = pos;
+    m_lastPos = pos;
 
-    if ((mObservedRect.topLeft() - pos).manhattanLength() < radius)
-        mMove = MoveTopLeft;
-    else if ((mObservedRect.topRight() - pos).manhattanLength() < radius)
-        mMove = MoveTopRight;
-    else if ((mObservedRect.bottomLeft() - pos).manhattanLength() < radius)
-        mMove = MoveBottomLeft;
-    else if ((mObservedRect.bottomRight() - pos).manhattanLength() < radius)
-        mMove = MoveBottomRight;
-    else if (mObservedRect.contains(pos))
-        mMove = MoveRect;
+    if ((m_observedRect.topLeft() - pos).manhattanLength() < radius)
+        m_move = MoveTopLeft;
+    else if ((m_observedRect.topRight() - pos).manhattanLength() < radius)
+        m_move = MoveTopRight;
+    else if ((m_observedRect.bottomLeft() - pos).manhattanLength() < radius)
+        m_move = MoveBottomLeft;
+    else if ((m_observedRect.bottomRight() - pos).manhattanLength() < radius)
+        m_move = MoveBottomRight;
+    else if (m_observedRect.contains(pos))
+        m_move = MoveRect;
     else
-        mMove = NoMove;
+        m_move = NoMove;
 }
 
 void OverView::mouseMoveEvent(QMouseEvent *event)
 {
     QPointF pos = mapToScene(event->pos());
     qreal radius = 5.0/transform().m11();
-    switch (mMove) {
+    switch (m_move) {
     case NoMove:
-        if ((mObservedRect.topLeft() - pos).manhattanLength() < radius)
+        if ((m_observedRect.topLeft() - pos).manhattanLength() < radius)
             setCursor(Qt::SizeFDiagCursor);
-        else if ((mObservedRect.topRight() - pos).manhattanLength() < radius)
+        else if ((m_observedRect.topRight() - pos).manhattanLength() < radius)
             setCursor(Qt::SizeBDiagCursor);
-        else if ((mObservedRect.bottomLeft() - pos).manhattanLength() < radius)
+        else if ((m_observedRect.bottomLeft() - pos).manhattanLength() < radius)
             setCursor(Qt::SizeBDiagCursor);
-        else if ((mObservedRect.bottomRight() - pos).manhattanLength() < radius)
+        else if ((m_observedRect.bottomRight() - pos).manhattanLength() < radius)
             setCursor(Qt::SizeFDiagCursor);
-        else if (mObservedRect.contains(pos))
+        else if (m_observedRect.contains(pos))
             setCursor(Qt::SizeAllCursor);
         else
             setCursor(QCursor());
         break;
     case MoveTopLeft:
-        mObservedRect.setTopLeft(pos);
+        m_observedRect.setTopLeft(pos);
         forceRedraw();
         break;
     case MoveTopRight:
-        mObservedRect.setTopRight(pos);
+        m_observedRect.setTopRight(pos);
         forceRedraw();
         break;
     case MoveBottomLeft:
-        mObservedRect.setBottomLeft(pos);
+        m_observedRect.setBottomLeft(pos);
         forceRedraw();
         break;
     case MoveBottomRight:
-        mObservedRect.setBottomRight(pos);
+        m_observedRect.setBottomRight(pos);
         forceRedraw();
         break;
     case MoveRect:
-        QPointF delta = pos - mLastPos;
-        mObservedView->centerOn(mObservedRect.translated(delta).center());
+        QPointF delta = pos - m_lastPos;
+        m_observedView->centerOn(m_observedRect.translated(delta).center());
         break;
     }
-    mLastPos = pos;
+    m_lastPos = pos;
 }
 
 void OverView::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 
-    switch (mMove) {
+    switch (m_move) {
     case MoveTopLeft:
     case MoveTopRight:
     case MoveBottomLeft:
     case MoveBottomRight:
-        mObservedView->resetMatrix();
-        mObservedView->resetTransform();
-        mObservedView->fitInView(mObservedRect, Qt::KeepAspectRatio);
+        m_observedView->resetMatrix();
+        m_observedView->resetTransform();
+        m_observedView->fitInView(m_observedRect, Qt::KeepAspectRatio);
         break;
     case NoMove:
     case MoveRect:
         break;
     }
-    mMove = NoMove;
+    m_move = NoMove;
     setCursor(QCursor());
 }
 
 bool OverView::eventFilter(QObject *obj, QEvent *ev)
 {
     // TODO: not efficient, get something better?
-    if (mObservedView && obj == mObservedView->viewport() && ev->type() == QEvent::Paint) {
+    if (m_observedView && obj == m_observedView->viewport() && ev->type() == QEvent::Paint) {
         getObservedRect();
         forceRedraw();
     }
@@ -169,6 +169,6 @@ void OverView::forceRedraw()
 
 void OverView::showEvent(QShowEvent *event)
 {
-    if (mObservedView != nullptr)
-        mObservedView->viewport()->installEventFilter(this);
+    if (m_observedView != nullptr)
+        m_observedView->viewport()->installEventFilter(this);
 }

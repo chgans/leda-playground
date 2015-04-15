@@ -13,7 +13,7 @@ ObjectPreview::ObjectPreview(QWidget *parent) :
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setOptimizationFlag(QGraphicsView::IndirectPainting, true);
-    mObject = 0;
+    m_object = 0;
 }
 
 void ObjectPreview::setObjectToPreview(QGraphicsItem *item)
@@ -23,7 +23,7 @@ void ObjectPreview::setObjectToPreview(QGraphicsItem *item)
     setSceneRect(scene()->sceneRect());
     fitInView(rect, Qt::KeepAspectRatio);
     centerOn(rect.center());
-    mObject = item;
+    m_object = item;
 }
 
 // Instead use standard view, which has higlight feature: grey out other items by
@@ -34,7 +34,7 @@ void ObjectPreview::drawItems(QPainter *painter,
                               const QStyleOptionGraphicsItem options[])
 {
     for (int i = 0; i < numItems; ++i) {
-        if (items[i] != mObject)
+        if (items[i] != m_object)
             continue;
         QGraphicsView::drawItems(painter, 1,
                                  &items[i], &options[i]);
@@ -44,7 +44,7 @@ void ObjectPreview::drawItems(QPainter *painter,
 
 void ObjectPreview::resizeEvent(QResizeEvent *event)
 {
-    if (mObject) {
-        setObjectToPreview(mObject);
+    if (m_object) {
+        setObjectToPreview(m_object);
     }
 }

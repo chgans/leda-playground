@@ -15,59 +15,59 @@ PcbPhysicalLayer::~PcbPhysicalLayer()
 }
 qreal PcbPhysicalLayer::thickness() const
 {
-    return mThickness;
+    return m_thickness;
 }
 
 void PcbPhysicalLayer::setThickness(const qreal &value)
 {
-    mThickness = value;
+    m_thickness = value;
 }
 QString PcbPhysicalLayer::material() const
 {
-    return mMaterial;
+    return m_material;
 }
 
 void PcbPhysicalLayer::setMaterial(const QString &value)
 {
-    mMaterial = value;
+    m_material = value;
 }
 
 qreal PcbPhysicalConductorLayer::pullBackDistance() const
 {
-    return mPullBackDistance;
+    return m_pullBackDistance;
 }
 
 void PcbPhysicalConductorLayer::setPullBackDistance(const qreal &value)
 {
-    mPullBackDistance = value;
+    m_pullBackDistance = value;
 }
 
 PcbPhysicalSignalLayer::ComponentPolicy PcbPhysicalSignalLayer::componentPolicy() const
 {
-    return mComponentPolicy;
+    return m_componentPolicy;
 }
 
 void PcbPhysicalSignalLayer::setComponentPolicy(const ComponentPolicy &value)
 {
-    mComponentPolicy = value;
+    m_componentPolicy = value;
 }
 
 QString PcbPhysicalDielectricLayer::dielectricMaterial() const
 {
-    return mDielectricMaterial;
+    return m_dielectricMaterial;
 }
 
 void PcbPhysicalDielectricLayer::setDielectricMaterial(const QString &value)
 {
-    mDielectricMaterial = value;
+    m_dielectricMaterial = value;
 }
 QString PcbPhysicalDielectricLayer::dielectricConstant() const
 {
-    return mDielectricConstant;
+    return m_dielectricConstant;
 }
 
 void PcbPhysicalDielectricLayer::setDielectricConstant(const QString &value)
 {
-    mDielectricConstant = value;
+    m_dielectricConstant = value;
 }
 

@@ -50,13 +50,13 @@ protected:
     bool handleWheelEvent(QWheelEvent *event);
 
 private:
-    LensShape mShape;
-    QSize mSize;
-    bool mMouseTracking;
-    bool mEnabled;
-    int mZoomLevel;
-    QGraphicsView *mView;
-    QGraphicsView *mBuddyView;
+    LensShape m_shape;
+    QSize m_size;
+    bool m_mouseTracking;
+    bool m_enabled;
+    int m_zoomLevel;
+    QGraphicsView *m_view;
+    QGraphicsView *m_buddyView;
 
     void fixupPaintingArtifacts();
 };

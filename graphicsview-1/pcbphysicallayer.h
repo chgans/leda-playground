@@ -54,9 +54,9 @@ public:
     void setMaterial(const QString &value);
 
 protected:
-    QString mName;
-    qreal mThickness;
-    QString mMaterial;
+    QString m_name;
+    qreal m_thickness;
+    QString m_material;
 };
 
 class PcbPhysicalOverlayLayer: public PcbPhysicalLayer
@@ -87,7 +87,7 @@ public:
     void setPullBackDistance(const qreal &value);
 
 protected:
-    qreal mPullBackDistance;
+    qreal m_pullBackDistance;
 };
 
 class PcbPhysicalDielectricLayer: public PcbPhysicalLayer
@@ -109,8 +109,8 @@ public:
     void setDielectricConstant(const QString &value);
 
 protected:
-    QString mDielectricMaterial;
-    QString mDielectricConstant;
+    QString m_dielectricMaterial;
+    QString m_dielectricConstant;
 };
 
 // FIXME: derive from dielectric layer
@@ -153,7 +153,7 @@ public:
     void setComponentPolicy(const ComponentPolicy &value);
 
 protected:
-    ComponentPolicy mComponentPolicy;
+    ComponentPolicy m_componentPolicy;
 };
 
 class PcbPhysicalPlaneLayer: public PcbPhysicalConductorLayer

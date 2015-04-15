@@ -30,8 +30,8 @@ public:
     void setActivePalette(PcbPalette *palette);
 
     // TODO: system, user and project path?
-    QString palettesPath() const { return mPath; }
-    void setPalettesPath(const QString &path) { mPath = path; }
+    QString palettesPath() const { return m_path; }
+    void setPalettesPath(const QString &path) { m_path = path; }
 
     void loadPalettes();
 
@@ -44,9 +44,9 @@ signals:
 public slots:
 
 private:
-    QString mPath;
-    QMap<QString, PcbPalette*> mPaletteMap;
-    PcbPalette *mActivePalette;
+    QString m_path;
+    QMap<QString, PcbPalette*> m_paletteMap;
+    PcbPalette *m_activePalette;
 };
 
 #endif // PCBPALETTEMANAGER_H

@@ -23,7 +23,7 @@
 MainView::MainView(QWidget *parent) :
     QGraphicsView(parent)
 {
-    mPickedItem = 0;
+    m_pickedItem = 0;
 
     m_scene = nullptr;
     m_layerManager = DesignLayerManager::instance();
@@ -31,59 +31,59 @@ MainView::MainView(QWidget *parent) :
     m_layerDisplayMode = DisplayAllLayers;
 
     setMouseTracking(true);
-    mDesignInsightDelay = 2000;
-    mDesignInsightTimer.setInterval(mDesignInsightDelay);
-    mDesignInsightTimer.setSingleShot(true);
-    mDesignInsightItem = 0;
-    connect(&mDesignInsightTimer, &QTimer::timeout,
+    m_designInsightDelay = 2000;
+    m_designInsightTimer.setInterval(m_designInsightDelay);
+    m_designInsightTimer.setSingleShot(true);
+    m_designInsightItem = 0;
+    connect(&m_designInsightTimer, &QTimer::timeout,
             this, &MainView::showDesignInsight);
 
-    mConnectivity = new InsightConnectivityWidget;
-    mConnectivity->setMaximumSize(300, 300);
-    mConnectivity->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_connectivity = new InsightConnectivityWidget;
+    m_connectivity->setMaximumSize(300, 300);
+    m_connectivity->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    mLens = new InsightLensWidget(this);
-    mLens->setBuddyView(this);
-    mLens->setLensShape(InsightLensWidget::SquareLens);
-    mLens->setMouseTracking(true);
-    mLens->setEnabled(true);
+    m_lens = new InsightLensWidget(this);
+    m_lens->setBuddyView(this);
+    m_lens->setLensShape(InsightLensWidget::SquareLens);
+    m_lens->setMouseTracking(true);
+    m_lens->setEnabled(true);
 
-    mHeadsUp = new InsightHeadsUpWidget(this);
-    mHeadsUp->move(5, 5);
+    m_headsUp = new InsightHeadsUpWidget(this);
+    m_headsUp->move(5, 5);
     enableHeadsUp(true);
 
-    mPickList = new InsightPickListWidget(this);
-    mPickList->hide();
-    connect(mPickList, &InsightPickListWidget::itemSelected,
+    m_pickList = new InsightPickListWidget(this);
+    m_pickList->hide();
+    connect(m_pickList, &InsightPickListWidget::itemSelected,
             this, &MainView::onItemSelectedFromPickList);
 
 }
 
 void MainView::addMaskingItem(QGraphicsItem *item)
 {
-    if (!mMaskingItems.contains(item))
-        mMaskingItems.append(item);
+    if (!m_maskingItems.contains(item))
+        m_maskingItems.append(item);
 }
 
 void MainView::removeMaskingItem(QGraphicsItem *item)
 {
-    if (mMaskingItems.contains(item))
-        mMaskingItems.removeOne(item);
+    if (m_maskingItems.contains(item))
+        m_maskingItems.removeOne(item);
 }
 
 void MainView::setMaskingItems(QList<QGraphicsItem *> items)
 {
-    mMaskingItems = items;
+    m_maskingItems = items;
 }
 
 QList<QGraphicsItem *> MainView::maskingItems()
 {
-    return mMaskingItems;
+    return m_maskingItems;
 }
 
 void MainView::resetMaskingItems()
 {
-    mMaskingItems.clear();
+    m_maskingItems.clear();
 }
 
 void MainView::setLayerDisplayMode(MainView::LayerDisplayMode mode)
@@ -119,9 +119,9 @@ void MainView::setScene(Scene *scene)
 {
     if (m_scene) {
         m_scene->disconnect(this);
-        mLens->setBuddyView(nullptr);
-        mConnectivity->setBuddyView(nullptr);
-        mHeadsUp->setBuddyView(nullptr);
+        m_lens->setBuddyView(nullptr);
+        m_connectivity->setBuddyView(nullptr);
+        m_headsUp->setBuddyView(nullptr);
         emit sceneRemoved();
     }
 
@@ -131,9 +131,9 @@ void MainView::setScene(Scene *scene)
         return;
 
     QGraphicsView::setScene(scene);
-    mLens->setBuddyView(this);
-    mConnectivity->setBuddyView(this);
-    mHeadsUp->setBuddyView(this);
+    m_lens->setBuddyView(this);
+    m_connectivity->setBuddyView(this);
+    m_headsUp->setBuddyView(this);
 
     updateSceneLayersEffect();
 
@@ -149,65 +149,65 @@ void MainView::setScene(Scene *scene)
 // their property changes?
 bool MainView::headsUpEnabled() const
 {
-    return mHeadsUp->isEnabled();
+    return m_headsUp->isEnabled();
 }
 
 void MainView::enableHeadsUp(bool enabled)
 {
-    mHeadsUp->setEnabled(enabled);
-    mHeadsUp->setVisible(enabled);
+    m_headsUp->setEnabled(enabled);
+    m_headsUp->setVisible(enabled);
 }
 
 bool MainView::headsUpTrackingEnabled() const
 {
-    return mHeadsUp->displayedItem(InsightHeadsUpWidget::CursorLocation);
+    return m_headsUp->displayedItem(InsightHeadsUpWidget::CursorLocation);
 }
 
 void MainView::enableHeadsUpTracking(bool enabled)
 {
-    mHeadsUp->setDisplayedItem(InsightHeadsUpWidget::CursorLocation, enabled);
-    mHeadsUp->setDisplayedItemHover(InsightHeadsUpWidget::CursorLocation, enabled);
+    m_headsUp->setDisplayedItem(InsightHeadsUpWidget::CursorLocation, enabled);
+    m_headsUp->setDisplayedItemHover(InsightHeadsUpWidget::CursorLocation, enabled);
 }
 
 void MainView::resetHeadsUpDeltaOrigin()
 {
-    mHeadsUp->resetDeltaOrigin();
+    m_headsUp->resetDeltaOrigin();
 }
 
 bool MainView::headsUpDeltaOriginEnabled() const
 {
-    return mHeadsUp->displayedItem(InsightHeadsUpWidget::LastClickDelta);
+    return m_headsUp->displayedItem(InsightHeadsUpWidget::LastClickDelta);
 }
 
 void MainView::enableHeadsUpDeltaOrigin(bool enabled)
 {
-    mHeadsUp->setDisplayedItem(InsightHeadsUpWidget::LastClickDelta, enabled);
-    mHeadsUp->setDisplayedItemHover(InsightHeadsUpWidget::LastClickDelta, enabled);
+    m_headsUp->setDisplayedItem(InsightHeadsUpWidget::LastClickDelta, enabled);
+    m_headsUp->setDisplayedItemHover(InsightHeadsUpWidget::LastClickDelta, enabled);
 }
 
 bool MainView::insightLensEnabled() const
 {
-    return mLens->isLensEnabled();
+    return m_lens->isLensEnabled();
 }
 
 void MainView::enableInsightLens(bool enabled)
 {
-    mLens->setLensEnabled(enabled);
+    m_lens->setLensEnabled(enabled);
 }
 
 void MainView::shiftInsightLensToMouse()
 {
-    mLens->moveLensToMousePosition();
+    m_lens->moveLensToMousePosition();
 }
 
 void MainView::enableInsightLensTracking(bool enabled)
 {
-    mLens->setMouseTracking(enabled);
+    m_lens->setMouseTracking(enabled);
 }
 
 bool MainView::insightLensMouseTrackingEnabled() const
 {
-    return mLens->mouseTracking();
+    return m_lens->mouseTracking();
 }
 
 bool MainView::insightLensAutoZoomEnabled() const
@@ -249,7 +249,7 @@ void MainView::enableInsightLensSingleLayerMode(bool enabled)
 
 void MainView::toggleInsightLensShape()
 {
-    mLens->toggleLensShape();
+    m_lens->toggleLensShape();
 }
 
 void MainView::onLayersChanged()
@@ -278,11 +278,11 @@ void MainView::drawForeground(QPainter *painter, const QRectF &rect)
 {
     // Instead of dimming out all other components (decrease their opacity)
     // We grey them out with a semi-transparent mask
-    if (!mMaskingItems.isEmpty()) {
+    if (!m_maskingItems.isEmpty()) {
         QPainterPath path1;
         path1.addRect(rect);
         QPainterPath path2;
-        foreach (QGraphicsItem *item, mMaskingItems) {
+        foreach (QGraphicsItem *item, m_maskingItems) {
             qDebug() << __FUNCTION__ << item->boundingRect();
             QRectF r = item->boundingRect().adjusted(-1, -1, 1, 1);
             r.translate(item->pos());
@@ -302,9 +302,9 @@ void MainView::mousePressEvent(QMouseEvent *event)
     // TODO: Better placement strategy
     // TODO: PickList population depends on layer display mode too
     if (items(event->pos()).size() > 1) {
-        mPickList->move(mapFromGlobal(QCursor::pos()));
-        mPickList->setPickList(scene(), items(event->pos()));
-        mPickList->show();
+        m_pickList->move(mapFromGlobal(QCursor::pos()));
+        m_pickList->setPickList(scene(), items(event->pos()));
+        m_pickList->show();
     }
     QGraphicsView::mousePressEvent(event);
 }
@@ -312,10 +312,10 @@ void MainView::mousePressEvent(QMouseEvent *event)
 void MainView::mouseMoveEvent(QMouseEvent *event)
 {
     hideDesignInsight();
-    mDesignInsightTimer.stop();
+    m_designInsightTimer.stop();
     if (items(event->pos()).size() > 0) {
-        mDesignInsightItem = items(event->pos()).first();
-        mDesignInsightTimer.start();
+        m_designInsightItem = items(event->pos()).first();
+        m_designInsightTimer.start();
     }
     QGraphicsView::mouseMoveEvent(event);
 }
@@ -323,8 +323,8 @@ void MainView::mouseMoveEvent(QMouseEvent *event)
 void MainView::focusOutEvent(QFocusEvent *event)
 {
     Q_UNUSED(event)
-    mDesignInsightItem = 0;
-    mDesignInsightTimer.stop();
+    m_designInsightItem = 0;
+    m_designInsightTimer.stop();
     QGraphicsView::focusOutEvent(event);
 }
 
@@ -389,20 +389,20 @@ void MainView::updateSceneLayerEffect(DesignLayer *layer, bool isActive)
 
 void MainView::showDesignInsight()
 {
-    mConnectivity->move(QCursor::pos());
-    mConnectivity->show();
+    m_connectivity->move(QCursor::pos());
+    m_connectivity->show();
 }
 
 void MainView::hideDesignInsight()
 {
-    mConnectivity->hide();
+    m_connectivity->hide();
 }
 
 void MainView::onItemSelectedFromPickList(QGraphicsItem *item)
 {
-    mPickedItem = item;
+    m_pickedItem = item;
     scene()->clearSelection();
     item->setSelected(true);
     QCursor::setPos(mapToGlobal(mapFromScene(item->scenePos())));
-    mPickList->hide();
+    m_pickList->hide();
 }

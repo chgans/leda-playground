@@ -10,22 +10,22 @@
 
 InsightLensWidget::InsightLensWidget(QWidget *parent) :
     QFrame(parent),
-    mView(new QGraphicsView),
-    mBuddyView(0)
+    m_view(new QGraphicsView),
+    m_buddyView(0)
 {
     // Mouse events go through to the buddy view
     setAttribute(Qt::WA_TransparentForMouseEvents, true);
 
     // Set up our own view
-    mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    mView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    mView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-    mView->setInteractive(false);
+    m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    m_view->setInteractive(false);
 
     // Setup the layout
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
-    layout()->addWidget(mView);
+    layout()->addWidget(m_view);
 
     // Load default
     setFrameStyle(Panel|Plain);
@@ -39,26 +39,26 @@ InsightLensWidget::InsightLensWidget(QWidget *parent) :
 
 void InsightLensWidget::setLensShape(LensShape shape)
 {
-    mShape = shape;
+    m_shape = shape;
 
     // Apply a mask in Round mode
     fixupPaintingArtifacts();
-    if (mShape == RoundLens) {
+    if (m_shape == RoundLens) {
         setMask(QRegion(rect(), QRegion::Ellipse));
         // The view needs a smaller one to allow for border drawing
         int w = lineWidth();
         QRect r = rect().adjusted(w, w, -w, -w).translated(-w, -w);
-        mView->setMask(QRegion(r, QRegion::Ellipse));
+        m_view->setMask(QRegion(r, QRegion::Ellipse));
     }
     else {
-        mView->clearMask();
+        m_view->clearMask();
         clearMask();
     }
 }
 
 void InsightLensWidget::toggleLensShape()
 {
-    if (mShape == SquareLens)
+    if (m_shape == SquareLens)
         setLensShape(RoundLens);
     else
         setLensShape(SquareLens);
@@ -66,55 +66,55 @@ void InsightLensWidget::toggleLensShape()
 
 InsightLensWidget::LensShape InsightLensWidget::lensShape() const
 {
-    return mShape;
+    return m_shape;
 }
 
 void InsightLensWidget::setLensSize(const QSize &size)
 {
     setFixedSize(size);
-    mSize = size;
+    m_size = size;
 }
 
 QSize InsightLensWidget::lensSize() const
 {
-    return mSize;
+    return m_size;
 }
 
 void InsightLensWidget::setLensZoomLevel(int percent)
 {
-    mZoomLevel = percent;
+    m_zoomLevel = percent;
     moveLensContentToMousePosition();
 }
 
 int InsightLensWidget::lensZoomLevel() const
 {
-    return mZoomLevel;
+    return m_zoomLevel;
 }
 
 void InsightLensWidget::setMouseTracking(bool enable)
 {
-    mMouseTracking = enable;
+    m_mouseTracking = enable;
     moveLensToMousePosition();
     moveLensContentToMousePosition();
 }
 
 bool InsightLensWidget::mouseTracking() const
 {
-    return mMouseTracking;
+    return m_mouseTracking;
 }
 
 bool InsightLensWidget::toggleMouseTracking()
 {
-    setMouseTracking(!mMouseTracking);
-    return mMouseTracking;
+    setMouseTracking(!m_mouseTracking);
+    return m_mouseTracking;
 }
 
 void InsightLensWidget::moveLensToMousePosition()
 {
-    if (mBuddyView && mEnabled && mMouseTracking) {
+    if (m_buddyView && m_enabled && m_mouseTracking) {
         // center widget at the mouse cursor position
         // (in the buddy view)
-        QPoint pos = mBuddyView->mapFromGlobal(QCursor::pos());
+        QPoint pos = m_buddyView->mapFromGlobal(QCursor::pos());
         pos -= QPoint(width()/2, height()/2);
         move(pos);
     }
@@ -122,26 +122,26 @@ void InsightLensWidget::moveLensToMousePosition()
 
 void InsightLensWidget::moveLensContentToMousePosition()
 {
-    if (mEnabled && mBuddyView) {
+    if (m_enabled && m_buddyView) {
         // Center our local view at the same scene position as the mouse
         // cursor is in the buddy view
-        QPoint pos = mBuddyView->mapFromGlobal(QCursor::pos());
-        QTransform t = mBuddyView->viewportTransform();
+        QPoint pos = m_buddyView->mapFromGlobal(QCursor::pos());
+        QTransform t = m_buddyView->viewportTransform();
         pos = t.inverted().map(pos);
-        mView->setTransform(t*mZoomLevel/100.0);
-        mView->centerOn(pos);
+        m_view->setTransform(t*m_zoomLevel/100.0);
+        m_view->centerOn(pos);
     }
 }
 
 bool InsightLensWidget::isLensEnabled() const
 {
-    return mEnabled;
+    return m_enabled;
 }
 
 void InsightLensWidget::setLensEnabled(bool enable)
 {
-    mEnabled = enable;
-    setVisible(mEnabled);
+    m_enabled = enable;
+    setVisible(m_enabled);
     moveLensToMousePosition();
     moveLensContentToMousePosition();
     fixupPaintingArtifacts();
@@ -149,34 +149,34 @@ void InsightLensWidget::setLensEnabled(bool enable)
 
 bool InsightLensWidget::toggleLensEnabled()
 {
-    setLensEnabled(!mEnabled);
-    return mEnabled;
+    setLensEnabled(!m_enabled);
+    return m_enabled;
 }
 
 void InsightLensWidget::setBuddyView(QGraphicsView *view)
 {
-    if (mBuddyView) {
-        mBuddyView->viewport()->removeEventFilter(this);
-        mBuddyView->removeEventFilter(this);
+    if (m_buddyView) {
+        m_buddyView->viewport()->removeEventFilter(this);
+        m_buddyView->removeEventFilter(this);
     }
-    mBuddyView = view;
-    mView->setScene(mBuddyView->scene());
-    mBuddyView->installEventFilter(this);
-    mBuddyView->viewport()->installEventFilter(this);
+    m_buddyView = view;
+    m_view->setScene(m_buddyView->scene());
+    m_buddyView->installEventFilter(this);
+    m_buddyView->viewport()->installEventFilter(this);
     moveLensToMousePosition();
     moveLensContentToMousePosition();
 }
 
 QGraphicsView *InsightLensWidget::buddyView() const
 {
-    return mBuddyView;
+    return m_buddyView;
 }
 
 bool InsightLensWidget::eventFilter(QObject *watched, QEvent *event)
 {
 
-    if (mBuddyView && (watched == mBuddyView->viewport() ||
-                       watched == mBuddyView)) {
+    if (m_buddyView && (watched == m_buddyView->viewport() ||
+                       watched == m_buddyView)) {
         // Update ourself when something happens on the buddy view
         moveLensToMousePosition();
         moveLensContentToMousePosition();
@@ -191,7 +191,7 @@ bool InsightLensWidget::eventFilter(QObject *watched, QEvent *event)
 
 void InsightLensWidget::paintEvent(QPaintEvent *event)
 {
-    if (mShape == RoundLens) {
+    if (m_shape == RoundLens) {
         QPainter p(this);
         // The rect will be clipped by the mask()
         // Note: this is not the cause of the painting artifacts
@@ -228,7 +228,7 @@ void InsightLensWidget::fixupPaintingArtifacts()
 {
     setVisible(false);
     repaint();
-    if (mEnabled)
+    if (m_enabled)
         setVisible(true);
 }
 

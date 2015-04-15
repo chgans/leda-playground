@@ -24,8 +24,8 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
-    QGraphicsItem *mObject;
-    bool mMovable;
+    QGraphicsItem *m_object;
+    bool m_movable;
 };
 
 #endif // OBJECTPREVIEW_H

@@ -42,7 +42,7 @@ private:
     QPointF snapScenePos(QPointF pos);
 
     // The size of the cells in the grid.
-    QSize mCellSize;
+    QSize m_cellSize;
 };
 
 #endif // SCENE_H

@@ -17,7 +17,7 @@ public:
     QList<PcbPhysicalLayer> layerStack() const;
 
 protected:
-    QList<PcbPhysicalLayer> mLayerStack;
+    QList<PcbPhysicalLayer> m_layerStack;
 };
 
 #endif // PCBPHYSICALBOARD_H

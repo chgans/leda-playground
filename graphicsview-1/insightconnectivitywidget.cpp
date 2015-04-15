@@ -13,8 +13,8 @@ InsightConnectivityWidget::InsightConnectivityWidget(QWidget *parent) :
     setAutoFillBackground(true);
     setFrameStyle(QFrame::Box);
     //setMaximumSize(500, 500);
-    mView = new OverView;
-    layout()->addWidget(mView);
+    m_view = new OverView;
+    layout()->addWidget(m_view);
     QTreeWidget *tree = new QTreeWidget;
     tree->setColumnCount(1);
     for (int i = 0; i < 1; ++i) {
@@ -38,5 +38,5 @@ InsightConnectivityWidget::InsightConnectivityWidget(QWidget *parent) :
 
 void InsightConnectivityWidget::setBuddyView(QGraphicsView *view)
 {
-    mView->setScene(view->scene());
+    m_view->setScene(view->scene());
 }

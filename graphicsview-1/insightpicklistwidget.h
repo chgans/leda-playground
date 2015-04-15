@@ -40,9 +40,9 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 private:
-    ObjectPreview *mView;
-    QTableWidget *mTable;
-    QPoint mMousePos;
+    ObjectPreview *m_view;
+    QTableWidget *m_table;
+    QPoint m_mousePos;
 };
 
 #endif // INSIGHTPICKLISTWIDGET_H

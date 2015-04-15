@@ -7,7 +7,7 @@
 
 DetailView::DetailView(QWidget *parent) :
     QGraphicsView(parent),
-    mObservedView(0)
+    m_observedView(0)
 {
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -16,11 +16,11 @@ DetailView::DetailView(QWidget *parent) :
 
 void DetailView::setObservedView(QGraphicsView *view)
 {
-    if(mObservedView)
-        mObservedView->viewport()->removeEventFilter(this);
+    if(m_observedView)
+        m_observedView->viewport()->removeEventFilter(this);
     view->viewport()->installEventFilter(this);
-    mObservedView = view;
-    setScene(mObservedView->scene());
+    m_observedView = view;
+    setScene(m_observedView->scene());
 }
 
 void DetailView::resizeEvent(QResizeEvent *event)
@@ -31,10 +31,10 @@ void DetailView::resizeEvent(QResizeEvent *event)
 
 bool DetailView::eventFilter(QObject *obj, QEvent *ev)
 {
-    if (mObservedView && obj == mObservedView->viewport() &&
+    if (m_observedView && obj == m_observedView->viewport() &&
             ev->type() == QEvent::MouseMove) {
         QMouseEvent *e = static_cast<QMouseEvent*>(ev);
-        QTransform t = mObservedView->viewportTransform();
+        QTransform t = m_observedView->viewportTransform();
         QPointF pos = t.inverted().map(e->pos());
         setTransform(t*10);
         centerOn(pos);

@@ -74,11 +74,11 @@ PcbPaletteManagerDialog::PcbPaletteManagerDialog(QWidget *parent) :
     QVBoxLayout *leftLayout = new QVBoxLayout;
     leftWidget->setLayout(leftLayout);
     splitter->addWidget(leftWidget);
-    mPaletteList = new QListWidget;
-    connect(mPaletteList, SIGNAL(itemClicked(QListWidgetItem*)),
+    m_paletteList = new QListWidget;
+    connect(m_paletteList, SIGNAL(itemClicked(QListWidgetItem*)),
             this, SLOT(activatePalette(QListWidgetItem*)));
     leftLayout->addWidget(new QLabel("Available Profiles"));
-    leftLayout->addWidget(mPaletteList);
+    leftLayout->addWidget(m_paletteList);
     leftLayout->addWidget(new QLabel("Profile location"));
     leftLayout->addWidget(new QLabel("..."));
     leftLayout->addWidget(new QPushButton("Explore folder"));
@@ -97,18 +97,18 @@ PcbPaletteManagerDialog::PcbPaletteManagerDialog(QWidget *parent) :
 
     QWidget *rightWidget = new QWidget;
     QHBoxLayout *rightLayout = new QHBoxLayout;
-    mColorList = new QListWidget;
-    connect(mColorList, SIGNAL(itemClicked(QListWidgetItem*)),
+    m_colorList = new QListWidget;
+    connect(m_colorList, SIGNAL(itemClicked(QListWidgetItem*)),
             this, SLOT(activateColor(QListWidgetItem*)));
     rightWidget->setLayout(rightLayout);
     splitter->addWidget(rightWidget);
-    rightLayout->addWidget(mColorList);
-    mColorDialog = new QColorDialog;
-    mColorDialog->setOption(QColorDialog::NoButtons, true);
-    mColorDialog->hide();
-    connect(mColorDialog, SIGNAL(currentColorChanged(QColor)),
+    rightLayout->addWidget(m_colorList);
+    m_colorDialog = new QColorDialog;
+    m_colorDialog->setOption(QColorDialog::NoButtons, true);
+    m_colorDialog->hide();
+    connect(m_colorDialog, SIGNAL(currentColorChanged(QColor)),
             this, SLOT(setActiveColor(QColor)));
-    rightLayout->addWidget(mColorDialog);
+    rightLayout->addWidget(m_colorDialog);
 
 
 
@@ -120,12 +120,12 @@ void PcbPaletteManagerDialog::initialise()
 {
     PcbPaletteManager *mng = PcbPaletteManager::instance();
     QString current = mng->activePaletteIdentifier();
-    mPaletteList->clear();
-    mColorList->clear();
+    m_paletteList->clear();
+    m_colorList->clear();
     foreach (const PcbPalette *palette, mng->palettes()) {
         QString id = palette->name();
         QListWidgetItem *item = new QListWidgetItem(id);
-        mPaletteList->addItem(item);
+        m_paletteList->addItem(item);
         if (id == current) {
             item->setSelected(true);
             activatePalette(item);
@@ -138,7 +138,7 @@ void PcbPaletteManagerDialog::activatePalette(QListWidgetItem *item)
     PcbPaletteManager *mng = PcbPaletteManager::instance();
     QString id = item->text();
     const PcbPalette *palette = mng->palette(id);
-    mColorList->clear();
+    m_colorList->clear();
     foreach(PcbPalette::ColorRole role, palette->allValidColorRoles()) {
         QColor color = palette->color(role);
         QIcon icon = makeIcon(color);
@@ -147,18 +147,18 @@ void PcbPaletteManagerDialog::activatePalette(QListWidgetItem *item)
         item->setData(Qt::UserRole, id);
         item->setData(Qt::UserRole+1, role);
         item->setData(Qt::UserRole+2, color);
-        mColorList->addItem(item);
+        m_colorList->addItem(item);
     }
 }
 
 void PcbPaletteManagerDialog::activateColor(QListWidgetItem *item)
 {
-    mColorDialog->setCurrentColor(item->data(Qt::UserRole+2).value<QColor>());
+    m_colorDialog->setCurrentColor(item->data(Qt::UserRole+2).value<QColor>());
 }
 
 void PcbPaletteManagerDialog::setActiveColor(const QColor &color)
 {
-    QListWidgetItem *item = mColorList->currentItem();
+    QListWidgetItem *item = m_colorList->currentItem();
     QString id = item->data(Qt::UserRole).value<QString>();
     PcbPalette::ColorRole role;
     role = static_cast<PcbPalette::ColorRole>(item->data(Qt::UserRole+1).toInt());
@@ -173,7 +173,7 @@ void PcbPaletteManagerDialog::setActiveColor(const QColor &color)
 
 void PcbPaletteManagerDialog::saveCurrentProfileAs()
 {
-    QListWidgetItem *item = mPaletteList->currentItem();
+    QListWidgetItem *item = m_paletteList->currentItem();
     if (!item)
         return;
 

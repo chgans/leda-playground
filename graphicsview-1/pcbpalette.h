@@ -204,9 +204,9 @@ public:
 
 private:
     friend class PcbPaletteManager;
-    QString mName;
+    QString m_name;
     bool m_system;
-    QRgb mPalette[128];
+    QRgb m_palette[128];
     void setName(const QString &name);
     void setColor(ColorRole role, const QColor &color);
     void setSystemPalette(bool system);

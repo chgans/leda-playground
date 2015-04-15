@@ -22,7 +22,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *ev);
 
 private:
-    QGraphicsView *mObservedView;
+    QGraphicsView *m_observedView;
 };
 
 #endif // DETAILVIEW_H

@@ -35,37 +35,37 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     QWidget(parent)
 {
 
-    mView = new MainView();
-    mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    mView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view = new MainView();
+    m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     m_insightDockWidget = new InsightDockWidget();
 
     m_layerBar = new LayerBar;
 
-    mSnapButton = new QToolButton;
-    mSnapButton->setText("Snap");
-    mSnapButton->setAutoRaise(true);
-    mSnapButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    m_snapButton = new QToolButton;
+    m_snapButton->setText("Snap");
+    m_snapButton->setAutoRaise(true);
+    m_snapButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
 
-    mMaskButton = new QToolButton;
-    mMaskButton->setText("Mask");
-    mMaskButton->setAutoRaise(true);
-    mMaskButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    m_maskButton = new QToolButton;
+    m_maskButton->setText("Mask");
+    m_maskButton->setAutoRaise(true);
+    m_maskButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
 
-    mClearButton = new QToolButton;
-    mClearButton->setText("Clear");
-    mClearButton->setAutoRaise(true);
-    mClearButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    m_clearButton = new QToolButton;
+    m_clearButton->setText("Clear");
+    m_clearButton->setAutoRaise(true);
+    m_clearButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
 
     QHBoxLayout *toolLayout = new QHBoxLayout;
     toolLayout->addWidget(m_layerBar);
-    toolLayout->addWidget(mSnapButton);
-    toolLayout->addWidget(mMaskButton);
-    toolLayout->addWidget(mClearButton);
+    toolLayout->addWidget(m_snapButton);
+    toolLayout->addWidget(m_maskButton);
+    toolLayout->addWidget(m_clearButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(mView);
+    mainLayout->addWidget(m_view);
     mainLayout->addLayout(toolLayout);
     mainLayout->setMargin(0);
 
@@ -82,24 +82,24 @@ PcbEditorWidget::~PcbEditorWidget()
 
 void PcbEditorWidget::setScene(Scene *scene)
 {
-    mView->setScene(scene);
-    mView->scale(0.75, 0.75);
-    m_insightDockWidget->attachView(mView);
+    m_view->setScene(scene);
+    m_view->scale(0.75, 0.75);
+    m_insightDockWidget->attachView(m_view);
 }
 
 void PcbEditorWidget::activateEditor(QMainWindow *window)
 {
-    window->addAction(mShowBoardInsightPopUpMenuAction);
-    window->addAction(mToggleHeadsUpDisplayAction);
-    window->addAction(mToggleHeadsUpTrackingAction);
-    window->addAction(mResetHeadsUpDeltaOriginAction);
-    window->addAction(mToggleHeadsUpDeltaOriginAction);
-    window->addAction(mToggleInsightLensAction);
-    window->addAction(mToggleInsightLensShapeAction);
-    window->addAction(mToggleInsightLensTrackingAction);
-    window->addAction(mShiftInsightLensToMouseAction);
-    window->addAction(mToggleInsightLensAutoZoomAction);
-    window->addAction(mToggleInsightLensSingleLayerModeAction);
+    window->addAction(m_showBoardInsightPopUpMenuAction);
+    window->addAction(m_toggleHeadsUpDisplayAction);
+    window->addAction(m_toggleHeadsUpTrackingAction);
+    window->addAction(m_resetHeadsUpDeltaOriginAction);
+    window->addAction(m_toggleHeadsUpDeltaOriginAction);
+    window->addAction(m_toggleInsightLensAction);
+    window->addAction(m_toggleInsightLensShapeAction);
+    window->addAction(m_toggleInsightLensTrackingAction);
+    window->addAction(m_shiftInsightLensToMouseAction);
+    window->addAction(m_toggleInsightLensAutoZoomAction);
+    window->addAction(m_toggleInsightLensSingleLayerModeAction);
     window->addAction(m_cycleDisplayLayerMode);
 
     window->addDockWidget(Qt::LeftDockWidgetArea, m_insightDockWidget);
@@ -123,113 +123,113 @@ void PcbEditorWidget::createActions()
      *  2D Board Insight System
      */
 
-    mShowBoardInsightPopUpMenuAction = new QAction("Show Board Insight Pop-Up Menu", this);
-    mShowBoardInsightPopUpMenuAction->setShortcut(QKeySequence(Qt::Key_F2));
-    connect(mShowBoardInsightPopUpMenuAction, &QAction::triggered,
+    m_showBoardInsightPopUpMenuAction = new QAction("Show Board Insight Pop-Up Menu", this);
+    m_showBoardInsightPopUpMenuAction->setShortcut(QKeySequence(Qt::Key_F2));
+    connect(m_showBoardInsightPopUpMenuAction, &QAction::triggered,
             this, &PcbEditorWidget::showBoardInsightPopUpMenu);
 
-    mToggleHeadsUpDisplayAction = new QAction("Toggle Heads Up Display", this);
-    mToggleHeadsUpDisplayAction->setShortcut(QKeySequence("Shift+H"));
-    mToggleHeadsUpDisplayAction->setCheckable(true);
-    mToggleHeadsUpDisplayAction->setChecked(mView->headsUpEnabled());
-    connect(mToggleHeadsUpDisplayAction, &QAction::triggered,
-            mView, &MainView::enableHeadsUp);
+    m_toggleHeadsUpDisplayAction = new QAction("Toggle Heads Up Display", this);
+    m_toggleHeadsUpDisplayAction->setShortcut(QKeySequence("Shift+H"));
+    m_toggleHeadsUpDisplayAction->setCheckable(true);
+    m_toggleHeadsUpDisplayAction->setChecked(m_view->headsUpEnabled());
+    connect(m_toggleHeadsUpDisplayAction, &QAction::triggered,
+            m_view, &MainView::enableHeadsUp);
 
-    mToggleHeadsUpTrackingAction = new QAction("Toggle Heads Up Tracking", this);
-    mToggleHeadsUpTrackingAction->setShortcut(QKeySequence("Shift+G"));
-    mToggleHeadsUpTrackingAction->setCheckable(true);
-    mToggleHeadsUpTrackingAction->setChecked(mView->headsUpTrackingEnabled());
-    connect(mToggleHeadsUpTrackingAction, &QAction::triggered,
-            mView, &MainView::enableHeadsUpTracking);
+    m_toggleHeadsUpTrackingAction = new QAction("Toggle Heads Up Tracking", this);
+    m_toggleHeadsUpTrackingAction->setShortcut(QKeySequence("Shift+G"));
+    m_toggleHeadsUpTrackingAction->setCheckable(true);
+    m_toggleHeadsUpTrackingAction->setChecked(m_view->headsUpTrackingEnabled());
+    connect(m_toggleHeadsUpTrackingAction, &QAction::triggered,
+            m_view, &MainView::enableHeadsUpTracking);
 
-    mResetHeadsUpDeltaOriginAction = new QAction("Reset Heads Up Delta Origin", this);
-    mResetHeadsUpDeltaOriginAction->setShortcut(QKeySequence(Qt::Key_Insert));
-    connect(mResetHeadsUpDeltaOriginAction, &QAction::triggered,
-            mView, &MainView::resetHeadsUpDeltaOrigin);
+    m_resetHeadsUpDeltaOriginAction = new QAction("Reset Heads Up Delta Origin", this);
+    m_resetHeadsUpDeltaOriginAction->setShortcut(QKeySequence(Qt::Key_Insert));
+    connect(m_resetHeadsUpDeltaOriginAction, &QAction::triggered,
+            m_view, &MainView::resetHeadsUpDeltaOrigin);
 
-    mToggleHeadsUpDeltaOriginAction = new QAction("Toggle Heads Up Delta Origin", this);
-    mToggleHeadsUpDeltaOriginAction->setShortcut(QKeySequence("Shit+D"));
-    mToggleHeadsUpDeltaOriginAction->setCheckable(true);
-    mToggleHeadsUpDeltaOriginAction->setChecked(mView->headsUpDeltaOriginEnabled());
-    connect(mToggleHeadsUpDeltaOriginAction, &QAction::triggered,
-            mView, &MainView::enableHeadsUpDeltaOrigin);
+    m_toggleHeadsUpDeltaOriginAction = new QAction("Toggle Heads Up Delta Origin", this);
+    m_toggleHeadsUpDeltaOriginAction->setShortcut(QKeySequence("Shit+D"));
+    m_toggleHeadsUpDeltaOriginAction->setCheckable(true);
+    m_toggleHeadsUpDeltaOriginAction->setChecked(m_view->headsUpDeltaOriginEnabled());
+    connect(m_toggleHeadsUpDeltaOriginAction, &QAction::triggered,
+            m_view, &MainView::enableHeadsUpDeltaOrigin);
 
-    mToggleInsightLensAction = new QAction("Toggle Insight Lens", this);
-    mToggleInsightLensAction->setShortcut(QKeySequence("Shift+M"));
-    mToggleInsightLensAction->setCheckable(true);
-    mToggleInsightLensAction->setChecked(mView->insightLensEnabled());
-    connect(mToggleInsightLensAction, &QAction::triggered,
-            mView, &MainView::enableInsightLens);
+    m_toggleInsightLensAction = new QAction("Toggle Insight Lens", this);
+    m_toggleInsightLensAction->setShortcut(QKeySequence("Shift+M"));
+    m_toggleInsightLensAction->setCheckable(true);
+    m_toggleInsightLensAction->setChecked(m_view->insightLensEnabled());
+    connect(m_toggleInsightLensAction, &QAction::triggered,
+            m_view, &MainView::enableInsightLens);
 
-    mToggleInsightLensShapeAction = new QAction("Toggle Insight Lens shape", this);
-    mToggleInsightLensShapeAction->setShortcut(QKeySequence("Shift+B"));
-    connect(mToggleInsightLensShapeAction, &QAction::triggered,
-            mView, &MainView::toggleInsightLensShape);
+    m_toggleInsightLensShapeAction = new QAction("Toggle Insight Lens shape", this);
+    m_toggleInsightLensShapeAction->setShortcut(QKeySequence("Shift+B"));
+    connect(m_toggleInsightLensShapeAction, &QAction::triggered,
+            m_view, &MainView::toggleInsightLensShape);
 
-    mShiftInsightLensToMouseAction = new QAction("Shift Insight Lens To Mouse", this);
-    mShiftInsightLensToMouseAction->setShortcut(QKeySequence("Shift+Ctrl+N"));
-    connect(mShiftInsightLensToMouseAction, &QAction::triggered,
-            mView, &MainView::shiftInsightLensToMouse);
+    m_shiftInsightLensToMouseAction = new QAction("Shift Insight Lens To Mouse", this);
+    m_shiftInsightLensToMouseAction->setShortcut(QKeySequence("Shift+Ctrl+N"));
+    connect(m_shiftInsightLensToMouseAction, &QAction::triggered,
+            m_view, &MainView::shiftInsightLensToMouse);
 
-    mToggleInsightLensTrackingAction = new QAction("Toggle Insight Lens Tracking", this);
-    mToggleInsightLensTrackingAction->setShortcut(QKeySequence("Shift+N"));
-    mToggleInsightLensTrackingAction->setCheckable(true);
-    mToggleInsightLensTrackingAction->setChecked(mView->insightLensMouseTrackingEnabled());
-    connect(mToggleInsightLensTrackingAction, &QAction::triggered,
-            mView, &MainView::enableInsightLensTracking);
+    m_toggleInsightLensTrackingAction = new QAction("Toggle Insight Lens Tracking", this);
+    m_toggleInsightLensTrackingAction->setShortcut(QKeySequence("Shift+N"));
+    m_toggleInsightLensTrackingAction->setCheckable(true);
+    m_toggleInsightLensTrackingAction->setChecked(m_view->insightLensMouseTrackingEnabled());
+    connect(m_toggleInsightLensTrackingAction, &QAction::triggered,
+            m_view, &MainView::enableInsightLensTracking);
 
-    mToggleInsightLensAutoZoomAction = new QAction("Toggle Insight Lens Auto Zoom", this);
-    mToggleInsightLensAutoZoomAction->setShortcut(QKeySequence("Shift+Ctrl+M"));
-    mToggleInsightLensAutoZoomAction->setCheckable(true);
-    mToggleInsightLensAutoZoomAction->setChecked(mView->insightLensAutoZoomEnabled());
-    connect(mToggleInsightLensAutoZoomAction, &QAction::triggered,
-            mView, &MainView::enableInsightLensAutoZoom);
+    m_toggleInsightLensAutoZoomAction = new QAction("Toggle Insight Lens Auto Zoom", this);
+    m_toggleInsightLensAutoZoomAction->setShortcut(QKeySequence("Shift+Ctrl+M"));
+    m_toggleInsightLensAutoZoomAction->setCheckable(true);
+    m_toggleInsightLensAutoZoomAction->setChecked(m_view->insightLensAutoZoomEnabled());
+    connect(m_toggleInsightLensAutoZoomAction, &QAction::triggered,
+            m_view, &MainView::enableInsightLensAutoZoom);
 
-    mToggleInsightLensSingleLayerModeAction = new QAction("Toggle Insight Lens Single Layer Mode", this);
-    mToggleInsightLensSingleLayerModeAction->setShortcut(QKeySequence("Shift+Ctrl+S"));
-    mToggleInsightLensSingleLayerModeAction->setCheckable(true);
-    mToggleInsightLensSingleLayerModeAction->setChecked(mView->insightLensSingleLayerEnabled());
-    connect(mToggleInsightLensSingleLayerModeAction, &QAction::triggered,
-            mView, &MainView::enableInsightLensSingleLayerMode);
+    m_toggleInsightLensSingleLayerModeAction = new QAction("Toggle Insight Lens Single Layer Mode", this);
+    m_toggleInsightLensSingleLayerModeAction->setShortcut(QKeySequence("Shift+Ctrl+S"));
+    m_toggleInsightLensSingleLayerModeAction->setCheckable(true);
+    m_toggleInsightLensSingleLayerModeAction->setChecked(m_view->insightLensSingleLayerEnabled());
+    connect(m_toggleInsightLensSingleLayerModeAction, &QAction::triggered,
+            m_view, &MainView::enableInsightLensSingleLayerMode);
 
     m_cycleDisplayLayerMode = new QAction("Cycle Single Layer Mode", this);
     m_cycleDisplayLayerMode->setShortcut(QKeySequence("Shift+S"));
     connect(m_cycleDisplayLayerMode, &QAction::triggered,
-            mView, &MainView::cycleLayerDisplayMode);
+            m_view, &MainView::cycleLayerDisplayMode);
 #if 0
-    mInsightLensZoomInAction; // Alt+WheelUp
-    mInsightLensZoomOutAction; // Alt+WheelDown
+    m_insightLensZoomInAction; // Alt+WheelUp
+    m_insightLensZoomOutAction; // Alt+WheelDown
 
-    mShowInsightSystemViolationAction; // Shift+X
-    mShowInsightSystemOtherAction; // Shift+V
-    mCycleSingleLayerModeAction; // Shift+S
+    m_showInsightSystemViolationAction; // Shift+X
+    m_showInsightSystemOtherAction; // Shift+V
+    m_cycleSingleLayerModeAction; // Shift+S
 #endif
 }
 
 void PcbEditorWidget::createBoardInsightMenu()
 {
-    mBoardInsightPopUpMenu = new QMenu("Board Insight Pop-Up Menu", this);
-    mBoardInsightPopUpMenu->addAction(mToggleHeadsUpDisplayAction);
-    mBoardInsightPopUpMenu->addAction(mToggleHeadsUpTrackingAction);
-    mBoardInsightPopUpMenu->addAction(mResetHeadsUpDeltaOriginAction);
-    mBoardInsightPopUpMenu->addAction(mToggleHeadsUpDeltaOriginAction);
-    mBoardInsightPopUpMenu->addSeparator();
-    mBoardInsightPopUpMenu->addAction(mToggleInsightLensAction);
-    mBoardInsightPopUpMenu->addAction(mToggleInsightLensShapeAction);
-    mBoardInsightPopUpMenu->addAction(mShiftInsightLensToMouseAction);
-    mBoardInsightPopUpMenu->addAction(mToggleInsightLensTrackingAction);
-    mBoardInsightPopUpMenu->addAction(mToggleInsightLensAutoZoomAction);
-    mBoardInsightPopUpMenu->addAction(mToggleInsightLensSingleLayerModeAction);
+    m_boardInsightPopUpMenu = new QMenu("Board Insight Pop-Up Menu", this);
+    m_boardInsightPopUpMenu->addAction(m_toggleHeadsUpDisplayAction);
+    m_boardInsightPopUpMenu->addAction(m_toggleHeadsUpTrackingAction);
+    m_boardInsightPopUpMenu->addAction(m_resetHeadsUpDeltaOriginAction);
+    m_boardInsightPopUpMenu->addAction(m_toggleHeadsUpDeltaOriginAction);
+    m_boardInsightPopUpMenu->addSeparator();
+    m_boardInsightPopUpMenu->addAction(m_toggleInsightLensAction);
+    m_boardInsightPopUpMenu->addAction(m_toggleInsightLensShapeAction);
+    m_boardInsightPopUpMenu->addAction(m_shiftInsightLensToMouseAction);
+    m_boardInsightPopUpMenu->addAction(m_toggleInsightLensTrackingAction);
+    m_boardInsightPopUpMenu->addAction(m_toggleInsightLensAutoZoomAction);
+    m_boardInsightPopUpMenu->addAction(m_toggleInsightLensSingleLayerModeAction);
 }
 
 
 Scene *PcbEditorWidget::scene() const
 {
-    Q_ASSERT(mView && mView->scene());
-    return static_cast<Scene *>(mView->scene());
+    Q_ASSERT(m_view && m_view->scene());
+    return static_cast<Scene *>(m_view->scene());
 }
 
 void PcbEditorWidget::showBoardInsightPopUpMenu()
 {
-    mBoardInsightPopUpMenu->exec(QCursor::pos());
+    m_boardInsightPopUpMenu->exec(QCursor::pos());
 }

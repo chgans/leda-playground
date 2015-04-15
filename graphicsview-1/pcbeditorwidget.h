@@ -23,7 +23,7 @@ public:
     explicit PcbEditorWidget(QWidget *parent = 0);
     ~PcbEditorWidget();
 
-    MainView *graphicsView() { return mView; }
+    MainView *graphicsView() { return m_view; }
 
     void setScene(Scene *scene);
 
@@ -40,12 +40,12 @@ protected:
     void wheelEvent(QWheelEvent *event);
 
 private:
-    MainView *mView;
+    MainView *m_view;
     LayerBar *m_layerBar;
     InsightDockWidget *m_insightDockWidget;
-    QToolButton *mSnapButton;
-    QToolButton *mMaskButton;
-    QToolButton *mClearButton;
+    QToolButton *m_snapButton;
+    QToolButton *m_maskButton;
+    QToolButton *m_clearButton;
 
     void createActions();
 
@@ -54,25 +54,25 @@ private:
     /** 2D Board Insight System **/
 private:
     void createBoardInsightMenu();
-    QAction *mToggleHeadsUpDisplayAction; // Shift+H
-    QAction *mToggleHeadsUpTrackingAction; // Shift+G
-    QAction *mResetHeadsUpDeltaOriginAction; // Ins
-    QAction *mToggleHeadsUpDeltaOriginAction; // Shit+D
-    QAction *mToggleInsightLensAction; // Shift+M
-    QAction *mShiftInsightLensToMouseAction; // Shift+Ctrl+N
-    QAction *mToggleInsightLensShapeAction; // Shift+B
-    QAction *mToggleInsightLensTrackingAction; // Shift+N
-    QAction *mToggleInsightLensAutoZoomAction; // Shift+Ctrl+M
-    QAction *mToggleInsightLensSingleLayerModeAction; // Shift+Ctrl+S
-    QAction *mShowBoardInsightPopUpMenuAction; // F2
-    QMenu   *mBoardInsightPopUpMenu;
+    QAction *m_toggleHeadsUpDisplayAction; // Shift+H
+    QAction *m_toggleHeadsUpTrackingAction; // Shift+G
+    QAction *m_resetHeadsUpDeltaOriginAction; // Ins
+    QAction *m_toggleHeadsUpDeltaOriginAction; // Shit+D
+    QAction *m_toggleInsightLensAction; // Shift+M
+    QAction *m_shiftInsightLensToMouseAction; // Shift+Ctrl+N
+    QAction *m_toggleInsightLensShapeAction; // Shift+B
+    QAction *m_toggleInsightLensTrackingAction; // Shift+N
+    QAction *m_toggleInsightLensAutoZoomAction; // Shift+Ctrl+M
+    QAction *m_toggleInsightLensSingleLayerModeAction; // Shift+Ctrl+S
+    QAction *m_showBoardInsightPopUpMenuAction; // F2
+    QMenu   *m_boardInsightPopUpMenu;
 
-    QAction *mInsightLensZoomInAction; // Alt+WheelUp
-    QAction *mInsightLensZoomOutAction; // Alt+WheelDown
+    QAction *m_insightLensZoomInAction; // Alt+WheelUp
+    QAction *m_insightLensZoomOutAction; // Alt+WheelDown
 
-    QAction *mShowInsightSystemViolationAction; // Shift+X
-    QAction *mShowInsightSystemOtherAction; // Shift+V
-    QAction *mCycleSingleLayerModeAction; // Shift+S
+    QAction *m_showInsightSystemViolationAction; // Shift+X
+    QAction *m_showInsightSystemOtherAction; // Shift+V
+    QAction *m_cycleSingleLayerModeAction; // Shift+S
 
     QAction *m_cycleDisplayLayerMode;
 };

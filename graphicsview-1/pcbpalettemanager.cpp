@@ -35,42 +35,42 @@ PcbPaletteManager *PcbPaletteManager::instance()
 
 PcbPalette *PcbPaletteManager::palette(const QString &identifier) const
 {
-    Q_ASSERT(mPaletteMap.contains(identifier));
-    return mPaletteMap[identifier];
+    Q_ASSERT(m_paletteMap.contains(identifier));
+    return m_paletteMap[identifier];
 }
 
 QList<PcbPalette *> PcbPaletteManager::palettes() const
 {
-    return mPaletteMap.values();
+    return m_paletteMap.values();
 }
 
 PcbPalette *PcbPaletteManager::addPalette(const QString &identifier)
 {
-    Q_ASSERT(!mPaletteMap.contains(identifier));
+    Q_ASSERT(!m_paletteMap.contains(identifier));
     PcbPalette *palette = new PcbPalette;
     palette->setName(identifier);
-    mPaletteMap.insert(identifier, palette);
+    m_paletteMap.insert(identifier, palette);
     emit paletteAdded(palette);
     return palette;
 }
 
 PcbPalette *PcbPaletteManager::addPalette(const QString &identifier, QSettings &settings)
 {
-    Q_ASSERT(!mPaletteMap.contains(identifier));
+    Q_ASSERT(!m_paletteMap.contains(identifier));
     PcbPalette *palette = new PcbPalette;
     palette->loadFromSettings(settings);
     palette->setName(identifier);
-    mPaletteMap.insert(identifier, palette);
+    m_paletteMap.insert(identifier, palette);
     emit paletteAdded(palette);
     return palette;
 }
 
 void PcbPaletteManager::removePalette(PcbPalette *palette)
 {
-    Q_ASSERT(mPaletteMap.contains(palette->name()));
-    mPaletteMap.remove(palette->name());
-    if (mActivePalette == palette) {
-        setActivePalette(mPaletteMap.values().last());
+    Q_ASSERT(m_paletteMap.contains(palette->name()));
+    m_paletteMap.remove(palette->name());
+    if (m_activePalette == palette) {
+        setActivePalette(m_paletteMap.values().last());
     }
     emit paletteRemoved(palette);
     delete palette;
@@ -78,25 +78,25 @@ void PcbPaletteManager::removePalette(PcbPalette *palette)
 
 PcbPalette *PcbPaletteManager::activePalette() const
 {
-    return mActivePalette;
+    return m_activePalette;
 }
 
 QString PcbPaletteManager::activePaletteIdentifier() const
 {
-    return mActivePalette->name();
+    return m_activePalette->name();
 }
 
 void PcbPaletteManager::setActivePalette(PcbPalette *palette)
 {
-    Q_ASSERT(mPaletteMap.contains(palette->name()));
-    mActivePalette = palette;
+    Q_ASSERT(m_paletteMap.contains(palette->name()));
+    m_activePalette = palette;
     emit paletteActivated(palette);
 }
 
 void PcbPaletteManager::loadPalettes()
 {
-    qDebug() << "Loading palettes from" << mPath;
-    QDir dir(mPath);
+    qDebug() << "Loading palettes from" << m_path;
+    QDir dir(m_path);
     QStringList filters;
     filters << "*.LedaPcbPalette";
     PcbPalette *palette = nullptr;
@@ -110,6 +110,6 @@ void PcbPaletteManager::loadPalettes()
         palette = addPalette(id, settings);
         qDebug() << "Adding" << id;
     }
-    if (!mPaletteMap.isEmpty()) // Fix me: from user settings
+    if (!m_paletteMap.isEmpty()) // Fix me: from user settings
         setActivePalette(palette);
 }

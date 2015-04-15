@@ -21,7 +21,7 @@ signals:
 public slots:
 
 private:
-    OverView *mView;
+    OverView *m_view;
 };
 
 #endif // INSIGHTCONNECTIVITYWIDGET_H

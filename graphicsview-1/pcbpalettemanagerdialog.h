@@ -28,9 +28,9 @@ protected slots:
     void importAltiumProfile();
 
 private:
-    QListWidget *mPaletteList;
-    QListWidget *mColorList;
-    QColorDialog *mColorDialog;
+    QListWidget *m_paletteList;
+    QListWidget *m_colorList;
+    QColorDialog *m_colorDialog;
 };
 
 #endif // PCBPALETTEMANAGERDIALOG_H

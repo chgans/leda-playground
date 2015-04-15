@@ -39,10 +39,10 @@ private:
         MoveBottomRight,
         MoveBottomLeft
     };
-    QGraphicsView *mObservedView;
-    QRectF mObservedRect;
-    Move mMove;
-    QPointF mLastPos;
+    QGraphicsView *m_observedView;
+    QRectF m_observedRect;
+    Move m_move;
+    QPointF m_lastPos;
 
     // QWidget interface
 protected:

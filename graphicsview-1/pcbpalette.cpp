@@ -11,36 +11,36 @@
 PcbPalette::PcbPalette():
     m_system(false)
 {
-    memset(this->mPalette, qRgba(0xff, 0xff, 0xff, 0xff), sizeof(mPalette));
-    //memset(this->mPalette, qintptr(-1), sizeof(mPalette));
+    memset(this->m_palette, qRgba(0xff, 0xff, 0xff, 0xff), sizeof(m_palette));
+    //memset(this->m_palette, qintptr(-1), sizeof(m_palette));
 }
 
 PcbPalette::PcbPalette(const PcbPalette &other)
 {
-    memcpy(this->mPalette, other.mPalette, sizeof(mPalette));
+    memcpy(this->m_palette, other.m_palette, sizeof(m_palette));
     m_system = other.m_system;
 }
 
 QString PcbPalette::name() const
 {
-    return mName;
+    return m_name;
 }
 
 void PcbPalette::setName(const QString &name)
 {
-    if (mName == name)
+    if (m_name == name)
         return;
-    mName = name;
+    m_name = name;
 }
 
 QColor PcbPalette::color(PcbPalette::ColorRole role) const
 {
-    return QColor::fromRgba(mPalette[role]);
+    return QColor::fromRgba(m_palette[role]);
 }
 
 void PcbPalette::setColor(PcbPalette::ColorRole role, const QColor &color)
 {
-    mPalette[role] = color.rgba();
+    m_palette[role] = color.rgba();
 }
 
 void PcbPalette::setSystemPalette(bool system)
@@ -69,7 +69,7 @@ void PcbPalette::loadFromSettings(QSettings &settings)
 void PcbPalette::saveToSettings(QSettings &settings) const
 {
     settings.beginGroup("PcbPalette");
-    //settings.setValue("name", mName);
+    //settings.setValue("name", m_name);
     settings.setValue("system", isSystemPalette());
     settings.beginWriteArray("colors", 128);
     for (int i=0; i<128; ++i) {
@@ -94,19 +94,19 @@ bool PcbPalette::operator!=(const PcbPalette &p) const
 
 PcbPalette &PcbPalette::operator=(const PcbPalette &p)
 {
-    memcpy(this->mPalette, p.mPalette, sizeof(mPalette));
+    memcpy(this->m_palette, p.m_palette, sizeof(m_palette));
     return *this;
 }
 
 PcbPalette &PcbPalette::operator=(PcbPalette &other)
 {
-    memcpy(this->mPalette, other.mPalette, sizeof(mPalette));
+    memcpy(this->m_palette, other.m_palette, sizeof(m_palette));
     return *this;
 }
 
 bool PcbPalette::operator==(const PcbPalette &p) const
 {
-    return (memcmp(this->mPalette, p.mPalette, sizeof(mPalette)) == 0);
+    return (memcmp(this->m_palette, p.m_palette, sizeof(m_palette)) == 0);
 }
 
 QList<PcbPalette::ColorRole> PcbPalette::allValidColorRoles() const

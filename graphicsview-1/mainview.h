@@ -103,18 +103,18 @@ private:
     DesignLayerManager *m_layerManager;
     LayerDisplayMode m_layerDisplayMode;
 
-    int mDesignInsightDelay;
-    QTimer mDesignInsightTimer;
-    QGraphicsItem *mDesignInsightItem;
-    InsightConnectivityWidget *mConnectivity;
+    int m_designInsightDelay;
+    QTimer m_designInsightTimer;
+    QGraphicsItem *m_designInsightItem;
+    InsightConnectivityWidget *m_connectivity;
 
-    QList<QGraphicsItem*> mMaskingItems;
+    QList<QGraphicsItem*> m_maskingItems;
 
-    InsightLensWidget *mLens;
-    InsightHeadsUpWidget *mHeadsUp;
+    InsightLensWidget *m_lens;
+    InsightHeadsUpWidget *m_headsUp;
 
-    InsightPickListWidget *mPickList;
-    QGraphicsItem *mPickedItem;
+    InsightPickListWidget *m_pickList;
+    QGraphicsItem *m_pickedItem;
 
 protected slots:
     void showDesignInsight();
