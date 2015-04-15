@@ -35,8 +35,8 @@ MainView::MainView(QWidget *parent) :
     mDesignInsightTimer.setInterval(mDesignInsightDelay);
     mDesignInsightTimer.setSingleShot(true);
     mDesignInsightItem = 0;
-    connect(&mDesignInsightTimer, SIGNAL(timeout()),
-            this, SLOT(showDesignInsight()));
+    connect(&mDesignInsightTimer, &QTimer::timeout,
+            this, &MainView::showDesignInsight);
 
     mConnectivity = new InsightConnectivityWidget;
     mConnectivity->setMaximumSize(300, 300);
@@ -54,8 +54,8 @@ MainView::MainView(QWidget *parent) :
 
     mPickList = new InsightPickListWidget(this);
     mPickList->hide();
-    connect(mPickList, SIGNAL(itemSelected(QGraphicsItem*)),
-            this, SLOT(onItemSelectedFromPickList(QGraphicsItem*)));
+    connect(mPickList, &InsightPickListWidget::itemSelected,
+            this, &MainView::onItemSelectedFromPickList);
 
 }
 

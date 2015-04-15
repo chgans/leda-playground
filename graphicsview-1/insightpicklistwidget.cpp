@@ -46,14 +46,14 @@ InsightPickListWidget::InsightPickListWidget(QWidget *parent) :
 
     // update view when mouse hover items
     mTable->setMouseTracking(true);
-    connect(mTable, SIGNAL(itemEntered(QTableWidgetItem*)),
-            this, SLOT(activateTableItem(QTableWidgetItem*)));
+    connect(mTable, &QTableWidget::itemEntered,
+            this, &InsightPickListWidget::activateTableItem);
 
     // emit select when mouse clicked
     mTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     mTable->setSelectionMode(QAbstractItemView::SingleSelection);
-    connect(mTable, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(selectItem(QModelIndex)));
+    connect(mTable, &QAbstractItemView::clicked,
+            this, &InsightPickListWidget::selectItem);
 
     // Setup layout
     setLayout(new QVBoxLayout());

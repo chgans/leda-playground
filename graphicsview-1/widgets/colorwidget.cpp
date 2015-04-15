@@ -63,8 +63,8 @@ public:
         m_wheel->setSizePolicy(QSizePolicy::Fixed,
                                QSizePolicy::Fixed);
         mainLayout->addWidget(m_wheel, 0, Qt::AlignCenter);
-        connect(m_wheel, SIGNAL(colorSelected(QColor)),
-                widget, SLOT(update_widgets()));
+        connect(m_wheel, &ColorWheel::colorSelected,
+                widget, &ColorWidget::update_widgets);
 
         QGridLayout *rightLayout = new QGridLayout;
         mainLayout->addLayout(rightLayout);
@@ -75,59 +75,59 @@ public:
         m_hueSpinBox = new QSpinBox;
         initSliderSpinBox(rightLayout, m_hueSlider, m_hueSpinBox,
                           new QLabel("Hue"), row++);
-        connect(m_hueSlider, SIGNAL(valueChanged(int)),
-                widget, SLOT(set_hsv()));
+        connect(m_hueSlider, &QAbstractSlider::valueChanged,
+                widget, &ColorWidget::set_hsv);
 
         m_saturationSlider = new GradientSlider;
         m_saturationSpinBox = new QSpinBox;
         initSliderSpinBox(rightLayout, m_saturationSlider, m_saturationSpinBox,
                           new QLabel("Saturation"), row++);
-        connect(m_saturationSlider, SIGNAL(valueChanged(int)),
-                widget, SLOT(set_hsv()));
+        connect(m_saturationSlider, &QAbstractSlider::valueChanged,
+                widget, &ColorWidget::set_hsv);
 
         m_valueSlider = new GradientSlider;
         m_valueSpinBox = new QSpinBox;
         initSliderSpinBox(rightLayout, m_valueSlider, m_valueSpinBox,
                           new QLabel("Value"), row++);
-        connect(m_valueSlider, SIGNAL(valueChanged(int)),
-                widget, SLOT(set_hsv()));
+        connect(m_valueSlider, &QAbstractSlider::valueChanged,
+                widget, &ColorWidget::set_hsv);
 
         m_redSlider = new GradientSlider;
         m_redSpinBox = new QSpinBox;
         initSliderSpinBox(rightLayout, m_redSlider, m_redSpinBox,
                           new QLabel("Red"), row++);
-        connect(m_redSlider, SIGNAL(valueChanged(int)),
-                widget, SLOT(set_rgb()));
+        connect(m_redSlider, &QAbstractSlider::valueChanged,
+                widget, &ColorWidget::set_rgb);
 
         m_greenSlider = new GradientSlider;
         m_greenSpinBox = new QSpinBox;
         initSliderSpinBox(rightLayout, m_greenSlider, m_greenSpinBox,
                           new QLabel("Green"), row++);
-        connect(m_greenSlider, SIGNAL(valueChanged(int)),
-                widget, SLOT(set_rgb()));
+        connect(m_greenSlider, &QAbstractSlider::valueChanged,
+                widget, &ColorWidget::set_rgb);
 
         m_blueSlider = new GradientSlider;
         m_blueSpinBox = new QSpinBox;
         initSliderSpinBox(rightLayout, m_blueSlider, m_blueSpinBox,
                           new QLabel("Blue"), row++);
-        connect(m_blueSlider, SIGNAL(valueChanged(int)),
-                widget, SLOT(set_rgb()));
+        connect(m_blueSlider, &QAbstractSlider::valueChanged,
+                widget, &ColorWidget::set_rgb);
 
         m_alphaSlider = new GradientSlider;
         m_alphaSpinBox = new QSpinBox();
         m_alphaLabel = new QLabel("Alpha");
         initSliderSpinBox(rightLayout, m_alphaSlider, m_alphaSpinBox,
                           m_alphaLabel, row++);
-        connect(m_alphaSlider, SIGNAL(valueChanged(int)),
-                widget, SLOT(update_widgets()));
+        connect(m_alphaSlider, &QAbstractSlider::valueChanged,
+                widget, &ColorWidget::update_widgets);
 
         m_hexEdit = new QLineEdit;
         rightLayout->addWidget(new QLabel("Hex"), row, 0);
         rightLayout->addWidget(m_hexEdit, row, 1, 1, 2);
-        connect(m_hexEdit, SIGNAL(editingFinished()),
-                widget, SLOT(on_edit_hex_editingFinished()));
-        connect(m_hexEdit, SIGNAL(textEdited(QString)),
-                widget, SLOT(on_edit_hex_textEdited(QString)));
+        connect(m_hexEdit, &QLineEdit::editingFinished,
+                widget, &ColorWidget::on_edit_hex_editingFinished);
+        connect(m_hexEdit, &QLineEdit::textEdited,
+                widget, &ColorWidget::on_edit_hex_textEdited);
         row++;
 
         m_preview = new ColorPreview();
@@ -147,10 +147,11 @@ public:
         slider->setSizePolicy(QSizePolicy::MinimumExpanding,
                               QSizePolicy::Maximum);
         spinbox->setMaximum(255);
-        connect(slider, SIGNAL(valueChanged(int)),
-                spinbox, SLOT(setValue(int)));
-        connect(spinbox, SIGNAL(valueChanged(int)),
-                slider, SLOT(setValue(int)));
+        connect(slider, &QAbstractSlider::valueChanged,
+                spinbox, &QSpinBox::setValue);
+        void (QSpinBox::*SpinBoxvalueChanged)(int);
+        connect(spinbox, SpinBoxvalueChanged,
+                slider, &QAbstractSlider::setValue);
         layout->addWidget(label, row, 0);
         layout->addWidget(slider, row, 1);
         layout->addWidget(spinbox, row, 2);
@@ -187,7 +188,8 @@ ColorWidget::ColorWidget(QWidget *parent) :
     //QPushButton *pickButton = p->m_buttonBox->addButton(tr("Pick"), QDialogButtonBox::ActionRole);
     //pickButton->setIcon(QIcon::fromTheme("color-picker"));
 
-    connect(p->m_wheel,SIGNAL(displayFlagsChanged(ColorWheel::Display_Flags)),SIGNAL(wheelFlagsChanged(ColorWheel::Display_Flags)));
+    connect(p->m_wheel,&ColorWheel::displayFlagsChanged,
+            this, &ColorWidget::wheelFlagsChanged);
 }
 
 QSize ColorWidget::sizeHint() const
