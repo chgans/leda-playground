@@ -169,6 +169,7 @@ void OverView::forceRedraw()
 
 void OverView::showEvent(QShowEvent *event)
 {
+    Q_UNUSED(event);
     if (m_observedView != nullptr)
         m_observedView->viewport()->installEventFilter(this);
 }

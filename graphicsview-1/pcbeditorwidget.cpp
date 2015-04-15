@@ -24,13 +24,6 @@
 
 #include <QDebug>
 
-static QIcon icon(const QColor &color)
-{
-    QPixmap pix(16, 16);
-    pix.fill(color);
-    return QIcon(pix);
-}
-
 PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -107,6 +100,7 @@ void PcbEditorWidget::activateEditor(QMainWindow *window)
 
 void PcbEditorWidget::wheelEvent(QWheelEvent *event)
 {
+    Q_UNUSED(event);
     // FIXME: doesn't work here, wheel events on MainView
     // Move activate/previous/next layer in view?
 //    if (event->modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {

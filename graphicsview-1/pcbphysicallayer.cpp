@@ -6,7 +6,7 @@ PcbPhysicalLayer::PcbPhysicalLayer()
 
 PcbPhysicalLayer::PcbPhysicalLayer(const PcbPhysicalLayer &other)
 {
-
+    Q_UNUSED(other);
 }
 
 PcbPhysicalLayer::~PcbPhysicalLayer()

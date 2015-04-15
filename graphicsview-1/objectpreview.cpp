@@ -44,6 +44,7 @@ void ObjectPreview::drawItems(QPainter *painter,
 
 void ObjectPreview::resizeEvent(QResizeEvent *event)
 {
+    Q_UNUSED(event);
     if (m_object) {
         setObjectToPreview(m_object);
     }

@@ -33,7 +33,7 @@ PcbPaletteSettingsDialog::PcbPaletteSettingsDialog(QWidget *parent) :
     palette.loadFromSettings(s);
 #if 0
     /* TODO: import of Altium theme.PCBSysColors files
-    /* Altium use ABGR, Qt ARGB */
+       Altium use ABGR, Qt ARGB */
     for (int i=0; i<128; ++i) {
         PcbPalette::ColorRole role = static_cast<PcbPalette::ColorRole>(i);
         QColor color = palette.color(role);
