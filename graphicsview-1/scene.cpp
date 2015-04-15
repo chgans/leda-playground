@@ -78,8 +78,8 @@ void Scene::init()
     }
     m_activeLayer = m_layerManager->layerAt(0);
 
-    m_cellSize.setHeight(25);
-    m_cellSize.setWidth(25);
+    m_cellSize.setHeight(100); // um
+    m_cellSize.setWidth(100);  // um
 }
 
 QPointF Scene::snapScenePos(QPointF pos)

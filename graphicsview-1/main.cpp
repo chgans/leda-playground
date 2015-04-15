@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
     // layerManager->loadProfiles();
     layerManager->loadFromDefaults();
 
-    Scene scene(-500, -500, 1000, 1000);
+    Scene scene(-5000, -5000, 10000, 10000); // um
 
     MainWindow *w = new MainWindow;
     scene.activateLayer(0);
@@ -206,32 +206,36 @@ int main(int argc, char *argv[])
             QGraphicsItem *item;
             QVector<double> pos = readPosition(obj["position"].toArray());
             QVector<QPointF> points = readPointList(obj["points"].toArray());
-            QPen pen = readPen(obj["pen"].toObject());
-            QBrush brush = readBrush(obj["brush"].toObject());
-            double opacity = obj["opacity"].toDouble();
             int layerIndex = obj["layer"].toInt();
+            QColor color = layerManager->layerAt(layerIndex)->color();
 
             if (type.toLower() == "rectangle") {
                 QGraphicsRectItem *ritem = new QGraphicsRectItem();
                 ritem->setRect(QRectF(points[0], points[1]));
+                QPen pen;
+                pen.setWidth(0);
+                QBrush brush(color);
                 ritem->setPen(pen);
                 ritem->setBrush(brush);
                 item = ritem;
             }
-            else if (type.toLower() == "polygon") {
+            else if (type.toLower() == "polyline") {
                 QGraphicsPolygonItem *pitem = new QGraphicsPolygonItem();
                 pitem->setPolygon(QPolygonF(points));
+                QPen pen;
+                pen.setWidth(obj["width"].toInt());
+                pen.setColor(color);
+                pen.setCapStyle(Qt::RoundCap);
+                pen.setJoinStyle(Qt::RoundJoin);
                 pitem->setPen(pen);
-                pitem->setBrush(brush);
                 item = pitem;
             }
             else {
                 continue;
             }
-
             item->setPos(pos[0], pos[1]);
             item->setZValue(pos[2]);
-            item->setOpacity(opacity);
+            item->setOpacity(0.75);
             item->setFlag(QGraphicsItem::ItemIsMovable, true);
             item->setFlag(QGraphicsItem::ItemIsSelectable, true);
             scene.addItemToLayer(item, layerIndex);

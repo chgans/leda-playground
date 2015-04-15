@@ -86,6 +86,7 @@ void MainView::resetMaskingItems()
     m_maskingItems.clear();
 }
 
+// TODO: LayerDisplayMode is a layer property, so just update all layers
 void MainView::setLayerDisplayMode(MainView::LayerDisplayMode mode)
 {
     if (m_layerDisplayMode == mode)

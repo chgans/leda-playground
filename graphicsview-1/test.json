@@ -8,116 +8,74 @@
     "designator": "U?",
     "label": "FSA4157",
     "description": "Low-Voltage, 1 Ohm SPDT Analog Switch",
-    "comment": "*",
+    "comment": "EIA_0603",
     "uid": "ANQPNMMK",
     "items": [
         {
             "type": "rectangle",
-            "position": [0, 0, 0],
-            "points": [[-150, -150], [150, 150]],
-            "pen": {
-                "width": 1,
-                "color": "#800000",
-                "color-idx": 221,
-                "style": "solid"
-            },
-            "brush": {
-                "color": "#ff0000",
-                "color-idx": 218
-            },
+            "position": [-800, 0, 0],
+            "points": [[-400, -400], [400, 400]],
             "opacity": 1.0,
             "locked": 0,
             "layer": 0
         },
         {
             "type": "rectangle",
-            "position": [0, 200, 0],
-            "points": [[-150, -150], [150, 150]],
-            "pen": {
-                "width": 1,
-                "color": "#800000",
-                "color-idx": 221,
-                "style": "solid"
-            },
-            "brush": {
-                "color": "#ff0000",
-                "color-idx": 218
-            },
+            "position": [800, 0, 0],
+            "points": [[-400, -400], [400, 400]],
             "opacity": 1.0,
             "locked": 0,
             "layer": 0
         },
         {
-            "type": "polygon",
-            "position": [500, -250, 0],
-            "points": [[25, 100], [100, 100], [150, 210], [150, 150]],
-            "pen": {
-                "width": 1,
-                "color": "#800000",
-                "color-idx": 221,
-                "style": "solid"
-            },
-            "brush": {
-                "color": "#0000ff",
-                "color-idx": 218
-            },
+            "type": "rectangle",
+            "position": [-800, 0, 0],
+            "points": [[-500, -500], [500, 500]],
             "opacity": 1.0,
             "locked": 0,
-            "layer": 31
-        },
-        {
-            "type": "polygon",
-            "position": [-250, -250, 0],
-            "points": [[25, 100], [100, 100], [150, 210], [150, 150]],
-            "pen": {
-                "width": 1,
-                "color": "#800000",
-                "color-idx": 221,
-                "style": "solid"
-            },
-            "brush": {
-                "color": "#0000ff",
-                "color-idx": 218
-            },
-            "opacity": 1.0,
-            "locked": 0,
-            "layer": 31
+            "layer": 98
         },
         {
             "type": "rectangle",
-            "position": [600, 400, 0],
-            "points": [[0, 0], [100, 100]],
-            "pen": {
-                "width": 2,
-                "color": "#800000",
-                "color-idx": 221,
-                "style": "solid"
-            },
-            "brush": {
-                "color": "#ff00ff",
-                "color-idx": 218
-            },
+            "position": [800, 0, 0],
+            "points": [[-500, -500], [500, 500]],
             "opacity": 1.0,
             "locked": 0,
-            "layer": 99
+            "layer": 98
         },
         {
             "type": "rectangle",
-            "position": [400, 400, 0],
-            "points": [[0, 0], [100, 100]],
-            "pen": {
-                "width": 1,
-                "color": "#800000",
-                "color-idx": 221,
-                "style": "solid"
-            },
-            "brush": {
-                "color": "#ff00ff",
-                "color-idx": 218
-            },
+            "position": [-800, 0, 0],
+            "points": [[-300, -300], [300, 300]],
             "opacity": 1.0,
             "locked": 0,
-            "layer": 99
+            "layer": 96
+        },
+        {
+            "type": "rectangle",
+            "position": [800, 0, 0],
+            "points": [[-300, -300], [300, 300]],
+            "opacity": 1.0,
+            "locked": 0,
+            "layer": 96
+        },
+        {
+            "type": "polyline",
+            "position": [0, -300, 0],
+            "points": [[-200, 0], [200, 0]],
+            "width": 100,
+            "opacity": 0.75,
+            "locked": 0,
+            "layer": 104
+        },
+        {
+            "type": "polyline",
+            "position": [0, 300, 0],
+            "points": [[-200, 0], [200, 0]],
+            "width": 100,
+            "opacity": 0.75,
+            "locked": 0,
+            "layer": 104
         }
     ]
 }

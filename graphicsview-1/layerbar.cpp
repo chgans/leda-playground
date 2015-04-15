@@ -15,6 +15,12 @@
 
 #include <QDebug>
 
+/*
+ * TODO:
+ * - layer enabled vs visible
+ * - flipped view eg. view->setOrientation(Le::TopFace)
+ */
+
 static QIcon createColorIcon(const QColor &color)
 {
     QPixmap pix(16, 16);
@@ -136,15 +142,6 @@ void LayerBar::setActiveLayerSet(DesignLayerSet *set)
     updateTabIcons();
     updateLayerIcon();
     connectTabBar();
-
-    foreach (QAction *action, m_setActionGroup->actions()) {
-        if (action->data().value<DesignLayerSet *>() == set) {
-            action->setChecked(true);
-            return;
-        }
-    }
-    // Should not happen
-    Q_ASSERT(false);
 }
 
 void LayerBar::onLayerSetChanged(DesignLayerSet *set)
@@ -161,7 +158,6 @@ void LayerBar::addLaterSet(DesignLayerSet *set)
 {
     QAction *action = new QAction(set->effectiveName(), this);
     action->setData(QVariant::fromValue<DesignLayerSet *>(set));
-    action->setCheckable(true);
     m_setActionGroup->addAction(action);
     m_setMenu->addAction(action);
 }
