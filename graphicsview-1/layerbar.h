@@ -64,6 +64,7 @@ private:
     void populateConfigMenu();
     void disconnectTabBar();
     void connectTabBar();
+    void showTabContextMenu(const QPoint &pos);
 
     // Actions and menus
     void createActions();
@@ -85,7 +86,6 @@ private:
     QMenu *m_opacityMenu;
     QAction *m_showOpacityDialogAction;
     QActionGroup *m_opacityActionGroup;
-    QMenu *m_tabMenu;
 };
 
 #endif // LAYERBAR_H

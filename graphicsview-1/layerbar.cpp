@@ -129,6 +129,8 @@ void LayerBar::removePalette(PcbPalette *palette)
 
 void LayerBar::setActiveLayerSet(DesignLayerSet *set)
 {
+    m_activeLayerSet = set;
+
     disconnectTabBar();
     repopulateLayerTabs(set);
     updateTabIcons();
@@ -213,6 +215,7 @@ void LayerBar::createTabBar()
     m_tabBar = new QTabBar();
     m_tabBar->setShape(QTabBar::RoundedSouth);
     m_tabBar->setDrawBase(false);
+    m_tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void LayerBar::createConfigToolButton()
@@ -286,6 +289,82 @@ void LayerBar::connectTabBar()
 {
     connect(m_tabBar, &QTabBar::currentChanged,
             this, &LayerBar::activateLayer);
+    connect(m_tabBar, &QTabBar::customContextMenuRequested,
+            this, &LayerBar::showTabContextMenu);
+}
+
+void LayerBar::showTabContextMenu(const QPoint &pos)
+{
+    int tabIndex = m_tabBar->tabAt(pos);
+    DesignLayer *layer = m_tabBar->tabData(tabIndex).value<DesignLayer *>();
+    QMenu *menu = new QMenu("Layer tab contextual menu");
+    QAction *action;
+    action = new QAction(createColorIcon(layer->color()),
+                         QString("Hide %1").arg(layer->name()), menu);
+    connect(action, &QAction::triggered,
+            this, [this, tabIndex](bool checked) {
+        Q_UNUSED(checked);
+        m_tabBar->removeTab(tabIndex);
+    });
+    menu->addAction(action);
+
+    menu->addSeparator();
+    QMenu *subMenu;
+    subMenu = new QMenu("Hide layers");
+    for (int i = 0; i < m_tabBar->count(); i++) {
+        DesignLayer *layer = m_tabBar->tabData(i).value<DesignLayer *>();
+        QAction *hideAction = new QAction(createColorIcon(layer->color()),
+                                          QString("Hide %1").arg(layer->name()), menu);
+        connect(hideAction, &QAction::triggered,
+                this, [this, i](bool checked) {
+            Q_UNUSED(checked);
+            m_tabBar->removeTab(i);
+        });
+        subMenu->addAction(hideAction);
+    }
+    menu->addMenu(subMenu);
+
+    subMenu = new QMenu("Show layers");
+    foreach (DesignLayer *layer, m_activeLayerSet->enabledLayers()) {
+        // FIXME: only if not already in tabs
+        QAction *showAction = new QAction(createColorIcon(layer->color()),
+                                          QString("Show %1").arg(layer->name()), menu);
+        connect(showAction, &QAction::triggered,
+                this, [this, layer](bool checked) {
+            Q_UNUSED(checked);
+            // FIXME: use insertTab
+            int idx = m_tabBar->addTab(layer->name());
+            m_tabBar->setTabData(idx, QVariant::fromValue<DesignLayer *>(layer));
+        });
+        subMenu->addAction(showAction);
+    }
+    menu->addMenu(subMenu);
+
+    // Layer sets
+    menu->addMenu(m_setMenu);
+
+    // TODO: not implemented
+    menu->addSeparator();
+    QActionGroup *group = new QActionGroup(menu);
+    action = new QAction("Use short layer names", group);
+    action->setCheckable(true);
+    action->setChecked(true);
+    menu->addAction(action);
+    action = new QAction("Use medium layer names", group);
+    action->setCheckable(true);
+    menu->addAction(action);
+    action = new QAction("Use long layer names", group);
+    action->setCheckable(true);
+    menu->addAction(action);
+
+    // TODO: not implemented
+    menu->addSeparator();
+    action = new QAction("Flipped", menu);
+    action->setCheckable(true);
+    menu->addAction(action);
+
+    menu->exec(m_tabBar->mapToGlobal(pos));
+    delete menu;
 }
 
 void LayerBar::createActions()
