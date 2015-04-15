@@ -38,22 +38,31 @@ void DesignLayerManager::loadFromDefaults()
     int stackPosition = 0;
     DesignLayer *topLayer;
     DesignLayer *bottomLayer;
+    QList<DesignLayer *> layers;
 
+    addBuiltInLayerSet(DesignLayerSet::All);
     addBuiltInLayerSet(DesignLayerSet::Signal);
     addBuiltInLayerSet(DesignLayerSet::Plane);
+    addBuiltInLayerSet(DesignLayerSet::Mechanical);
     addBuiltInLayerSet(DesignLayerSet::Mask);
     addBuiltInLayerSet(DesignLayerSet::Silkscreen);
-    addBuiltInLayerSet(DesignLayerSet::Mechanical);
     addBuiltInLayerSet(DesignLayerSet::NonSignal);
 
-    for (DesignLayer::Category category = DesignLayer::SignalCategory;
-         category <= DesignLayer::OtherCategory;
-         category = DesignLayer::Category(category + 1)) {
+    QList<DesignLayer::Category> categories;
+    categories << DesignLayer::SignalCategory
+               << DesignLayer::PlaneCategory
+               << DesignLayer::MechanicalCategory
+               << DesignLayer::MaskCategory
+               << DesignLayer::OtherCategory
+               << DesignLayer::SilkscreenCategory;
+
+    foreach (DesignLayer::Category category, categories) {
 
         m_layerCategoryMap[category] = DesignLayerList();
 
         switch (category) {
         case DesignLayer::SignalCategory:
+            layers.clear();
             for (int i = 0; i < 16; i++) {
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
@@ -71,10 +80,14 @@ void DesignLayerManager::loadFromDefaults()
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
                 bottomLayer->setFace(DesignLayer::BottomFace);
+                layers << topLayer << bottomLayer;
             }
+            layerSet(DesignLayerSet::Signal)->add(layers);
+            layerSet(DesignLayerSet::All)->add(layers);
             stackPosition += 32;
             break;
         case DesignLayer::PlaneCategory:
+            layers.clear();
             for (int i = 0; i < 16; i++) {
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
@@ -86,10 +99,14 @@ void DesignLayerManager::loadFromDefaults()
                 bottomLayer->setFace(DesignLayer::BottomFace);
                 topLayer->setVisible(false);
                 bottomLayer->setVisible(false);
+                layers << topLayer << bottomLayer;
             }
+            layerSet(DesignLayerSet::Plane)->add(layers);
+            layerSet(DesignLayerSet::All)->add(layers);
             stackPosition += 32;
             break;
         case DesignLayer::MechanicalCategory:
+            layers.clear();
             for (int i = 0; i < 16; i++) {
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
@@ -101,20 +118,32 @@ void DesignLayerManager::loadFromDefaults()
                 bottomLayer->setFace(DesignLayer::BottomFace);
                 topLayer->setVisible(false);
                 bottomLayer->setVisible(false);
+                layers << topLayer << bottomLayer;
             }
+            layerSet(DesignLayerSet::Mechanical)->add(layers);
+            layerSet(DesignLayerSet::NonSignal)->add(layers);
+            layerSet(DesignLayerSet::All)->add(layers);
             stackPosition += 32;
             break;
         case DesignLayer::OtherCategory:
+            layers.clear();
             topLayer = addLayer(category, stackPosition++);
             topLayer->setName(defaultLayerName(category, 0));
+            layers << topLayer;
             topLayer = addLayer(category, stackPosition++);
             topLayer->setName(defaultLayerName(category, 1));
+            layers << topLayer;
             topLayer = addLayer(category, stackPosition++);
             topLayer->setName(defaultLayerName(category, 2));
+            layers << topLayer;
             topLayer = addLayer(category, stackPosition++);
             topLayer->setName(defaultLayerName(category, 3));
+            layers << topLayer;
+            layerSet(DesignLayerSet::NonSignal)->add(layers);
+            layerSet(DesignLayerSet::All)->add(layers);
             break;
         case DesignLayer::MaskCategory:
+            layers.clear();
             topLayer = addLayer(category, stackPosition++);
             topLayer->setName(defaultLayerName(category, 0));
             bottomLayer = addLayer(category, stackPosition++);
@@ -125,6 +154,7 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setFace(DesignLayer::BottomFace);
             topLayer->setVisible(true);
             bottomLayer->setVisible(true);
+            layers << topLayer << bottomLayer;
             topLayer = addLayer(category, stackPosition++);
             topLayer->setName(defaultLayerName(category, 2));
             bottomLayer = addLayer(category, stackPosition++);
@@ -135,8 +165,13 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setFace(DesignLayer::BottomFace);
             topLayer->setVisible(true);
             bottomLayer->setVisible(true);
+            layers << topLayer << bottomLayer;
+            layerSet(DesignLayerSet::Mask)->add(layers);
+            layerSet(DesignLayerSet::NonSignal)->add(layers);
+            layerSet(DesignLayerSet::All)->add(layers);
             break;
         case DesignLayer::SilkscreenCategory:
+            layers.clear();
             topLayer = addLayer(category, stackPosition++);
             topLayer->setName(defaultLayerName(category, 0));
             bottomLayer = addLayer(category, stackPosition++);
@@ -147,12 +182,15 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setFace(DesignLayer::BottomFace);
             topLayer->setVisible(true);
             bottomLayer->setVisible(true);
+            layers << topLayer << bottomLayer;
+            layerSet(DesignLayerSet::Silkscreen)->add(layers);
+            layerSet(DesignLayerSet::NonSignal)->add(layers);
+            layerSet(DesignLayerSet::All)->add(layers);
             break;
         default:
             break;
         }
     }
-
 }
 
 int DesignLayerManager::layerCount() const
@@ -282,6 +320,8 @@ QString DesignLayerManager::defaultLayerName(DesignLayer::Category category, int
 QString DesignLayerManager::builtInLayerSetName(int type)
 {
     switch (type) {
+    case DesignLayerSet::All:
+        return QString("All layers");
     case DesignLayerSet::Signal:
         return QString("Signal layers");
     case DesignLayerSet::Plane:

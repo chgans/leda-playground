@@ -37,7 +37,7 @@ LayerBar::LayerBar(QWidget *parent) : QWidget(parent)
     mainLayout->addWidget(m_tabBar);
     setLayout(mainLayout);
 
-    repopulateLayerTabs();
+    repopulateLayerTabs(m_layerManager->layerSet(DesignLayerSet::All));
     updateTabIcons();
     updateLayerIcon();
     populateConfigMenu();
@@ -130,7 +130,7 @@ void LayerBar::removePalette(PcbPalette *palette)
 void LayerBar::setActiveLayerSet(DesignLayerSet *set)
 {
     disconnectTabBar();
-    repopulateLayerTabs();
+    repopulateLayerTabs(set);
     updateTabIcons();
     updateLayerIcon();
     connectTabBar();
@@ -149,7 +149,7 @@ void LayerBar::onLayerSetChanged(DesignLayerSet *set)
 {
     Q_UNUSED(set);
     disconnectTabBar();
-    repopulateLayerTabs();
+    repopulateLayerTabs(set);
     updateTabIcons();
     updateLayerIcon();
     connectTabBar();
@@ -242,11 +242,11 @@ void LayerBar::updateLayerIcon()
     m_configToolButton->setIcon(icon);
 }
 
-void LayerBar::repopulateLayerTabs()
+void LayerBar::repopulateLayerTabs(DesignLayerSet *set)
 {
-    while (m_tabBar->count())
+    while (m_tabBar->count() > 0)
         m_tabBar->removeTab(0);
-    foreach (DesignLayer *layer, m_layerManager->enabledLayers()) {
+    foreach (DesignLayer *layer, set->allLayers()) {
         int tabIndex = m_tabBar->addTab(layer->name());
         m_tabBar->setTabData(tabIndex, QVariant::fromValue<DesignLayer *>(layer));
     }
@@ -378,10 +378,9 @@ void LayerBar::connectActions()
     connect(m_setActionGroup, &QActionGroup::triggered,
             this, [this](QAction *action) {
         DesignLayerSet *set = action->data().value<DesignLayerSet *>();
-        Q_UNUSED(set);
-        // TODO
+        setActiveLayerSet(set);
     });
-    connect(m_setActionGroup, &QActionGroup::triggered,
+    connect(m_opacityActionGroup, &QActionGroup::triggered,
             this, [this](QAction *action) {
         Q_UNUSED(action);
         // TODO

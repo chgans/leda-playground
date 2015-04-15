@@ -97,6 +97,11 @@ void DesignLayerSet::add(DesignLayer *layer)
     m_layers.append(layer);
 }
 
+void DesignLayerSet::add(QList<DesignLayer *> layers)
+{
+    m_layers.append(layers);
+}
+
 void DesignLayerSet::remove(DesignLayer *layer)
 {
     m_layers.removeOne(layer);

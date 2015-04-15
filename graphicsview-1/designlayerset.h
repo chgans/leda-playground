@@ -24,6 +24,7 @@ public:
         Silkscreen,
         Mechanical,
         NonSignal,
+        All,
         Custom = 1000
     };
 
@@ -56,6 +57,7 @@ private:
     bool m_builtIn;
 
     void add(DesignLayer *layer);
+    void add(QList<DesignLayer *> layers);
     void remove(DesignLayer *layer);
     void setName(const QString &name);
     void setCustomName(const QString &name);
