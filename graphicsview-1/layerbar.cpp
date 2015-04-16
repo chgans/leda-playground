@@ -245,7 +245,7 @@ void LayerBar::repopulateLayerTabs(DesignLayerSet *set)
 {
     while (m_tabBar->count() > 0)
         m_tabBar->removeTab(0);
-    foreach (DesignLayer *layer, set->allLayers()) {
+    foreach (DesignLayer *layer, set->enabledLayers()) {
         int tabIndex = m_tabBar->addTab(layer->name());
         m_tabBar->setTabData(tabIndex, QVariant::fromValue<DesignLayer *>(layer));
     }
