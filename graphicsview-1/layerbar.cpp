@@ -1,5 +1,6 @@
 #include "layerbar.h"
 
+#include "mainview.h"
 #include "designlayer.h"
 #include "designlayermanager.h"
 #include "pcbpalette.h"
@@ -30,6 +31,8 @@ static QIcon createColorIcon(const QColor &color)
 
 LayerBar::LayerBar(QWidget *parent) : QWidget(parent)
 {
+    m_view = nullptr;
+
     m_paletteManager = PcbPaletteManager::instance();
     m_layerManager = DesignLayerManager::instance();
 
@@ -62,6 +65,13 @@ LayerBar::LayerBar(QWidget *parent) : QWidget(parent)
 
 LayerBar::~LayerBar()
 {
+}
+
+void LayerBar::setView(MainView *view)
+{
+    m_view = view;
+    DesignLayer *layer = m_tabBar->tabData(m_tabBar->currentIndex()).value<DesignLayer *>();
+    //m_view->activateLayer(layer->stackPosition());
 }
 
 void LayerBar::activateLayer(int tabIndex)

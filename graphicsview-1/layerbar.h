@@ -9,6 +9,7 @@ class QActionGroup;
 class QToolButton;
 class QMenu;
 
+class MainView;
 class PcbPalette;
 class PcbPaletteManager;
 class DesignLayer;
@@ -21,6 +22,9 @@ class LayerBar : public QWidget
 public:
     explicit LayerBar(QWidget *parent = 0);
     ~LayerBar();
+
+    void setView(MainView *view);
+    MainView *view() const;
 
 signals:
 
@@ -44,6 +48,8 @@ protected slots:
     void removeLayerSet(DesignLayerSet *set);
 
 private:
+    MainView *m_view;
+
     // Profile and conf
     PcbPaletteManager *m_paletteManager;
     DesignLayerManager *m_layerManager;
