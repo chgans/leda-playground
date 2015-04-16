@@ -3,6 +3,13 @@
 
 // FIXME: use SOFT_ASSERT in some places to generate warning/error messages
 
+/*
+ * TODO: allow user to modify any layer or sets, while still being a central
+ *       place for notifications.
+ *  - use properties with signal/slots on DesignLayer and DesignLayerSet
+ *  - monitor all layers ans all sets, and proxy-emit the property changes
+ */
+
 DesignLayerManager::DesignLayerManager(QObject *parent) : QObject(parent)
 {
 
