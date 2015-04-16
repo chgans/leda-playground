@@ -93,6 +93,11 @@ bool DesignLayer::isValid() const
             m_category != InvalidCategory && m_face != InvalidFace;
 }
 
+bool DesignLayer::isUsed() const
+{
+    return childItems().count() != 0;
+}
+
 qreal DesignLayer::opacityForPrimitive(Primitive::Type type)
 {
     Q_ASSERT(m_primitiveOpacityMap.contains(type));

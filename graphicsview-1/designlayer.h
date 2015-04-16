@@ -51,6 +51,7 @@ public:
     Face face() const;
     DesignLayer* pairedLayer() const;
     bool isValid() const;
+    bool isUsed() const;
     qreal opacityForPrimitive(Primitive::Type type);
     void setOpacityForPrimitive(Primitive::Type type, qreal opacity);
 
