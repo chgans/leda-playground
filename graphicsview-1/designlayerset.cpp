@@ -81,7 +81,7 @@ QList<DesignLayer *> DesignLayerSet::enabledLayers()
 {
     QList<DesignLayer *> list;
     foreach (DesignLayer *layer, m_layers) {
-        if (layer->isEnabled())
+        if (layer->isPresent())
             list << layer;
     }
     return list;

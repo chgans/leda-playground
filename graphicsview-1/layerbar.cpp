@@ -46,7 +46,7 @@ LayerBar::LayerBar(QWidget *parent) : QWidget(parent)
     mainLayout->addWidget(m_tabBar);
     setLayout(mainLayout);
 
-    repopulateLayerTabs(m_layerManager->layerSet(DesignLayerSet::All));
+    repopulateLayerTabs(m_layerManager->enabledLayers());
     updateTabIcons();
     updateLayerIcon();
     populateConfigMenu();
@@ -59,7 +59,6 @@ LayerBar::LayerBar(QWidget *parent) : QWidget(parent)
     connectPaletteManager();
     foreach (DesignLayerSet *set, m_layerManager->allLayerSets())
         addLaterSet(set);
-    setActiveLayerSet(m_layerManager->allLayerSets().first()); // FIXME
     connectLayerManager();
 }
 
@@ -145,10 +144,8 @@ void LayerBar::removePalette(PcbPalette *palette)
 
 void LayerBar::setActiveLayerSet(DesignLayerSet *set)
 {
-    m_activeLayerSet = set;
-
     disconnectTabBar();
-    repopulateLayerTabs(set);
+    repopulateLayerTabs(set->enabledLayers());
     updateTabIcons();
     updateLayerIcon();
     connectTabBar();
@@ -158,7 +155,7 @@ void LayerBar::onLayerSetChanged(DesignLayerSet *set)
 {
     Q_UNUSED(set);
     disconnectTabBar();
-    repopulateLayerTabs(set);
+    repopulateLayerTabs(set->enabledLayers());
     updateTabIcons();
     updateLayerIcon();
     connectTabBar();
@@ -251,11 +248,13 @@ void LayerBar::updateLayerIcon()
     m_configToolButton->setIcon(icon);
 }
 
-void LayerBar::repopulateLayerTabs(DesignLayerSet *set)
+void LayerBar::repopulateLayerTabs(QList<DesignLayer *> layers)
 {
     while (m_tabBar->count() > 0)
         m_tabBar->removeTab(0);
-    foreach (DesignLayer *layer, set->enabledLayers()) {
+    foreach (DesignLayer *layer, layers) {
+        qDebug() << __PRETTY_FUNCTION__ << layer->stackPosition()
+                 << layer->isEnabled() << layer->isPresent() << layer->isVisible();
         int tabIndex = m_tabBar->addTab(layer->name());
         m_tabBar->setTabData(tabIndex, QVariant::fromValue<DesignLayer *>(layer));
     }
@@ -301,6 +300,9 @@ void LayerBar::connectTabBar()
 
 void LayerBar::showTabContextMenu(const QPoint &pos)
 {
+    if (m_tabBar->count() == 0)
+        return;
+
     int tabIndex = m_tabBar->tabAt(pos);
     DesignLayer *layer = m_tabBar->tabData(tabIndex).value<DesignLayer *>();
     QMenu *menu = new QMenu("Layer tab contextual menu");
@@ -310,41 +312,61 @@ void LayerBar::showTabContextMenu(const QPoint &pos)
     connect(action, &QAction::triggered,
             this, [this, tabIndex](bool checked) {
         Q_UNUSED(checked);
-        m_tabBar->removeTab(tabIndex);
+        DesignLayer *layer = m_tabBar->tabData(tabIndex).value<DesignLayer *>();
+        layer->setVisible(false);
+        updateTabIcons();
+        updateLayerIcon();
     });
     menu->addAction(action);
 
     menu->addSeparator();
-    QMenu *subMenu;
-    subMenu = new QMenu("Hide layers");
-    for (int i = 0; i < m_tabBar->count(); i++) {
-        DesignLayer *layer = m_tabBar->tabData(i).value<DesignLayer *>();
-        QAction *hideAction = new QAction(createColorIcon(layer->color()),
-                                          QString("Hide %1").arg(layer->name()), menu);
-        connect(hideAction, &QAction::triggered,
-                this, [this, i](bool checked) {
-            Q_UNUSED(checked);
-            m_tabBar->removeTab(i);
-        });
-        subMenu->addAction(hideAction);
-    }
-    menu->addMenu(subMenu);
+    QMenu *hideMenu = new QMenu("Hide layers");
+    menu->addMenu(hideMenu);
+    QMenu *showMenu = new QMenu("Show layers");
+    menu->addMenu(showMenu);
 
-    subMenu = new QMenu("Show layers");
-    foreach (DesignLayer *layer, m_activeLayerSet->enabledLayers()) {
-        // FIXME: only if not already in tabs
-        QAction *showAction = new QAction(createColorIcon(layer->color()),
-                                          QString("Show %1").arg(layer->name()), menu);
-        connect(showAction, &QAction::triggered,
-                this, [this, layer](bool checked) {
-            Q_UNUSED(checked);
-            // FIXME: use insertTab
-            int idx = m_tabBar->addTab(layer->name());
-            m_tabBar->setTabData(idx, QVariant::fromValue<DesignLayer *>(layer));
-        });
-        subMenu->addAction(showAction);
+    foreach (DesignLayer *layer, m_layerManager->enabledLayers()) {
+        qDebug() << __PRETTY_FUNCTION__ << layer->stackPosition()
+                 << layer->isEnabled() << layer->isPresent() << layer->isVisible();
+        if (layer->isVisible()) {
+            action = new QAction(createColorIcon(layer->color()),
+                                 QString("Hide %1").arg(layer->name()), menu);
+            int tabIndex = -1;
+            for (int i = 0; i < m_tabBar->count(); i++) {
+                if (m_tabBar->tabData(i).value<DesignLayer *>() == layer) {
+                    tabIndex = i;
+                    break;
+                }
+            }
+            Q_ASSERT(tabIndex != -1);
+            connect(action, &QAction::triggered,
+                    this, [this, tabIndex](bool checked) {
+                Q_UNUSED(checked);
+                // FIXME: layer->setPresent(false), should trigger a slot here that effectively remove the tab
+                DesignLayer *layer = m_tabBar->tabData(tabIndex).value<DesignLayer *>();
+                layer->setVisible(false);
+                m_tabBar->removeTab(tabIndex);
+                updateTabIcons();
+                updateLayerIcon();
+            });
+            hideMenu->addAction(action);
+        }
+        else {
+            action = new QAction(createColorIcon(layer->color()),
+                                 QString("Show %1").arg(layer->name()), menu);
+            connect(action, &QAction::triggered,
+                    this, [this, layer](bool checked) {
+                Q_UNUSED(checked);
+                // FIXME: use insertTab
+                int idx = m_tabBar->addTab(layer->name());
+                m_tabBar->setTabData(idx, QVariant::fromValue<DesignLayer *>(layer));
+                layer->setVisible(true);
+                updateTabIcons();
+                updateLayerIcon();
+            });
+            showMenu->addAction(action);
+        }
     }
-    menu->addMenu(subMenu);
 
     // Layer sets
     menu->addMenu(m_setMenu);

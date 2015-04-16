@@ -53,7 +53,6 @@ private:
     // Profile and conf
     PcbPaletteManager *m_paletteManager;
     DesignLayerManager *m_layerManager;
-    DesignLayerSet *m_activeLayerSet;
     void connectPaletteManager();
     void disconnectPaletteManager();
     void connectLayerManager();
@@ -66,7 +65,7 @@ private:
     void createConfigToolButton();
     void updateTabIcons();
     void updateLayerIcon();
-    void repopulateLayerTabs(DesignLayerSet *set);
+    void repopulateLayerTabs(QList<DesignLayer *> layers);
     void populateConfigMenu();
     void disconnectTabBar();
     void connectTabBar();

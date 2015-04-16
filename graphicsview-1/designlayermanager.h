@@ -33,6 +33,9 @@ public:
     bool isLayerEnabled(int stackPosition) const;
     DesignLayerList enabledLayers() const;
 
+    void enableOnlyUsedLayers();
+    DesignLayerList usedLayers() const;
+
     static QString defaultLayerName(DesignLayer::Category category, int categoryIndex);
     static QString builtInLayerSetName(int type);
     static QString categoryName(DesignLayer::Category category);

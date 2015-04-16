@@ -22,7 +22,7 @@ class DesignLayer : public QGraphicsObject
     Q_PROPERTY(Category category READ category WRITE setCategory NOTIFY categoryChanged)
     Q_PROPERTY(Face face READ face WRITE setFace NOTIFY faceChanged)
     Q_PROPERTY(DesignLayer* pairedLayer READ pairedLayer WRITE setPairedLayer NOTIFY pairedLayerChanged)
-
+    Q_PROPERTY(bool present READ isPresent WRITE setPresent NOTIFY presentChanged)
 public:
     enum Face {
         InvalidFace = 0,
@@ -54,6 +54,7 @@ public:
     bool isUsed() const;
     qreal opacityForPrimitive(Primitive::Type type);
     void setOpacityForPrimitive(Primitive::Type type, qreal opacity);
+    bool isPresent() const;
 
 signals:
     void nameChanged(const QString &name);
@@ -63,6 +64,7 @@ signals:
     void categoryChanged(Category category);
     void faceChanged(Face arg);
     void pairedLayerChanged(DesignLayer* pairedLayer);
+    void presentChanged(bool arg);
 
 public slots:
     void setName(const QString &name);
@@ -72,6 +74,7 @@ public slots:
     void setCategory(Category category);
     void setFace(Face arg);
     void setPairedLayer(DesignLayer* layer);
+    void setPresent(bool arg);
 
 private:
     QString m_name;
@@ -82,6 +85,7 @@ private:
     Face m_face;
     DesignLayer* m_pairedLayer;
     QMap<Primitive::Type, qreal> m_primitiveOpacityMap;
+    bool m_present;
 
 protected:
     DesignLayer(QGraphicsItem *parent = 0);

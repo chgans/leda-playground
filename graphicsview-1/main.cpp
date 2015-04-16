@@ -141,22 +141,22 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("libreeda.org");
     QCoreApplication::setApplicationName("graphicsview-1");
 
-    PcbPaletteManager *mng = PcbPaletteManager::instance();
-    mng->setPalettesPath(QDir::currentPath() + "/../graphicsview-1/");
-    mng->loadPalettes();
+    PcbPaletteManager *paletteManager = PcbPaletteManager::instance();
+    paletteManager->setPalettesPath(QDir::currentPath() + "/../graphicsview-1/");
+    paletteManager->loadPalettes();
 
     DesignLayerManager *layerManager = DesignLayerManager::instance();
     // layerManager->setProfilePath();
     // layerManager->loadProfiles();
     layerManager->loadFromDefaults();
 
+    PcbPalette *palette = paletteManager->activePalette();
+    foreach (DesignLayer *layer, layerManager->allLayers()) {
+        QColor color = palette->color(PcbPalette::ColorRole(layer->stackPosition() + 1));
+        layer->setColor(color);
+    }
+
     Scene scene(-5000, -5000, 10000, 10000); // um
-
-    MainWindow *w = new MainWindow;
-    scene.activateLayer(0);
-    w->setGraphicsScene(&scene);
-    w->show();
-
 
     {
         QString filename("../graphicsview-1/test.json");
@@ -207,8 +207,9 @@ int main(int argc, char *argv[])
             QVector<double> pos = readPosition(obj["position"].toArray());
             QVector<QPointF> points = readPointList(obj["points"].toArray());
             int layerIndex = obj["layer"].toInt();
-            QColor color = layerManager->layerAt(layerIndex)->color();
-
+            DesignLayer *layer = layerManager->layerAt(layerIndex);
+            QColor color = layer->color();
+            qDebug() << layer->name() << layer->stackPosition() << layer->color();
             if (type.toLower() == "rectangle") {
                 QGraphicsRectItem *ritem = new QGraphicsRectItem();
                 ritem->setRect(QRectF(points[0], points[1]));
@@ -240,9 +241,12 @@ int main(int argc, char *argv[])
             item->setFlag(QGraphicsItem::ItemIsSelectable, true);
             scene.addItemToLayer(item, layerIndex);
         }
+        layerManager->enableOnlyUsedLayers();
     }
 
-
+    MainWindow *w = new MainWindow;
+    w->setGraphicsScene(&scene);
+    w->show();
     app.exec();
     delete w;
     return 0;

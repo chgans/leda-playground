@@ -1,6 +1,8 @@
 #include "designlayermanager.h"
 #include "designlayerset.h"
 
+#include <QDebug>
+
 // FIXME: use SOFT_ASSERT in some places to generate warning/error messages
 
 /*
@@ -76,12 +78,12 @@ void DesignLayerManager::loadFromDefaults()
                 topLayer->setName(defaultLayerName(category, i));
                 bottomLayer->setName(defaultLayerName(category, 32 - 1 - i));
                 if (i == 0) {
-                    topLayer->setVisible(true);
-                    bottomLayer->setVisible(true);
+                    topLayer->setPresent(true);
+                    bottomLayer->setPresent(true);
                 }
                 else {
-                    topLayer->setVisible(false);
-                    bottomLayer->setVisible(false);
+                    topLayer->setPresent(false);
+                    bottomLayer->setPresent(false);
                 }
                 topLayer->setPairedLayer(bottomLayer);
                 bottomLayer->setPairedLayer(topLayer);
@@ -104,8 +106,8 @@ void DesignLayerManager::loadFromDefaults()
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
                 bottomLayer->setFace(DesignLayer::BottomFace);
-                topLayer->setVisible(false);
-                bottomLayer->setVisible(false);
+                topLayer->setPresent(false);
+                bottomLayer->setPresent(false);
                 layers << topLayer << bottomLayer;
             }
             layerSet(DesignLayerSet::Plane)->add(layers);
@@ -123,8 +125,8 @@ void DesignLayerManager::loadFromDefaults()
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
                 bottomLayer->setFace(DesignLayer::BottomFace);
-                topLayer->setVisible(false);
-                bottomLayer->setVisible(false);
+                topLayer->setPresent(false);
+                bottomLayer->setPresent(false);
                 layers << topLayer << bottomLayer;
             }
             layerSet(DesignLayerSet::Mechanical)->add(layers);
@@ -159,8 +161,8 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
             bottomLayer->setFace(DesignLayer::BottomFace);
-            topLayer->setVisible(true);
-            bottomLayer->setVisible(true);
+            topLayer->setPresent(true);
+            bottomLayer->setPresent(true);
             layers << topLayer << bottomLayer;
             topLayer = addLayer(category, stackPosition++);
             topLayer->setName(defaultLayerName(category, 2));
@@ -170,8 +172,8 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
             bottomLayer->setFace(DesignLayer::BottomFace);
-            topLayer->setVisible(true);
-            bottomLayer->setVisible(true);
+            topLayer->setPresent(true);
+            bottomLayer->setPresent(true);
             layers << topLayer << bottomLayer;
             layerSet(DesignLayerSet::Mask)->add(layers);
             layerSet(DesignLayerSet::NonSignal)->add(layers);
@@ -187,8 +189,8 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
             bottomLayer->setFace(DesignLayer::BottomFace);
-            topLayer->setVisible(true);
-            bottomLayer->setVisible(true);
+            topLayer->setPresent(true);
+            bottomLayer->setPresent(true);
             layers << topLayer << bottomLayer;
             layerSet(DesignLayerSet::Silkscreen)->add(layers);
             layerSet(DesignLayerSet::NonSignal)->add(layers);
@@ -245,24 +247,42 @@ DesignLayer *DesignLayerManager::layerAt(int stackPosition) const
 
 void DesignLayerManager::setLayerEnabled(int stackPosition, bool enabled)
 {
+    qDebug() << __PRETTY_FUNCTION__ << stackPosition << enabled;
     Q_ASSERT(m_layerMap.contains(stackPosition));
-    if (m_layerMap[stackPosition]->isVisible() == enabled)
+    if (m_layerMap[stackPosition]->isPresent() == enabled)
         return;
-    m_layerMap[stackPosition]->setVisible(enabled);
+    m_layerMap[stackPosition]->setPresent(enabled);
     emit layerChanged(m_layerMap[stackPosition]);
 }
 
 bool DesignLayerManager::isLayerEnabled(int stackPosition) const
 {
     Q_ASSERT(m_layerMap.contains(stackPosition));
-    return m_layerMap[stackPosition]->isVisible();
+    return m_layerMap[stackPosition]->isPresent();
 }
 
 DesignLayerList DesignLayerManager::enabledLayers() const
 {
     DesignLayerList list;
     foreach (DesignLayer *layer, m_layerMap.values()) {
-        if (layer->isVisible())
+        if (layer->isPresent())
+            list.append(layer);
+    }
+    return list;
+}
+
+void DesignLayerManager::enableOnlyUsedLayers()
+{
+    foreach (DesignLayer *layer, m_layerMap.values()) {
+        setLayerEnabled(layer->stackPosition(), layer->isUsed());
+    }
+}
+
+DesignLayerList DesignLayerManager::usedLayers() const
+{
+    DesignLayerList list;
+    foreach (DesignLayer *layer, m_layerMap.values()) {
+        if (layer->isUsed())
             list.append(layer);
     }
     return list;

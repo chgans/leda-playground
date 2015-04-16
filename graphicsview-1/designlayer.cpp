@@ -1,5 +1,12 @@
 #include "designlayer.h"
 
+/*
+ * TODO:
+ *  - DesignLayer is just a QObject
+ *  - DesignLayer has a QGraphicsItem based laterItem
+ *  - rename present to enable
+ */
+
 DesignLayer::DesignLayer(QGraphicsItem *parent):
     QGraphicsObject(parent),
     m_stackPosition(-1),
@@ -110,6 +117,11 @@ void DesignLayer::setOpacityForPrimitive(Primitive::Type type, qreal opacity)
     m_primitiveOpacityMap[type] = opacity;
 }
 
+bool DesignLayer::isPresent() const
+{
+    return m_present;
+}
+
 DesignLayer::Face DesignLayer::face() const
 {
     return m_face;
@@ -159,4 +171,13 @@ void DesignLayer::setPairedLayer(DesignLayer *layer)
 
     m_pairedLayer = layer;
     emit pairedLayerChanged(layer);
+}
+
+void DesignLayer::setPresent(bool arg)
+{
+    if (m_present == arg)
+        return;
+
+    m_present = arg;
+    emit presentChanged(arg);
 }
