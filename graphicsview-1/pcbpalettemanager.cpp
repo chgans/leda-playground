@@ -88,6 +88,7 @@ QString PcbPaletteManager::activePaletteIdentifier() const
 
 void PcbPaletteManager::setActivePalette(PcbPalette *palette)
 {
+    qDebug() << "Activating palette" << palette->name();
     Q_ASSERT(m_paletteMap.contains(palette->name()));
     m_activePalette = palette;
     emit paletteActivated(palette);

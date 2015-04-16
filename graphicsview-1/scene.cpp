@@ -1,6 +1,5 @@
 #include "scene.h"
 #include "designlayer.h"
-#include "designlayermanager.h"
 
 #include <QCursor>
 #include <QGraphicsView>
@@ -27,57 +26,8 @@ Scene::Scene(qreal x, qreal y, qreal width, qreal height, QObject *parent):
     init();
 }
 
-void Scene::activateLayer(int idx)
-{
-    DesignLayer *newLayer = m_layerManager->layerAt(idx);
-
-    if (newLayer == m_activeLayer)
-        return;
-
-    emit activeLayerAboutToChange(m_activeLayer);
-
-    if (m_activeLayer)
-        m_activeLayer->setEnabled(false);
-
-    m_activeLayer = newLayer;
-    m_activeLayer->setEnabled(true);
-
-    // TODO: move the concept of active layer into the manager?
-    int i;
-    for (i = 0; i < m_layerManager->layerCount(); i++) {
-        if (i != idx)
-            m_layerManager->layerAt(i)->setZValue(i);
-    }
-    m_layerManager->layerAt(idx)->setZValue(i);
-
-    emit activeLayerChanged(m_activeLayer);
-}
-
-DesignLayer *Scene::activeLayer() const
-{
-    return m_activeLayer;
-}
-
-void Scene::addItemToLayer(QGraphicsItem *item, int index)
-{
-    item->setParentItem(m_layerManager->layerAt(index));
-}
-
-void Scene::addItemToActiveLayer(QGraphicsItem *item)
-{
-    Q_ASSERT(m_activeLayer != nullptr);
-    item->setParentItem(m_activeLayer);
-}
-
 void Scene::init()
 {
-    // TODO: connect to the manager
-    m_layerManager = DesignLayerManager::instance();
-    foreach (DesignLayer *layer, m_layerManager->enabledLayers()) {
-        addItem(layer);
-    }
-    m_activeLayer = m_layerManager->layerAt(0);
-
     m_cellSize.setHeight(100); // um
     m_cellSize.setWidth(100);  // um
 }

@@ -29,6 +29,13 @@ public:
 signals:
 
 public slots:
+    void addPalette(PcbPalette *palette);
+    void removePalette(PcbPalette *palette);
+    void setActivePalette(PcbPalette *palette);
+    void addLaterSet(DesignLayerSet *set);
+    void removeLayerSet(DesignLayerSet *set);
+    void addLayer(DesignLayer *layer);
+    void removeLayer(DesignLayer *layer);
 
 protected slots:
     void activateLayer(int tabIndex);
@@ -37,26 +44,19 @@ protected slots:
     void activateNextSignalLayer();
     void activatePreviousSignalLayer();
 
-    void setActivePalette(PcbPalette *palette);
     void onPaletteChanged(PcbPalette *palette);
-    void addPalette(PcbPalette *palette);
-    void removePalette(PcbPalette *palette);
 
-    void setActiveLayerSet(DesignLayerSet *set);
     void onLayerSetChanged(DesignLayerSet *set);
-    void addLaterSet(DesignLayerSet *set);
-    void removeLayerSet(DesignLayerSet *set);
+
+    void addLayerTab(DesignLayer *layer);
+    void removeLayerTab(DesignLayer *layer);
 
 private:
     MainView *m_view;
+    QList<DesignLayer *> m_availableLayers;
 
     // Profile and conf
-    PcbPaletteManager *m_paletteManager;
-    DesignLayerManager *m_layerManager;
-    void connectPaletteManager();
-    void disconnectPaletteManager();
-    void connectLayerManager();
-    void disconnectLayerManager();
+    PcbPalette *m_activePalette;
 
     // Widgets
     QTabBar *m_tabBar;
@@ -65,7 +65,7 @@ private:
     void createConfigToolButton();
     void updateTabIcons();
     void updateLayerIcon();
-    void repopulateLayerTabs(QList<DesignLayer *> layers);
+    void updateLayerTabs();
     void populateConfigMenu();
     void disconnectTabBar();
     void connectTabBar();

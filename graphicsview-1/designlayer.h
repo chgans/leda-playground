@@ -16,9 +16,11 @@ class DesignLayer : public QGraphicsObject
     Q_ENUMS(Category)
     Q_ENUMS(Face)
 
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QString defaultName READ defaultName WRITE setDefaultName NOTIFY defaultNameChanged)
+    Q_PROPERTY(QString customName READ customName WRITE setCustomName NOTIFY customNameChanged)
+    Q_PROPERTY(QString effectiveName READ effectiveName NOTIFY effectiveNameChanged STORED false)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(int stackPosition READ stackPosition WRITE setStackPosition NOTIFY stackPositionChanged)
+    Q_PROPERTY(int index READ index WRITE setStackPosition NOTIFY stackPositionChanged)
     Q_PROPERTY(Category category READ category WRITE setCategory NOTIFY categoryChanged)
     Q_PROPERTY(Face face READ face WRITE setFace NOTIFY faceChanged)
     Q_PROPERTY(DesignLayer* pairedLayer READ pairedLayer WRITE setPairedLayer NOTIFY pairedLayerChanged)
@@ -42,11 +44,11 @@ public:
 
     ~DesignLayer();
 
-    QString name() const;
+    QString defaultName() const;
     QString customName() const;
     QString effectiveName() const;
     const QColor &color() const;
-    int stackPosition() const; // TODO: Rename to index()
+    int index() const; // TODO: Rename to index()
     Category category() const;
     Face face() const;
     DesignLayer* pairedLayer() const;
@@ -57,8 +59,9 @@ public:
     bool isPresent() const;
 
 signals:
-    void nameChanged(const QString &name);
-    void customNameChanged(const QString &name);
+    void defaultNameChanged(const QString &defaultName);
+    void customNameChanged(const QString &defaultName);
+    void effectiveNameChanged(const QString &defaultName);
     void colorChanged(const QColor &color);
     void stackPositionChanged(int position);
     void categoryChanged(Category category);
@@ -67,8 +70,8 @@ signals:
     void presentChanged(bool arg);
 
 public slots:
-    void setName(const QString &name);
-    void setCustomName(const QString &name);
+    void setDefaultName(const QString &defaultName);
+    void setCustomName(const QString &defaultName);
     void setColor(const QColor &color);
     void setStackPosition(int position);
     void setCategory(Category category);
@@ -80,7 +83,7 @@ private:
     QString m_name;
     QString m_customName;
     QColor m_color;
-    int m_stackPosition;
+    int m_index;
     Category m_category;
     Face m_face;
     DesignLayer* m_pairedLayer;

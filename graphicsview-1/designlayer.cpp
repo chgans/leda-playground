@@ -9,7 +9,7 @@
 
 DesignLayer::DesignLayer(QGraphicsItem *parent):
     QGraphicsObject(parent),
-    m_stackPosition(-1),
+    m_index(-1),
     m_category(InvalidCategory),
     m_face(InvalidFace),
     m_pairedLayer(nullptr)
@@ -18,6 +18,7 @@ DesignLayer::DesignLayer(QGraphicsItem *parent):
     for (Primitive::Type type = Primitive::_BeginType; type < Primitive::_EndType; type = Primitive::Type(type + 1)) {
         m_primitiveOpacityMap[type] = 1.0;
     }
+    setEnabled(false);
 }
 
 DesignLayer::~DesignLayer()
@@ -25,7 +26,7 @@ DesignLayer::~DesignLayer()
 
 }
 
-QString DesignLayer::name() const
+QString DesignLayer::defaultName() const
 {
     return m_name;
 }
@@ -42,14 +43,14 @@ QString DesignLayer::effectiveName() const
     return m_customName;
 }
 
-void DesignLayer::setName(const QString &name)
+void DesignLayer::setDefaultName(const QString &name)
 {
     if (m_name == name)
         return;
 
     m_name = name;
 
-    emit nameChanged(m_name);
+    emit defaultNameChanged(m_name);
 }
 
 void DesignLayer::setCustomName(const QString &name)
@@ -96,7 +97,7 @@ DesignLayer *DesignLayer::pairedLayer() const
 
 bool DesignLayer::isValid() const
 {
-    return !m_name.isEmpty() && m_color.isValid() && m_stackPosition != -1 &&
+    return !m_name.isEmpty() && m_color.isValid() && m_index != -1 &&
             m_category != InvalidCategory && m_face != InvalidFace;
 }
 
@@ -127,9 +128,9 @@ DesignLayer::Face DesignLayer::face() const
     return m_face;
 }
 
-int DesignLayer::stackPosition() const
+int DesignLayer::index() const
 {
-    return m_stackPosition;
+    return m_index;
 }
 
 DesignLayer::Category DesignLayer::category() const
@@ -139,10 +140,10 @@ DesignLayer::Category DesignLayer::category() const
 
 void DesignLayer::setStackPosition(int position)
 {
-    if (m_stackPosition == position)
+    if (m_index == position)
         return;
 
-    m_stackPosition = position;
+    m_index = position;
     emit stackPositionChanged(position);
 }
 

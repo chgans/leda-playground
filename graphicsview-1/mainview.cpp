@@ -1,13 +1,11 @@
 #include "mainview.h"
-#include "overview.h"
-#include "detailview.h"
 #include "insightlenswidget.h"
 #include "insightheadsupwidget.h"
 #include "insightconnectivitywidget.h"
 #include "insightpicklistwidget.h"
 #include "scene.h"
+#include "pcbpalette.h"
 #include "designlayer.h"
-#include "designlayermanager.h"
 
 #include <QGraphicsItem>
 #include <QGraphicsColorizeEffect>
@@ -26,7 +24,8 @@ MainView::MainView(QWidget *parent) :
     m_pickedItem = 0;
 
     m_scene = nullptr;
-    m_layerManager = DesignLayerManager::instance();
+    m_activeLayer = nullptr;
+    m_palette = nullptr;
 
     m_layerDisplayMode = DisplayAllLayers;
 
@@ -56,7 +55,119 @@ MainView::MainView(QWidget *parent) :
     m_pickList->hide();
     connect(m_pickList, &InsightPickListWidget::itemSelected,
             this, &MainView::onItemSelectedFromPickList);
+}
 
+void MainView::addLayer(DesignLayer *layer)
+{
+    if (m_indexToLayer.contains(layer->index()))
+        return;
+
+    int index = layer->index();
+    m_indexToLayer[index] = layer;
+    if (m_scene != nullptr)
+        m_scene->addItem(layer);
+    if (m_palette)
+        layer->setColor(m_palette->color(PcbPalette::ColorRole(layer->index() + 1)));
+    emit layerAdded(layer);
+}
+
+void MainView::removeLayer(DesignLayer *layer)
+{
+    if (!m_indexToLayer.contains(layer->index()))
+        return;
+
+    int index = layer->index();
+    Q_ASSERT(m_indexToLayer[layer->index()] == layer);
+    m_indexToLayer.remove(index);
+    if (m_scene != nullptr)
+        m_scene->removeItem(layer);
+    emit layerRemoved(layer);
+}
+
+void MainView::addLayers(const QList<DesignLayer *> &layers)
+{
+    foreach (DesignLayer *layer, layers) {
+        addLayer(layer);
+    }
+}
+
+void MainView::removeLayers(const QList<DesignLayer *> &layers)
+{
+    foreach (DesignLayer *layer, layers) {
+        removeLayer(layer);
+    }
+}
+
+QList<DesignLayer *> MainView::layers()
+{
+    QList<DesignLayer *> list = m_indexToLayer.values();
+    qSort(list.begin(), list.end(),
+          [](DesignLayer *first, DesignLayer *second) {
+       return first->index() < second->index();
+    });
+
+    return list;
+}
+
+void MainView::setActiveLayer(DesignLayer *layer)
+{
+    Q_ASSERT(m_indexToLayer.values().contains(layer));
+
+    if (layer == m_activeLayer)
+        return;
+
+    int previousIndex = -1;
+    if (m_activeLayer != nullptr) {
+        m_activeLayer->setEnabled(false);
+        previousIndex = m_activeLayer->index();
+    }
+
+    m_activeLayer = layer;
+    if (m_activeLayer != nullptr)
+        m_activeLayer->setEnabled(true);
+
+    updateLayerDisplayModes();
+    updateLayerZValues();
+
+    emit activeLayerChanged(previousIndex, m_activeLayer->index());
+}
+
+DesignLayer *MainView::activeLayer()
+{
+    return m_activeLayer;
+}
+
+void MainView::setPalette(PcbPalette *palette)
+{
+    if (m_palette == palette)
+        return;
+
+    m_palette = palette;
+    Q_ASSERT(palette);
+
+    foreach (DesignLayer *layer, m_indexToLayer.values()) {
+        layer->setColor(m_palette->color(PcbPalette::ColorRole(layer->index() + 1)));
+    }
+}
+
+PcbPalette *MainView::palette() const
+{
+    return m_palette;
+}
+
+void MainView::updateLayerDisplayModes()
+{
+}
+
+void MainView::updateLayerZValues()
+{
+    int z = 0;
+    foreach (DesignLayer *layer, m_indexToLayer.values()) {
+        if (layer->index() != m_activeLayer->index())
+            layer->setZValue(z++);
+    }
+    if (m_activeLayer != nullptr)
+        m_activeLayer->setZValue(z);
 }
 
 void MainView::addMaskingItem(QGraphicsItem *item)
@@ -94,8 +205,8 @@ void MainView::setLayerDisplayMode(MainView::LayerDisplayMode mode)
 
     m_layerDisplayMode = mode;
 
-    updateSceneLayersEffect();
-    invalidateScene(QRectF(), QGraphicsScene::ItemLayer);
+    //updateSceneLayersEffect();
+    //invalidateScene(QRectF(), QGraphicsScene::ItemLayer);
 
     emit layerDisplayModeChanged(m_layerDisplayMode);
 }
@@ -128,22 +239,28 @@ void MainView::setScene(Scene *scene)
 
     m_scene = scene;
 
-    if (m_scene == nullptr)
+    if (m_scene == nullptr) {
+        foreach (DesignLayer *layer, m_indexToLayer.values()) {
+            m_scene->removeItem(layer);
+        }
         return;
+    }
 
     QGraphicsView::setScene(scene);
     m_lens->setBuddyView(this);
     m_connectivity->setBuddyView(this);
     m_headsUp->setBuddyView(this);
 
-    updateSceneLayersEffect();
-
-    connect(m_scene, &Scene::activeLayerAboutToChange,
-            this, &MainView::onActiveLayerAboutToChange);
-    connect(m_scene, &Scene::activeLayerChanged,
-            this, &MainView::onActiveLayerChanged);
+    foreach (DesignLayer *layer, m_indexToLayer.values()) {
+        m_scene->addItem(layer);
+    }
 
     emit sceneAdded();
+}
+
+Scene *MainView::scene() const
+{
+    return m_scene;
 }
 
 // Should we instead provide access to the design insights object and monitor
@@ -228,20 +345,6 @@ bool MainView::insightLensSingleLayerEnabled() const
     return false;
 }
 
-// FIXME: This currently affects *all* views. Other solutions are:
-//  - Use IndirectPainting optimisation flag (deprecated, will likely go away int Qt 6)
-//  - Items make use of the paint function's QWidget parameter
-//    (They could ask if it should draw or not, which painting effect, ...)
-void MainView::onActiveLayerAboutToChange(DesignLayer *layer)
-{
-    updateSceneLayerEffect(layer, false);
-}
-
-void MainView::onActiveLayerChanged(DesignLayer *layer)
-{
-    updateSceneLayerEffect(layer, true);
-}
-
 void MainView::enableInsightLensSingleLayerMode(bool enabled)
 {
     // TODO
@@ -251,11 +354,6 @@ void MainView::enableInsightLensSingleLayerMode(bool enabled)
 void MainView::toggleInsightLensShape()
 {
     m_lens->toggleLensShape();
-}
-
-void MainView::onLayersChanged()
-{
-    updateSceneLayersEffect();
 }
 
 void MainView::wheelEvent(QWheelEvent *event)
@@ -303,9 +401,18 @@ void MainView::mousePressEvent(QMouseEvent *event)
     // TODO: Better placement strategy
     // TODO: PickList population depends on layer display mode too
     if (items(event->pos()).size() > 1) {
-        m_pickList->move(mapFromGlobal(QCursor::pos()));
-        m_pickList->setPickList(scene(), items(event->pos()));
-        m_pickList->show();
+        QList<QGraphicsItem *> allItems = items(event->pos());
+        QList<QGraphicsItem *> enabledItems;
+        foreach (QGraphicsItem *item, allItems) {
+            if (item->isEnabled())
+                enabledItems << item;
+        }
+        if (enabledItems.isEmpty() > 1) {
+            m_pickList->setPickList(scene(), enabledItems);
+            m_pickList->move(mapFromGlobal(QCursor::pos()));
+            // FIXME: we want it to grab the focus
+            m_pickList->show();
+        }
     }
     QGraphicsView::mousePressEvent(event);
 }
@@ -339,6 +446,7 @@ bool MainView::eventFilter(QObject *obj, QEvent *event)
     return QGraphicsView::eventFilter(obj, event);
 }
 
+#if 0
 void MainView::updateSceneLayersEffect()
 {
     foreach (DesignLayer *layer, m_layerManager->allLayers()) {
@@ -346,6 +454,9 @@ void MainView::updateSceneLayersEffect()
     }
 }
 
+// TODO: use
+// - layer->setColorMode(NormalColor|GreyScaledColor|MonochromedColor)
+// - layer.setVisible(true|false)
 void MainView::updateSceneLayerEffect(DesignLayer *layer, bool isActive)
 {
     if (isActive) {
@@ -387,6 +498,7 @@ void MainView::updateSceneLayerEffect(DesignLayer *layer, bool isActive)
         Q_ASSERT(false);
     }
 }
+#endif
 
 void MainView::showDesignInsight()
 {

@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
     PcbPalette *palette = paletteManager->activePalette();
     foreach (DesignLayer *layer, layerManager->allLayers()) {
-        QColor color = palette->color(PcbPalette::ColorRole(layer->stackPosition() + 1));
+        QColor color = palette->color(PcbPalette::ColorRole(layer->index() + 1));
         layer->setColor(color);
     }
 
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
             int layerIndex = obj["layer"].toInt();
             DesignLayer *layer = layerManager->layerAt(layerIndex);
             QColor color = layer->color();
-            qDebug() << layer->name() << layer->stackPosition() << layer->color();
+            qDebug() << layer->defaultName() << layer->index() << layer->color();
             if (type.toLower() == "rectangle") {
                 QGraphicsRectItem *ritem = new QGraphicsRectItem();
                 ritem->setRect(QRectF(points[0], points[1]));
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
             item->setOpacity(0.75);
             item->setFlag(QGraphicsItem::ItemIsMovable, true);
             item->setFlag(QGraphicsItem::ItemIsSelectable, true);
-            scene.addItemToLayer(item, layerIndex);
+            item->setParentItem(layer);
         }
         layerManager->enableOnlyUsedLayers();
     }

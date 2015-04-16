@@ -4,6 +4,7 @@
 #include <QGraphicsView>
 #include <QTimer>
 #include <QList>
+#include <QMap>
 
 class QResizeEvent;
 class QGraphicsItem;
@@ -15,7 +16,7 @@ class InsightConnectivityWidget;
 class InsightPickListWidget;
 class Scene;
 class DesignLayer;
-class DesignLayerManager;
+class PcbPalette;
 
 // TODO: rename to Pcb2dView
 //  Add flags to enable tools (lens, ...)
@@ -41,6 +42,18 @@ public:
 
     explicit MainView(QWidget *parent = 0);
 
+    void addLayer(DesignLayer *layer);
+    void removeLayer(DesignLayer *layer);
+    void addLayers(const QList<DesignLayer *> &layers);
+    void removeLayers(const QList<DesignLayer *> &layers);
+    QList<DesignLayer *> layers();
+
+    void setActiveLayer(DesignLayer *layer);
+    DesignLayer *activeLayer();
+
+    void setPalette(PcbPalette *palette);
+    PcbPalette *palette() const;
+
     void addMaskingItem(QGraphicsItem *item);
     void removeMaskingItem(QGraphicsItem *item);
     void setMaskingItems(QList<QGraphicsItem*> items);
@@ -50,8 +63,8 @@ public:
     void setLayerDisplayMode(LayerDisplayMode mode);
     LayerDisplayMode layerDisplayMode() const;
 
-    // Needed for magnifier
     virtual void setScene(Scene *scene);
+    virtual Scene *scene() const;
 
     bool headsUpEnabled() const;
     bool headsUpTrackingEnabled() const;
@@ -61,11 +74,16 @@ public:
     bool insightLensAutoZoomEnabled() const;
     bool insightLensSingleLayerEnabled() const;
 
+
 signals:
     void viewportChanged();
     void layerDisplayModeChanged(LayerDisplayMode mode);
     void sceneAdded();
     void sceneRemoved();
+    void layerAdded(DesignLayer *layer);
+    void layerRemoved(DesignLayer *layer);
+    void layerVisibilityChanged(int index, bool visible);
+    void activeLayerChanged(int previousIndex, int currentIndex);
 
 public slots:
     LayerDisplayMode cycleLayerDisplayMode();
@@ -82,11 +100,11 @@ public slots:
     void toggleInsightLensShape();
 
 protected slots:
-    void onLayersChanged();
-    void onActiveLayerAboutToChange(DesignLayer *layer);
-    void onActiveLayerChanged(DesignLayer *layer);
 
 protected:
+    void updateLayerDisplayModes();
+    void updateLayerZValues();
+
     void wheelEvent(QWheelEvent *event);
     void drawForeground(QPainter * painter, const QRectF & rect);
     void mousePressEvent(QMouseEvent *event);
@@ -96,12 +114,12 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 private:
-    void updateSceneLayersEffect();
-    void updateSceneLayerEffect(DesignLayer *layer, bool isActive);
 
     Scene *m_scene;
-    DesignLayerManager *m_layerManager;
+    QMap<int, DesignLayer *> m_indexToLayer;
+    DesignLayer *m_activeLayer;
     LayerDisplayMode m_layerDisplayMode;
+    PcbPalette *m_palette;
 
     int m_designInsightDelay;
     QTimer m_designInsightTimer;

@@ -75,8 +75,8 @@ void DesignLayerManager::loadFromDefaults()
             for (int i = 0; i < 16; i++) {
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
-                topLayer->setName(defaultLayerName(category, i));
-                bottomLayer->setName(defaultLayerName(category, 32 - 1 - i));
+                topLayer->setDefaultName(defaultLayerName(category, i));
+                bottomLayer->setDefaultName(defaultLayerName(category, 32 - 1 - i));
                 if (i == 0) {
                     topLayer->setPresent(true);
                     bottomLayer->setPresent(true);
@@ -100,8 +100,8 @@ void DesignLayerManager::loadFromDefaults()
             for (int i = 0; i < 16; i++) {
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
-                topLayer->setName(defaultLayerName(category, i));
-                bottomLayer->setName(defaultLayerName(category, 32 -1 - i));
+                topLayer->setDefaultName(defaultLayerName(category, i));
+                bottomLayer->setDefaultName(defaultLayerName(category, 32 -1 - i));
                 topLayer->setPairedLayer(bottomLayer);
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
@@ -119,8 +119,8 @@ void DesignLayerManager::loadFromDefaults()
             for (int i = 0; i < 16; i++) {
                 topLayer = addLayer(category, stackPosition + i);
                 bottomLayer = addLayer(category, stackPosition + 32 - 1 - i);
-                topLayer->setName(defaultLayerName(category, i));
-                bottomLayer->setName(defaultLayerName(category, 32 - 1 - i));
+                topLayer->setDefaultName(defaultLayerName(category, i));
+                bottomLayer->setDefaultName(defaultLayerName(category, 32 - 1 - i));
                 topLayer->setPairedLayer(bottomLayer);
                 bottomLayer->setPairedLayer(topLayer);
                 topLayer->setFace(DesignLayer::TopFace);
@@ -137,16 +137,16 @@ void DesignLayerManager::loadFromDefaults()
         case DesignLayer::OtherCategory:
             layers.clear();
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(defaultLayerName(category, 0));
+            topLayer->setDefaultName(defaultLayerName(category, 0));
             layers << topLayer;
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(defaultLayerName(category, 1));
+            topLayer->setDefaultName(defaultLayerName(category, 1));
             layers << topLayer;
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(defaultLayerName(category, 2));
+            topLayer->setDefaultName(defaultLayerName(category, 2));
             layers << topLayer;
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(defaultLayerName(category, 3));
+            topLayer->setDefaultName(defaultLayerName(category, 3));
             layers << topLayer;
             layerSet(DesignLayerSet::NonSignal)->add(layers);
             layerSet(DesignLayerSet::All)->add(layers);
@@ -154,9 +154,9 @@ void DesignLayerManager::loadFromDefaults()
         case DesignLayer::MaskCategory:
             layers.clear();
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(defaultLayerName(category, 0));
+            topLayer->setDefaultName(defaultLayerName(category, 0));
             bottomLayer = addLayer(category, stackPosition++);
-            bottomLayer->setName(defaultLayerName(category, 1));
+            bottomLayer->setDefaultName(defaultLayerName(category, 1));
             topLayer->setPairedLayer(bottomLayer);
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
@@ -165,9 +165,9 @@ void DesignLayerManager::loadFromDefaults()
             bottomLayer->setPresent(true);
             layers << topLayer << bottomLayer;
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(defaultLayerName(category, 2));
+            topLayer->setDefaultName(defaultLayerName(category, 2));
             bottomLayer = addLayer(category, stackPosition++);
-            bottomLayer->setName(defaultLayerName(category, 3));
+            bottomLayer->setDefaultName(defaultLayerName(category, 3));
             topLayer->setPairedLayer(bottomLayer);
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
@@ -182,9 +182,9 @@ void DesignLayerManager::loadFromDefaults()
         case DesignLayer::SilkscreenCategory:
             layers.clear();
             topLayer = addLayer(category, stackPosition++);
-            topLayer->setName(defaultLayerName(category, 0));
+            topLayer->setDefaultName(defaultLayerName(category, 0));
             bottomLayer = addLayer(category, stackPosition++);
-            bottomLayer->setName(defaultLayerName(category, 1));
+            bottomLayer->setDefaultName(defaultLayerName(category, 1));
             topLayer->setPairedLayer(bottomLayer);
             bottomLayer->setPairedLayer(topLayer);
             topLayer->setFace(DesignLayer::TopFace);
@@ -225,7 +225,12 @@ DesignLayerSet *DesignLayerManager::layerSet(int type) const
 
 DesignLayerList DesignLayerManager::allLayers() const
 {
-    return m_layerMap.values();
+    DesignLayerList list = m_layerMap.values();
+    qSort(list.begin(), list.end(),
+          [](DesignLayer *first, DesignLayer *second) {
+       return first->index() < second->index();
+    });
+    return list;
 }
 
 DesignLayerList DesignLayerManager::layersForCategory(DesignLayer::Category category) const
@@ -234,7 +239,7 @@ DesignLayerList DesignLayerManager::layersForCategory(DesignLayer::Category cate
     DesignLayerList list = m_layerCategoryMap[category];
     qSort(list.begin(), list.end(),
           [](DesignLayer *first, DesignLayer *second) {
-       return first->stackPosition() < second->stackPosition();
+       return first->index() < second->index();
     });
     return list;
 }
@@ -274,7 +279,7 @@ DesignLayerList DesignLayerManager::enabledLayers() const
 void DesignLayerManager::enableOnlyUsedLayers()
 {
     foreach (DesignLayer *layer, m_layerMap.values()) {
-        setLayerEnabled(layer->stackPosition(), layer->isUsed());
+        setLayerEnabled(layer->index(), layer->isUsed());
     }
 }
 
@@ -432,8 +437,8 @@ DesignLayer *DesignLayerManager::addLayer(DesignLayer::Category category, int st
 void DesignLayerManager::removeLayer(DesignLayer *layer)
 {
     Q_ASSERT(m_layerMap.values().contains(layer));
-    Q_ASSERT(m_layerMap.contains(layer->stackPosition()));
-    m_layerMap.remove(layer->stackPosition());
+    Q_ASSERT(m_layerMap.contains(layer->index()));
+    m_layerMap.remove(layer->index());
     foreach (DesignLayerSet *set, m_layerSetMap.values()) {
         if (set->contains(layer))
             set->remove(layer);

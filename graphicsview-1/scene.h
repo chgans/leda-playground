@@ -18,16 +18,6 @@ public:
     explicit Scene(qreal x, qreal y, qreal width, qreal height,
                    QObject * parent = 0);
 
-    void activateLayer(int idx);
-    DesignLayer *activeLayer() const;
-
-    void addItemToLayer(QGraphicsItem *item, int index);
-    void addItemToActiveLayer(QGraphicsItem *item);
-
-signals:
-    void activeLayerAboutToChange(DesignLayer *layer);
-    void activeLayerChanged(DesignLayer *layer);
-
 public slots:
 
 protected:
@@ -35,9 +25,6 @@ protected:
 
 private:
     void init();
-    DesignLayerManager * m_layerManager;
-    DesignLayer *m_activeLayer;
-
 
     QPointF snapScenePos(QPointF pos);
 

@@ -104,9 +104,9 @@ void ColorProfileEditor::populateColorView()
 
         foreach (DesignLayer *layer, manager->layersForCategory(category)) {
             QTreeWidgetItem *colorItem =  new QTreeWidgetItem();
-            PcbPalette::ColorRole role = PcbPalette::ColorRole(layer->stackPosition() + 1);
+            PcbPalette::ColorRole role = PcbPalette::ColorRole(layer->index() + 1);
             QColor color = m_activeProfile->color(role);
-            colorItem->setText(0, layer->name());
+            colorItem->setText(0, layer->defaultName());
             colorItem->setBackgroundColor(1, color);
             colorItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
             colorItem->setData(0, Qt::DecorationRole,

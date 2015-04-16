@@ -27,6 +27,8 @@
 PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     QWidget(parent)
 {
+    m_paletteManager = PcbPaletteManager::instance();
+    m_layerManager = DesignLayerManager::instance();
 
     m_view = new MainView();
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -35,6 +37,28 @@ PcbEditorWidget::PcbEditorWidget(QWidget *parent) :
     m_insightDockWidget = new InsightDockWidget();
 
     m_layerBar = new LayerBar;
+    m_layerBar->setView(m_view);
+
+    foreach (PcbPalette *palette, m_paletteManager->palettes())
+        m_layerBar->addPalette(palette);
+    m_layerBar->setActivePalette(m_paletteManager->activePalette());
+    connect(m_paletteManager, &PcbPaletteManager::paletteAdded,
+            m_layerBar, &LayerBar::addPalette);
+    connect(m_paletteManager, &PcbPaletteManager::paletteRemoved,
+            m_layerBar, &LayerBar::removePalette);
+    connect(m_paletteManager, &PcbPaletteManager::paletteActivated,
+            m_layerBar, &LayerBar::setActivePalette);
+
+    foreach (DesignLayerSet *set, m_layerManager->allLayerSets())
+        m_layerBar->addLaterSet(set);
+    connect(m_layerManager, &DesignLayerManager::layerSetAdded,
+            m_layerBar, &LayerBar::addLaterSet);
+    connect(m_layerManager, &DesignLayerManager::layerSetRemoved,
+            m_layerBar, &LayerBar::removeLayerSet);
+
+    foreach (DesignLayer *layer, DesignLayerManager::instance()->enabledLayers()) {
+        m_layerBar->addLayer(layer);
+    }
 
     m_snapButton = new QToolButton;
     m_snapButton->setText("Snap");

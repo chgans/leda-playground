@@ -1,10 +1,10 @@
 #include "layerbar.h"
 
 #include "mainview.h"
+#include "scene.h"
 #include "designlayer.h"
-#include "designlayermanager.h"
+#include "designlayerset.h"
 #include "pcbpalette.h"
-#include "pcbpalettemanager.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -33,9 +33,6 @@ LayerBar::LayerBar(QWidget *parent) : QWidget(parent)
 {
     m_view = nullptr;
 
-    m_paletteManager = PcbPaletteManager::instance();
-    m_layerManager = DesignLayerManager::instance();
-
     createConfigToolButton();
     createTabBar();
     createActions();
@@ -46,20 +43,10 @@ LayerBar::LayerBar(QWidget *parent) : QWidget(parent)
     mainLayout->addWidget(m_tabBar);
     setLayout(mainLayout);
 
-    repopulateLayerTabs(m_layerManager->enabledLayers());
-    updateTabIcons();
-    updateLayerIcon();
     populateConfigMenu();
 
     connectActions();
     connectTabBar();
-    foreach (PcbPalette *palette, m_paletteManager->palettes())
-        addPalette(palette);
-    setActivePalette(m_paletteManager->activePalette());
-    connectPaletteManager();
-    foreach (DesignLayerSet *set, m_layerManager->allLayerSets())
-        addLaterSet(set);
-    connectLayerManager();
 }
 
 LayerBar::~LayerBar()
@@ -69,17 +56,23 @@ LayerBar::~LayerBar()
 void LayerBar::setView(MainView *view)
 {
     m_view = view;
-    DesignLayer *layer = m_tabBar->tabData(m_tabBar->currentIndex()).value<DesignLayer *>();
-    //m_view->activateLayer(layer->stackPosition());
+
+    connect(view, &MainView::layerAdded,
+            this, &LayerBar::addLayerTab);
+    connect(view, &MainView::layerRemoved,
+            this, &LayerBar::removeLayerTab);
+
+    updateLayerTabs();
+    updateTabIcons();
+    updateLayerIcon();
 }
 
 void LayerBar::activateLayer(int tabIndex)
 {
-    // TODO: emit activateLayerRequested (We don't want to touch the view here)
     DesignLayer *layer = m_tabBar->tabData(tabIndex).value<DesignLayer *>();
-    updateLayerIcon();
-    qDebug() << "Activating layer" << layer->stackPosition() << layer->name();
-    //m_view->activateLayer(layer->stackPosition());
+    qDebug() << "Activating layer" << layer->index() << layer->defaultName();
+    if (m_view != nullptr)
+        m_view->setActiveLayer(layer);
 }
 
 void LayerBar::activateNextLayer()
@@ -104,10 +97,18 @@ void LayerBar::activatePreviousSignalLayer()
 
 void LayerBar::setActivePalette(PcbPalette *palette)
 {
+    Q_ASSERT(palette);
+
+    if (m_activePalette == palette)
+        return;
+
+    m_activePalette = palette;
+
     updateTabIcons();
     updateLayerIcon();
 
     foreach (QAction *action, m_colorActionGroup->actions()) {
+        qDebug() << action->data().value<PcbPalette *>();
         if (action->data().value<PcbPalette *>() == palette) {
             action ->setChecked(true);
             return;
@@ -118,7 +119,8 @@ void LayerBar::setActivePalette(PcbPalette *palette)
 
 void LayerBar::onPaletteChanged(PcbPalette *palette)
 {
-    Q_UNUSED(palette);
+    updateTabIcons();
+    updateLayerIcon();
 }
 
 void LayerBar::addPalette(PcbPalette *palette)
@@ -142,20 +144,11 @@ void LayerBar::removePalette(PcbPalette *palette)
     Q_ASSERT(false);
 }
 
-void LayerBar::setActiveLayerSet(DesignLayerSet *set)
-{
-    disconnectTabBar();
-    repopulateLayerTabs(set->enabledLayers());
-    updateTabIcons();
-    updateLayerIcon();
-    connectTabBar();
-}
-
 void LayerBar::onLayerSetChanged(DesignLayerSet *set)
 {
     Q_UNUSED(set);
     disconnectTabBar();
-    repopulateLayerTabs(set->enabledLayers());
+    updateLayerTabs();
     updateTabIcons();
     updateLayerIcon();
     connectTabBar();
@@ -167,6 +160,8 @@ void LayerBar::addLaterSet(DesignLayerSet *set)
     action->setData(QVariant::fromValue<DesignLayerSet *>(set));
     m_setActionGroup->addAction(action);
     m_setMenu->addAction(action);
+
+    // TODO: monitor set changes here
 }
 
 void LayerBar::removeLayerSet(DesignLayerSet *set)
@@ -181,36 +176,49 @@ void LayerBar::removeLayerSet(DesignLayerSet *set)
     Q_ASSERT(false);
 }
 
-void LayerBar::connectPaletteManager()
+void LayerBar::addLayer(DesignLayer *layer)
 {
-    connect(m_paletteManager, &PcbPaletteManager::paletteActivated,
-            this, &LayerBar::setActivePalette);
-    connect(m_paletteManager, &PcbPaletteManager::paletteChanged,
-            this, &LayerBar::onPaletteChanged);
-    connect(m_paletteManager, &PcbPaletteManager::paletteAdded,
-            this, &LayerBar::addPalette);
-    connect(m_paletteManager, &PcbPaletteManager::paletteRemoved,
-            this, &LayerBar::removePalette);
+    Q_ASSERT(!m_availableLayers.contains(layer));
+    m_availableLayers.append(layer);
+    if (layer->isPresent()) {
+        m_view->addLayer(layer);
+    }
 }
 
-void LayerBar::disconnectPaletteManager()
+void LayerBar::removeLayer(DesignLayer *layer)
 {
-    m_paletteManager->disconnect(this);
+    Q_ASSERT(m_availableLayers.contains(layer));
+    m_availableLayers.removeOne(layer);
+    if (m_view) {
+        if (m_view->activeLayer() == layer && m_availableLayers.count() > 0)
+            m_view->setActiveLayer(m_availableLayers.first());
+        m_view->removeLayer(layer);
+    }
 }
 
-void LayerBar::connectLayerManager()
+void LayerBar::addLayerTab(DesignLayer *layer)
 {
-    connect(m_layerManager, &DesignLayerManager::layerSetChanged,
-            this, &LayerBar::onLayerSetChanged);
-    connect(m_layerManager, &DesignLayerManager::layerSetAdded,
-            this, &LayerBar::addLaterSet);
-    connect(m_layerManager, &DesignLayerManager::layerSetRemoved,
-            this, &LayerBar::removeLayerSet);
+    disconnectTabBar();
+    int tabIndex = m_tabBar->addTab(layer->defaultName());
+    m_tabBar->setTabData(tabIndex, QVariant::fromValue<DesignLayer *>(layer));
+    m_tabBar->setTabIcon(tabIndex, createColorIcon(layer->color()));
+    updateLayerIcon();
+    if (layer == m_view->activeLayer())
+        m_tabBar->setCurrentIndex(tabIndex);
+    connectTabBar();
 }
 
-void LayerBar::disconnectLayerManager()
+void LayerBar::removeLayerTab(DesignLayer *layer)
 {
-    m_layerManager->disconnect(this);
+    disconnectTabBar();
+    for (int i = 0; i < m_tabBar->count(); i++) {
+        DesignLayer *tabLayer = m_tabBar->tabData(i).value<DesignLayer *>();
+        if (layer == tabLayer) {
+            m_tabBar->removeTab(i);
+            break;
+        }
+    }
+    connectTabBar();
 }
 
 void LayerBar::createTabBar()
@@ -231,10 +239,9 @@ void LayerBar::createConfigToolButton()
 
 void LayerBar::updateTabIcons()
 {
-    PcbPalette *palette = m_paletteManager->activePalette();
     for (int tabIndex = 0; tabIndex < m_tabBar->count(); tabIndex++) {
         DesignLayer *layer = m_tabBar->tabData(tabIndex).value<DesignLayer *>();
-        QColor color = palette->color(PcbPalette::ColorRole(layer->stackPosition() + 1));
+        QColor color = layer->color();
         layer->setColor(color);
         m_tabBar->setTabIcon(tabIndex, createColorIcon(layer->color()));
     }
@@ -248,16 +255,23 @@ void LayerBar::updateLayerIcon()
     m_configToolButton->setIcon(icon);
 }
 
-void LayerBar::repopulateLayerTabs(QList<DesignLayer *> layers)
+void LayerBar::updateLayerTabs()
 {
     while (m_tabBar->count() > 0)
         m_tabBar->removeTab(0);
-    foreach (DesignLayer *layer, layers) {
-        qDebug() << __PRETTY_FUNCTION__ << layer->stackPosition()
-                 << layer->isEnabled() << layer->isPresent() << layer->isVisible();
-        int tabIndex = m_tabBar->addTab(layer->name());
+
+    if (m_view == nullptr)
+        return;
+
+    int currentIndex = -1;
+    foreach (DesignLayer *layer, m_view->layers()) {
+        int tabIndex = m_tabBar->addTab(layer->defaultName());
         m_tabBar->setTabData(tabIndex, QVariant::fromValue<DesignLayer *>(layer));
+        if (layer == m_view->activeLayer())
+            currentIndex = tabIndex;
     }
+    if (currentIndex != -1)
+        m_tabBar->setCurrentIndex(currentIndex);
 }
 
 void LayerBar::populateConfigMenu()
@@ -300,7 +314,7 @@ void LayerBar::connectTabBar()
 
 void LayerBar::showTabContextMenu(const QPoint &pos)
 {
-    if (m_tabBar->count() == 0)
+    if (m_tabBar->count() == 0 || m_view == nullptr)
         return;
 
     int tabIndex = m_tabBar->tabAt(pos);
@@ -308,14 +322,11 @@ void LayerBar::showTabContextMenu(const QPoint &pos)
     QMenu *menu = new QMenu("Layer tab contextual menu");
     QAction *action;
     action = new QAction(createColorIcon(layer->color()),
-                         QString("Hide %1").arg(layer->name()), menu);
+                         QString("Hide %1").arg(layer->defaultName()), menu);
     connect(action, &QAction::triggered,
-            this, [this, tabIndex](bool checked) {
+            this, [this, layer](bool checked) {
         Q_UNUSED(checked);
-        DesignLayer *layer = m_tabBar->tabData(tabIndex).value<DesignLayer *>();
-        layer->setVisible(false);
-        updateTabIcons();
-        updateLayerIcon();
+        m_view->removeLayer(layer);
     });
     menu->addAction(action);
 
@@ -325,44 +336,26 @@ void LayerBar::showTabContextMenu(const QPoint &pos)
     QMenu *showMenu = new QMenu("Show layers");
     menu->addMenu(showMenu);
 
-    foreach (DesignLayer *layer, m_layerManager->enabledLayers()) {
-        qDebug() << __PRETTY_FUNCTION__ << layer->stackPosition()
+    foreach (DesignLayer *layer, m_availableLayers) {
+        qDebug() << __PRETTY_FUNCTION__ << layer->index()
                  << layer->isEnabled() << layer->isPresent() << layer->isVisible();
-        if (layer->isVisible()) {
+        if (m_view->layers().contains(layer)) {
             action = new QAction(createColorIcon(layer->color()),
-                                 QString("Hide %1").arg(layer->name()), menu);
-            int tabIndex = -1;
-            for (int i = 0; i < m_tabBar->count(); i++) {
-                if (m_tabBar->tabData(i).value<DesignLayer *>() == layer) {
-                    tabIndex = i;
-                    break;
-                }
-            }
-            Q_ASSERT(tabIndex != -1);
+                                 QString("Hide %1").arg(layer->defaultName()), menu);
             connect(action, &QAction::triggered,
-                    this, [this, tabIndex](bool checked) {
+                    this, [this, layer](bool checked) {
                 Q_UNUSED(checked);
-                // FIXME: layer->setPresent(false), should trigger a slot here that effectively remove the tab
-                DesignLayer *layer = m_tabBar->tabData(tabIndex).value<DesignLayer *>();
-                layer->setVisible(false);
-                m_tabBar->removeTab(tabIndex);
-                updateTabIcons();
-                updateLayerIcon();
+                m_view->removeLayer(layer);
             });
             hideMenu->addAction(action);
         }
         else {
             action = new QAction(createColorIcon(layer->color()),
-                                 QString("Show %1").arg(layer->name()), menu);
+                                 QString("Show %1").arg(layer->defaultName()), menu);
             connect(action, &QAction::triggered,
                     this, [this, layer](bool checked) {
                 Q_UNUSED(checked);
-                // FIXME: use insertTab
-                int idx = m_tabBar->addTab(layer->name());
-                m_tabBar->setTabData(idx, QVariant::fromValue<DesignLayer *>(layer));
-                layer->setVisible(true);
-                updateTabIcons();
-                updateLayerIcon();
+                m_view->addLayer(layer);
             });
             showMenu->addAction(action);
         }
@@ -480,12 +473,17 @@ void LayerBar::connectActions()
     connect(m_colorActionGroup, &QActionGroup::triggered,
             this, [this](QAction *action) {
         PcbPalette *palette = action->data().value<PcbPalette *>();
-        m_paletteManager->setActivePalette(palette);
+        m_view->setPalette(palette);
+        updateLayerIcon();
+        updateTabIcons();
     });
     connect(m_setActionGroup, &QActionGroup::triggered,
             this, [this](QAction *action) {
         DesignLayerSet *set = action->data().value<DesignLayerSet *>();
-        setActiveLayerSet(set);
+        if (m_view != nullptr) {
+            m_view->removeLayers(m_view->layers());
+            m_view->addLayers(set->enabledLayers());
+        }
     });
     connect(m_opacityActionGroup, &QActionGroup::triggered,
             this, [this](QAction *action) {

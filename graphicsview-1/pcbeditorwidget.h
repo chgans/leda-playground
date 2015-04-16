@@ -40,6 +40,8 @@ protected:
     void wheelEvent(QWheelEvent *event);
 
 private:
+    PcbPaletteManager *m_paletteManager;
+    DesignLayerManager *m_layerManager;
     MainView *m_view;
     LayerBar *m_layerBar;
     InsightDockWidget *m_insightDockWidget;
