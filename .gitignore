@@ -5,6 +5,9 @@
 # temp files
 *~
 
+# Gwenview
+.directory
+
 # Compiled Object files
 *.slo
 *.lo
