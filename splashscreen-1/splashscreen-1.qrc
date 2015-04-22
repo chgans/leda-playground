@@ -2,5 +2,6 @@
     <qresource prefix="/img">
         <file>splash1.jpg</file>
         <file>splash3.jpg</file>
+        <file>leda-splash-screen-500.png</file>
     </qresource>
 </RCC>
