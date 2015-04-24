@@ -1,0 +1,21 @@
+{
+    "Encoding": "UTF-8",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "konqui@kde.org",
+                "Name": "Konqui the Dragon"
+            }
+        ],
+        "Description": "A sample plugin",
+        "Icon": "korganizer",
+        "Id": "ktexteditortimedate",
+        "License": "GPL",
+        "Name": "My plugin",
+        "ServiceTypes": [
+            "app/Plugin"
+        ],
+        "Version": "0.1",
+        "Website": "http://mywebsite.org"
+    }
+}

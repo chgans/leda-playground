@@ -1,0 +1,14 @@
+[Desktop Entry]
+Encoding=UTF-8
+X-KDE-Library=kdeplugin1
+X-KDE-PluginInfo-Author=Konqui the Dragon
+X-KDE-PluginInfo-Email=konqui@kde.org
+X-KDE-PluginInfo-Name=ktexteditortimedate
+X-KDE-PluginInfo-Version=0.1
+X-KDE-PluginInfo-Website=http://mywebsite.org
+X-KDE-PluginInfo-License=GPL
+ServiceTypes=kdeapp1/Plugin
+Type=Plugin
+Icon=korganizer
+Name=My plugin
+Comment=A sample plugin

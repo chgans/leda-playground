@@ -1,0 +1,12 @@
+#ifndef KDEPLUGIN1_GLOBAL_H
+#define KDEPLUGIN1_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(KDEPLUGIN1_LIBRARY)
+#  define KDEPLUGIN1SHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define KDEPLUGIN1SHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // KDEPLUGIN1_GLOBAL_H

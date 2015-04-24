@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/kxmlgui">
+        <file>appui.rc</file>
+    </qresource>
+</RCC>
