@@ -1,26 +1,23 @@
+
 #include "kdeplugin1.h"
+#include "core/plugin.h"
 
-#include <KTextEdit>
-#include <KLocalizedString>
+#include <KPluginFactory>
 
+TextEditorPlugin::TextEditorPlugin(QObject *parent, const QVariantList &/*args*/):
+    IEditorPlugin(parent)
+{}
 
-K_PLUGIN_FACTORY_WITH_JSON(TextEditorFactory,
-                           "texteditor.json",
-                           registerPlugin<Kdeplugin1>();
-)
+TextEditorPlugin::~TextEditorPlugin()
+{}
 
-Kdeplugin1::Kdeplugin1(QObject *parent, const QVariantList &args):
-    Plugin(parent, args)
+QString TextEditorPlugin::dummy2() const
 {
-
+    return QStringLiteral("dummy");
 }
 
-Kdeplugin1::~Kdeplugin1()
-{
-
-}
-
-KTextEdit *Kdeplugin1::createEditor()
+KTextEdit *TextEditorPlugin::createEditor()
 {
     return new KTextEdit();
 }
+

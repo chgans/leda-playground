@@ -10,7 +10,10 @@ CONFIG += c++11
 QT       += core gui
 
 # KF5 modules
-QT       += KXmlGui KService KI18n
+QT       += KXmlGui KService KI18n KTextWidgets KParts
+
+INCLUDEPATH += ..
+LIBS += -L$$OUT_PWD/../core -lcore
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -23,8 +26,7 @@ SOURCES += main.cpp\
     mainwindow.cpp
 
 HEADERS  += widget.h \
-    mainwindow.h \
-    plugin.h
+    mainwindow.h
 
 RESOURCES += \
     app.qrc

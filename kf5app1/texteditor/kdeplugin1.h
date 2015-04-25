@@ -1,21 +1,20 @@
 #ifndef KDEPLUGIN1_H
 #define KDEPLUGIN1_H
 
-#include "kdeplugin1_global.h"
+#include "core/plugin.h"
+#include <KTextEdit>
 
-#include "plugin.h"
-
-class KDEPLUGIN1SHARED_EXPORT Kdeplugin1: public Plugin
+class TextEditorPlugin: public IEditorPlugin
 {
     Q_OBJECT
+    Q_PROPERTY(QString dummy2 READ dummy2)
 public:
-    Kdeplugin1(QObject *parent = nullptr, const QVariantList &args = QVariantList());
-    virtual ~Kdeplugin1();
+    TextEditorPlugin(QObject *parent, const QVariantList &args);
+    virtual ~TextEditorPlugin();
+    QString dummy2() const;
 
+public slots:
     KTextEdit *createEditor();
-
-private:
 };
 
-K_PLUGIN_FACTORY_DECLARATION(Kdeplugin1Factory)
 #endif // KDEPLUGIN1_H

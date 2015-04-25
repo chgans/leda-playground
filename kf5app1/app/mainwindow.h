@@ -3,7 +3,7 @@
 
 #include <KXmlGuiWindow>
 
-class Plugin;
+class IEditorPlugin;
 
 class MainWindow : public KXmlGuiWindow
 {
@@ -12,13 +12,14 @@ public:
     explicit MainWindow(QWidget *parent = 0);
 
 signals:
-    void pluginLoaded(Plugin *plugin);
+    void aboutToLoadPlugins(int count);
+    void pluginLoaded(IEditorPlugin *plugin);
 
 public slots:
     void loadPlugins();
 
 protected:
-    void addPlugin(Plugin *plugin);
+    void addPlugin(IEditorPlugin *plugin);
 };
 
 #endif // MAINWINDOW_H

@@ -1,19 +1,24 @@
 {
     "Encoding": "UTF-8",
+    "Name": "Sample text editor plugin",
     "KPlugin": {
         "Authors": [
             {
-                "Email": "konqui@kde.org",
-                "Name": "Konqui the Dragon"
+                "Email": "chgans AT gna DOT org",
+                "Name": "Christian Gagneraud"
             }
         ],
         "Description": "A sample plugin",
         "Icon": "korganizer",
-        "Id": "ktexteditortimedate",
+        "Id": "Kdeplugin1Factory",
         "License": "GPL",
         "Name": "My plugin",
         "ServiceTypes": [
             "app/Plugin"
+        ],
+        "Dependencies": [
+            { "Name": "core1", "Version": "0.1" },
+            { "Name": "core2", "Version": "0.1" },
         ],
         "Version": "0.1",
         "Website": "http://mywebsite.org"
