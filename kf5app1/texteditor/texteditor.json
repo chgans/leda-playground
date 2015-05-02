@@ -1,6 +1,5 @@
 {
     "Encoding": "UTF-8",
-    "Name": "Sample text editor plugin",
     "KPlugin": {
         "Authors": [
             {
@@ -18,7 +17,7 @@
         ],
         "Dependencies": [
             { "Name": "core1", "Version": "0.1" },
-            { "Name": "core2", "Version": "0.1" },
+            { "Name": "core2", "Version": "0.1" }
         ],
         "Version": "0.1",
         "Website": "http://mywebsite.org"

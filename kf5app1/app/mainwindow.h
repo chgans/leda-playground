@@ -1,11 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <KXmlGuiWindow>
+#include <KParts/MainWindow>
 
 class IEditorPlugin;
 
-class MainWindow : public KXmlGuiWindow
+// TODO:
+// States:
+class MainWindow : public KParts::MainWindow
 {
     Q_OBJECT
 public:

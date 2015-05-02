@@ -6,7 +6,7 @@
 
 CONFIG   += c++11
 QT       += widgets
-QT       += KTextWidgets KCoreAddons
+QT       += KTextEditor KCoreAddons
 
 DEFINES += KDEPLUGIN1_LIBRARY
 TARGET = texteditor

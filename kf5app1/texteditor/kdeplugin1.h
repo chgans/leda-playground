@@ -7,14 +7,12 @@
 class TextEditorPlugin: public IEditorPlugin
 {
     Q_OBJECT
-    Q_PROPERTY(QString dummy2 READ dummy2)
 public:
     TextEditorPlugin(QObject *parent, const QVariantList &args);
     virtual ~TextEditorPlugin();
-    QString dummy2() const;
 
 public slots:
-    KTextEdit *createEditor();
+    KTextEditor *createEditor();
 };
 
 #endif // KDEPLUGIN1_H

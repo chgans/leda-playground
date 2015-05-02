@@ -5,18 +5,17 @@
 
 #include <KPluginInfo>
 #include <KPluginTrader>
-#include <KXMLGUIFactory>
-#include <KTextEdit>
-
+#include <KService>
+#include <KTextEditor/Editor>
+#include <KParts/ReadWritePart>
 #include "mainwindow.h"
 #include "core/plugin.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    KXmlGuiWindow(parent)
+    KParts::MainWindow(parent)
 {
     setCaption("Text Editor");
-
-    setupGUI(KXmlGuiWindow::Default, ":kxmlgui/appui.rc");
+    setXMLFile(":kxmlgui/appui.rc");
 }
 
 void MainWindow::loadPlugins()
@@ -37,12 +36,10 @@ void MainWindow::loadPlugins()
             qWarning() << loader.errorString();
             continue;
         }
-        qDebug() << loader.instance()->metaObject()->className();
 
         IEditorPlugin *plugin = factory->create<IEditorPlugin>(this);
         if (plugin) {
-            qDebug() << "Loading plugin" << info.name();
-            qDebug() << info.properties();
+            qDebug() << "Loading plugin" << info.name() << info.pluginName();
             qDebug() << loader.metaData().value("MetaData").toObject().value("KPlugin").toObject();
             addPlugin(plugin);
             emit pluginLoaded(plugin);
@@ -50,11 +47,24 @@ void MainWindow::loadPlugins()
             qDebug() << baseName << "is not a plugin";
         }
     }
+
+//    KService::Ptr service = KService::serviceByDesktopPath("katepart");
+//    qDebug() << service;
+//    if (service) {
+//        KParts::ReadWritePart *part = service->createInstance<KParts::ReadWritePart>(nullptr);
+//        if (part != nullptr)
+//            createGUI(part);
+//        else
+//            qWarning() << "Unable to create katepart instance";
+//    }
+//    else
+//        qWarning() << "Unable to find katepart service";
+
 }
 
 void MainWindow::addPlugin(IEditorPlugin *plugin)
 {
-    KTextEdit *editor = plugin->createEditor();
-    qDebug() << editor;
-    setCentralWidget(editor);
+    KTextEditor::Editor *editor = plugin->createEditor();
+    //guiFactory()->addClient();
+    //setCentralWidget(editor);
 }

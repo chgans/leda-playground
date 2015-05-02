@@ -10,6 +10,7 @@ class TextEditorPluginFactory: public KPluginFactory
     Q_INTERFACES(KPluginFactory)
     Q_PLUGIN_METADATA(IID KPluginFactory_iid FILE "texteditor.json")
 
+
 public:
     explicit TextEditorPluginFactory()
     {

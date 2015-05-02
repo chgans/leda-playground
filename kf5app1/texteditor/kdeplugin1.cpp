@@ -16,7 +16,7 @@ QString TextEditorPlugin::dummy2() const
     return QStringLiteral("dummy");
 }
 
-KTextEdit *TextEditorPlugin::createEditor()
+KTextEditor *TextEditorPlugin::createEditor()
 {
     return new KTextEdit();
 }

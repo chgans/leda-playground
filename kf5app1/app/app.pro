@@ -10,7 +10,12 @@ CONFIG += c++11
 QT       += core gui
 
 # KF5 modules
-QT       += KXmlGui KService KI18n KTextWidgets KParts
+QT       += KParts KService KTextEditor
+
+INCLUDEPATH += /usr/include/KF5/KParts
+LIBS += -lKF5Parts
+INCLUDEPATH += /usr/include/KF5/KTextEditor
+LIBS += -lKF5TextEditor
 
 INCLUDEPATH += ..
 LIBS += -L$$OUT_PWD/../core -lcore
@@ -19,7 +24,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = app
 TEMPLATE = app
-
 
 SOURCES += main.cpp\
         widget.cpp \
