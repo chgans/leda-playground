@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:complexType name="ItemType">
+    <xs:sequence>
+      <xs:element name="position" type="PointType"/>
+      <xs:element name="z-value" type="xs:double" minOccurs="0"/>
+      <xs:element name="rotation" type="xs:double" minOccurs="0"/>
+      <xs:element name="opacity" type="xs:double" minOccurs="0"/>
+      <xs:element name="locked" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="x-mirrored" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="y-mirrored" type="xs:boolean" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ShapeType">
+    <xs:complexContent>
+      <xs:extension base="ItemType">
+        <xs:sequence>
+          <xs:element name="pen" type="PenType" minOccurs="0"/>
+          <xs:element name="brush" type="BrushType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="EllipseType">
+    <!-- TODO: circle vs ellipse  -->
+    <xs:complexContent>
+      <xs:extension base="ShapeType">
+        <xs:sequence>
+          <xs:element name="center" type="PointType"/>
+          <xs:element name="radius" type="xs:string"/>
+          <xs:element name="x-radius" type="xs:string"/>
+          <xs:element name="y-radius" type="xs:string"/>
+          <xs:element name="start-angle" type="xs:string"/>
+          <xs:element name="span-angle" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RectangleType">
+    <!-- TODO: rounded corners -->
+    <xs:complexContent>
+      <xs:extension base="ShapeType">
+        <xs:sequence>
+          <xs:element name="top-left" type="PointType"/>
+          <xs:element name="bottom-right" type="PointType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- TODO: Simple text and text area -->
+  <!-- TODO: picture -->
+  <xs:complexType name="LineType">
+    <xs:complexContent>
+      <xs:extension base="ItemType">
+        <xs:sequence>
+          <xs:element name="point-list" type="PointListType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PinType">
+    <xs:complexContent>
+      <xs:extension base="ItemType">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element name="label" type="xs:string"/>
+          <xs:element name="symbols" type="PinSymbolListType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ItemGroupType">
+    <xs:complexContent>
+      <xs:extension base="ItemType">
+        <xs:sequence>
+          <xs:element name="items">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:group ref="AnyItemType" minOccurs="1" maxOccurs="unbounded"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:group name="AnyItemType">
+    <xs:choice>
+      <xs:element name="ellipse" type="EllipseType"/>
+      <xs:element name="line" type="LineType"/>
+      <xs:element name="pin" type="PinType"/>
+      <xs:element name="rectangle" type="RectangleType"/>
+      <xs:element name="group" type="ItemGroupType"/>
+    </xs:choice>
+  </xs:group>
+  <xs:complexType name="SchematicsSymbolType">
+    <xs:sequence>
+      <xs:element name="header" type="SchematicsSymbolHeaderType"/>
+      <xs:element name="body" type="SchematicsSymbolBodyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SchematicsSymbolHeaderType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="label" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SchematicsSymbolBodyType">
+    <xs:group ref="AnyItemType" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:complexType>
+  <xs:complexType name="LedaDocumentType">
+    <xs:choice>
+      <xs:element name="schematic-symbol" type="SchematicsSymbolType"/>
+      <!-- schematics sheet, ... -->
+    </xs:choice>
+    <xs:attribute name="version" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:element name="leda-xdl" type="LedaDocumentType"/>
+  <xs:complexType name="PinSymbolType">
+    <xs:sequence>
+      <xs:element name="side" type="xs:string"/>
+      <xs:element name="edge" type="xs:boolean"/>
+      <xs:element name="type" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PinSymbolListType">
+    <xs:sequence>
+      <xs:element name="symbol" type="PinSymbolType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PointType">
+    <xs:sequence>
+      <xs:element name="x" type="xs:string"/>
+      <xs:element name="y" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PointListType">
+    <xs:sequence>
+      <xs:element name="point" type="PointType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PenType">
+    <xs:sequence>
+      <xs:element name="width" type="xs:string"/>
+      <xs:element name="color" type="ColorType"/>
+      <!-- QPen defaults -->
+      <xs:element name="style" type="PenStyleType" minOccurs="0"/>
+      <xs:element name="cap-style" type="PenCapStyleType" minOccurs="0"/>
+      <xs:element name="join-style" type="PenJoinStyleType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BrushType">
+    <xs:sequence>
+      <xs:element name="color" type="ColorType"/>
+      <xs:element name="style" type="BrushStyleType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="PenStyleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NoPen"/>
+      <xs:enumeration value="SolidLine"/>
+      <xs:enumeration value="DashLine"/>
+      <xs:enumeration value="DotLine"/>
+      <xs:enumeration value="DashDotLine"/>
+      <xs:enumeration value="DashDotDotLine"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PenCapStyleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Flat"/>
+      <xs:enumeration value="Square"/>
+      <xs:enumeration value="Round"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PenJoinStyleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Miter"/>
+      <xs:enumeration value="Bevel"/>
+      <xs:enumeration value="Round"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="BrushStyleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NoBrush"/>
+      <xs:enumeration value="Solid"/>
+      <xs:enumeration value="Horizontal"/>
+      <xs:enumeration value="Vertival"/>
+      <xs:enumeration value="Cross"/>
+      <xs:enumeration value="BDiagonal"/>
+      <xs:enumeration value="FDiagonal"/>
+      <xs:enumeration value="CrossDiagonal"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ColorType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="#[0-9a-fA-F]{6}"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
