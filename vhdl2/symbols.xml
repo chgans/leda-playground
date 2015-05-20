@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<leda-xdl version="1.0">
+ <architectures>
+  <architecture type="schematic-symbol" name="resistor">
+   <item type="pin">
+    <property name="name">
+     <string>1</string>
+    </property>
+    <property name="position">
+     <point><x>-4</x><y>1</y></point>
+    </property>
+    <property name="orientation">
+     <int>0<int>
+    </property>
+    <property name="length">
+     <int>2</int>
+    </property>
+   </item>
+   <item type="pin">
+    <property name="name">
+     <string>2</string>
+    </property>
+    <property name="position">
+     <point><x>4</x><y>1</y></point>
+    </property>
+    <property name="orientation">
+     <int>180<int>
+    </property>
+    <property name="length">
+     <int>2</int>
+    </property>
+   </item>
+   <item type="rect">
+    <property name="position">
+     <point><x>-2</x><y>0</y></point>
+    </property>
+    <property name="width">
+     <int>4</int>
+    </property>
+    <property name="height">
+     <int>2</int>
+    </property>
+   </item>
+  </architecture>
+
+  <architecture type="schematic-symbol" name="capacitor">
+   <item type="pin">
+    <property name="name">
+     <string>1</string>
+    </property>
+    <property name="position">
+     <point><x>-3</x><y>1</y></point>
+    </property>
+    <property name="orientation">
+     <int>0<int>
+    </property>
+    <property name="length">
+     <int>2</int>
+    </property>
+   </item>
+   <item type="pin">
+    <property name="name">
+     <string>2</string>
+    </property>
+    <property name="position">
+     <point><x>3</x><y>1</y></point>
+    </property>
+    <property name="orientation">
+     <int>180<int>
+    </property>
+    <property name="length">
+     <int>2</int>
+    </property>
+   </item>
+   <item type="line">
+    <property name="position">
+     <point><x>0</x><y>0</y></point>
+    </property>
+    <property name="p1">
+     <point><x>-1</x><y>0</y></point>
+    </property>
+    <property name="p2">
+     <point><x>-0.5</x><y>0</y></point>
+    </property>
+   </item>
+   <item type="line">
+    <property name="position">
+     <point><x>0</x><y>0</y></point>
+    </property>
+    <property name="p1">
+     <point><x>1</x><y>0</y></point>
+    </property>
+    <property name="p2">
+     <point><x>0.5</x><y>0</y></point>
+    </property>
+   </item>
+  </architecture>
+
+ </architectures>
+
+</leda-xdl>

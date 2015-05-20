@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<leda-xdl version="1.0">
+ <entities>
+  <entity name="resistor">
+   <generics>
+    <generic name="R" unit="Ω" required="true" type="double">
+     <description>Resistance</description>
+     <value></value>
+    </generic>
+   </generics>
+   <ports>
+    <port name="1" type="passive">
+    </port>
+    <port name="2" type="passive">
+    </port>
+   </ports>
+  </entity>
+  <entity name="capacitor">
+   <generics>
+    <generic name="C" unit="F" required="true" type="double">
+     <description>Capacitance</description>
+     <value></value>
+    </generic>
+   </generics>
+   <ports>
+    <port name="1" type="passive">
+    </port>
+    <port name="2" type="passive">
+    </port>
+   </ports>
+  </entity>
+  <!-- TBD: sources, probes, drawing -->
+ </entities>
+</leda-xdl>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<leda-xdl version="1.0">
+ <entities>
+  <entity name="design">
+  </entity>
+ </entities>
+
+ <architectures>
+  <architecture type="structural" name="design_structure">
+   <signals>
+    <signal name="gnd" type="passive"/>
+    <signal name="in" type="passive"/>
+    <signal name="out" type="passive"/>
+   </signals>
+   <components>
+    <component name="res">
+     <ports>
+      <port name="1"/>
+      <port name="2"/>
+     </ports>
+    </component>
+    <component name="cap">
+     <ports>
+      <port name="1"/>
+      <port name="2"/>
+     </ports>
+    </component>
+    <component name="vac">
+     <ports>
+      <port name="+"/>
+      <port name="-"/>
+     </ports>
+   </components>
+   <instances>
+    <instance name="R1" component="res">
+     <port-map>
+      <map from="1" to = "1"/>
+      <map from="2" to = "2"/>
+     </port-map>
+    </instance>
+    <instance name="C1" component="cap">
+     <port-map>
+      <map from="1" to = "1"/>
+      <map from="2" to = "2"/>
+     </port-map>
+    </instance>
+    <instance name="V1" component="vac">
+     <port-map>
+      <map from="1" to = "1"/>
+      <map from="2" to = "2"/>
+     </port-map>
+    </instance>
+   </instances>
+  </architecture>
+ </architectures>
+
+ <configurations>
+  <configuration name="qucs_sim_1" entity="design" architecture="design_struct">
+   <for component="res" instance="R1">
+    <use library="qucs">
+     <entity>resistor</entity>
+    </use>
+   </for>
+   <for component="cap" instance="C1">
+    <use library="qucs">
+     <entity>capacitor</entity>
+    </use>
+   </for>
+  </configuration>
+  <configuration name="schematics" entity="design" architecture="design_struct">
+   <for component="res" instance="R1">
+    <use library="leda">
+     <entity>resistor-europe</entity>
+    </use>
+   </for>
+   <for component="cap" instance="C1">
+    <use library="leda">
+     <entity>capacitor-non-pol</entity>
+    </use>
+   </for>
+  </configuration>
+  <configuration name="layout" entity="design" architecture="design_struct">
+   <for component="res" instance="R1">
+    <use library="leda">
+     <entity>chip</entity>
+     <architecture>layout.0603M</architecture>
+    </use>
+   </for>
+   <for component="cap" instance="C1">
+    <use library="leda">
+     <entity>chip</entity>
+     <architecture>layout.0603M</architecture>
+    </use>
+   </for>
+  </configuration>
+ </configurations>
+</leda-xdl>
+
+<schematic version="1.0">
+
+<item id="w1" class="wire">
+ <property name="position">
+  <point><x>0</x><y>0</y></point>
+ </property>
+ <property name="vertice">
+  <list>
+   <point><x>4</x><y>8</y></point>
+   <point><x>4</x><y>4</y></point>
+   <point><x>8</x><y>4</y></point>
+  </list>
+ </property>
+ <children>
+  <item class="net">
+   <property name="wireId">
+    <string>w1</string>
+   </property>
+   <property name="label">
+    <string>in</string>
+   </property>
+   <property name="position">
+    <point><x>4</x><y>4</y></point>
+   </property>
+  </item>
+ </children>
+</item>
+
+<item id="w2" class="wire">
+ <property name="position">
+  <point><x>0</x><y>0</y></point>
+ </property>
+ <property name="vertice">
+  <list>
+   <point><x>16</x><y>4</y></point>
+   <point><x>20</x><y>4</y></point>
+   <point><x>20</x><y>8</y></point>
+  </list>
+ </property>
+</item>
+
+<item id="w3" class="wire">
+ <properties>
+  <property name="position">
+   <point><x>0</x><y>0</y></point>
+  </property>
+  <property name="vertice">
+   <list>
+    <point><x>4</x><y>14</y></point>
+    <point><x>20</x><y>14</y></point>
+   </list>
+  </property>
+ </properties>
+ <children>
+  <item class="net">
+   <property name="label">
+    <string>gnd</string>
+   </property>
+   <property name="position">
+    <point><x>12</x><y>14</y></point>
+   </property>
+  </item>
+ </children>
+</item>
+
+<item type="symbol">
+ <property name="uri">
+  <uri>project:vac</uri>
+ <property>
+ <property name="position">
+  <point><x>4</x><y>11</y></point>
+ </property>
+</item>
+<item type="symbol">
+ <property name="uri">
+  <uri>project:resistor</uri>
+ <property>
+ <property name="position">
+  <point><x>12</x><y>4</y></point>
+ </property>
+</item>
+<item type="symbol">
+ <property name="uri">
+  <uri>project:capacitor</uri>
+ <property>
+ <property name="position">
+  <point><x>20</x><y>11</y></point>
+ </property>
+</item>
+</schematic>
