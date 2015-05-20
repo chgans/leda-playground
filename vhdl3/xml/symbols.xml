@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<leda-xdl xmlns="http://www.leda.org/xmlns/xdl-1.0" version="1.0">
+  <!-- TODO: Add meta-data section -->
+  <entities count="3">
+    <entity name="org.leda.entity#resistor">
+      <description>Resistor</description>
+      <ports count="2">
+        <port name="1"/>
+        <port name="2"/>
+      </ports>
+    </entity>
+    <entity name="org.leda.entity#capacitor">
+      <description>Capacitor</description>
+      <ports count="2">
+        <port name="1"/>
+        <port name="2"/>
+      </ports>
+    </entity>
+    <entity name="org.leda.entity#vac_source">
+      <description>AC voltage source</description>
+      <ports count="2">
+        <port name="+"/>
+        <port name="-"/>
+      </ports>
+    </entity>
+  </entities>
+  <architectures count="3">
+    <architecture name="org.leda.symbols#eu-resistor" entityName="org.leda.entity#resistor">
+      <description>Resistor (European)</description>
+      <body>
+        <!-- graphic items here -->
+      </body>
+    </architecture>
+    <architecture name="org.leda.symbols#capacitor" entityName="org.leda.entity#capacitor">
+      <description>Capacitor (non pol.)</description>
+      <body>
+        <!-- graphic items here -->
+      </body>
+    </architecture>
+    <architecture name="org.leda.symbols#vac_source" entityName="org.leda.entity#vac_source">
+      <description>AC voltage source</description>
+      <body>
+        <!-- graphic items here -->
+      </body>
+    </architecture>
+  </architectures>
+  <!-- no configuration -->
+</leda-xdl>

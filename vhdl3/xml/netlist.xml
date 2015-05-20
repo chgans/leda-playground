@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<leda-xdl xmlns="http://www.leda.org/xmlns/xdl-1.0" version="1.0">
+  <!-- TODO: Add meta-data section -->
+  <entities count="1">
+    <entity name="design">
+      <description>Top level design</description>
+    </entity>
+  </entities>
+  <architectures count="1">
+    <architecture name="Structure" entityName="design">
+      <description>Structure of top-level design</description>
+      <components count="3">
+        <component name="resistor">
+          <ports count="2">
+            <port name="1"/>
+            <port name="2"/>
+          </ports>
+        </component>
+        <component name="capacitor">
+          <ports count="2">
+            <port name="1"/>
+            <port name="2"/>
+          </ports>
+        </component>
+        <component name="vac_source">
+          <ports count="2">
+            <port name="+"/>
+            <port name="-"/>
+          </ports>
+        </component>
+      </components>
+      <signals count="3">
+        <signal name="gnd"/>
+        <signal name="in"/>
+        <signal name="out"/>
+      </signals>
+      <body>
+        <instance name="R1" component="resistor">
+          <port-map>
+            <map from="1" to="1"/>
+            <map from="2" to="2"/>
+          </port-map>
+          <generic-map>
+        </generic-map>
+        </instance>
+        <instance name="C1" component="capacitor">
+       </instance>
+        <instance name="V1" component="vac_source">
+       </instance>
+      </body>
+    </architecture>
+  </architectures>
+</leda-xdl>

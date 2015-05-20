@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<leda-xdl xmlns="http://www.leda.org/xmlns/xdl-1.0" version="1.0">
+  <!-- TODO: Add meta-data section -->
+  <entities count="4">
+    <entity name="R_discrete">
+      <description>Discrete Resistor</description>
+      <ports count="2">
+        <port name="1"/>
+        <port name="2"/>
+      </ports>
+      <generics count="4">
+        <generic name="R">
+          <description>Resistance</description>
+          <unit>ohm</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>true</required>
+        </generic>
+        <generic name="Tnom">
+          <description>Temperature at which parameters were extracted</description>
+          <unit>degC</unit>
+          <value-type>double</value-type>
+          <default-value>26.5</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="TC1">
+          <description>First order temperature coefficient</description>
+          <unit>ohms/degC</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="TC2">
+          <description>Second order temperature coefficient</description>
+          <unit>ohms/degC^2</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="T">
+          <description>Temperature at which the device is to operate</description>
+          <unit>degC</unit>
+          <value-type>double</value-type>
+          <default-value>26.5</default-value>
+          <required>false</required>
+        </generic>
+      </generics>
+    </entity>
+    <entity name="C">
+      <description>Capacitor</description>
+      <ports count="2">
+        <port name="1"/>
+        <port name="2"/>
+      </ports>
+      <generics count="2">
+        <generic name="C">
+          <description>Capacitance</description>
+          <unit>farad</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>true</required>
+        </generic>
+        <generic name="V">
+          <description>Initial voltage for transient simulation</description>
+          <unit>V</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>false</required>
+        </generic>
+      </generics>
+    </entity>
+    <entity name="R_discrete">
+      <description>Discrete Resistor</description>
+      <ports count="2">
+        <port name="1"/>
+        <port name="2"/>
+      </ports>
+      <generics count="4">
+        <generic name="R">
+          <description>Resistance</description>
+          <unit>ohm</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>true</required>
+        </generic>
+        <generic name="Tnom">
+          <description>Temperature at which parameters were extracted</description>
+          <unit>degC</unit>
+          <value-type>double</value-type>
+          <default-value>26.5</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="TC1">
+          <description>First order temperature coefficient</description>
+          <unit>ohms/degC</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="TC2">
+          <description>Second order temperature coefficient</description>
+          <unit>ohms/degC^2</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="T">
+          <description>Temperature at which the device is to operate</description>
+          <unit>degC</unit>
+          <value-type>double</value-type>
+          <default-value>26.5</default-value>
+          <required>false</required>
+        </generic>
+      </generics>
+    </entity>
+    <entity name="VAC">
+      <description>AC Voltage Source</description>
+      <ports count="2">
+        <port name="+"/>
+        <port name="-"/>
+      </ports>
+      <generics count="4">
+        <generic name="U">
+          <description>Peak to peak voltage</description>
+          <unit>volt</unit>
+          <value-type>double</value-type>
+          <default-value>1</default-value>
+          <required>true</required>
+        </generic>
+        <generic name="f">
+          <description>Frequency</description>
+          <unit>hertz</unit>
+          <value-type>double</value-type>
+          <default-value>1</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="Phase">
+          <description>Initial phase</description>
+          <unit>deg</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="Theta">
+          <description>Dumping factor</description>
+          <unit>volt/second</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>false</required>
+        </generic>
+      </generics>
+    </entity>
+    <entity name="R_semiconductor">
+      <description>Semiconductor Resistor</description>
+      <ports count="2">
+        <port name="1">
+     </port>
+        <port name="2">
+     </port>
+      </ports>
+      <generics count="7">
+        <generic name="L">
+          <description>Length</description>
+          <unit>meter</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>true</required>
+        </generic>
+        <generic name="W">
+          <description>Width</description>
+          <unit>meter</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>true</required>
+        </generic>
+        <generic name="RSH">
+          <description>Sheet resistance</description>
+          <unit>ohm</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>true</required>
+        </generic>
+        <generic name="Tnom">
+          <description>Temperature at which parameters were extracted</description>
+          <unit>degC</unit>
+          <value-type>double</value-type>
+          <default-value>26.5</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="TC1">
+          <description>First order temperature coefficient</description>
+          <unit>ohms/degC</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="TC2">
+          <description>Second order temperature coefficient</description>
+          <unit>ohms/degC^2</unit>
+          <value-type>double</value-type>
+          <default-value>0</default-value>
+          <required>false</required>
+        </generic>
+        <generic name="T">
+          <description>Temperature at which the device is to operate</description>
+          <unit>degC</unit>
+          <value-type>double</value-type>
+          <default-value>26.5</default-value>
+          <required>false</required>
+        </generic>
+      </generics>
+    </entity>
+  </entities>
+  <architectures count="6">
+    <!-- And configuratiosn could contains some typical settings -->
+    <architecture name="Spice3f5" entityName="R_discrete">
+      <description>Spice model of a discrete resistor</description>
+      <body>
+        <template>%DESIGNATOR %1 %2 %VALUE TEMP=%T</template>
+      </body>
+      <!-- TODO: choice of javascript, template, ... -->
+    </architecture>
+    <architecture name="Spice3f5" entityName="R_semi">
+      <description>Spice model of a semiconductor resistor</description>
+      <body>
+        <template>%DESIGNATOR %1 %2 L=%L W=%W TEMP=%T</template>
+      </body>
+    </architecture>
+    <architecture name="Qucs" entityName="C">
+      <description>Qucs model of a capacitor</description>
+      <body>
+        <template>%DESIGNATOR %1 %2 L=%L W=%W TEMP=%T</template>
+      </body>
+    </architecture>
+    <architecture name="Qucs" entityName="R-dicrete">
+      <description>Qucs model of a discrete resistor</description>
+      <body>
+        <template>"R:" + comp.refdes + " " + comp.pin["1"].net + " " + comp.pin["2"].net + " R=\"" + comp.generic["R"] +"\""</template>
+      </body>
+      <!-- TODO: choice of javascript, template, ... -->
+    </architecture>
+    <architecture name="Qucs" entityName="R_semi">
+      <description>Spice model of a semiconductor resistor</description>
+      <body>
+        <template>%DESIGNATOR %1 %2 L=%L W=%W TEMP=%T</template>
+      </body>
+    </architecture>
+    <architecture name="org.qucs.model#vac_source" entityName="org.qucs.entity#vac_source">
+      <description>Qucs model of a AC voltage source</description>
+      <body>
+        <template>Vac:%name %1 %2 U="%U" f="%f" Phase="%Phase" Theta="%Theta"</template>
+      </body>
+    </architecture>
+    <!-- PSpice, Qucs, ... -->
+  </architectures>
+  <configurations count="1">
+</configurations>
+</leda-xdl>

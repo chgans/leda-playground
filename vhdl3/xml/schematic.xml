@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<leda-xdl xmlns="http://www.leda.org/xmlns/xdl-1.0" version="1.0">
+  <configurations count="1">
+    <configuration name="schematics">
+      <for-architecture name="Structure">
+        <for-instance name="R1">
+          <entity name="org.leda.entity#resistor"/>
+          <architecture name="org.leda.symbol#eu-resistor"/>
+          <generic-map>
+            <map name="position">
+              <x>10</x>
+              <y>25</y>
+            </map>
+          </generic-map>
+        </for-instance>
+        <for-instance name="C1">
+          <entity name="org.leda.entity#capacitor"/>
+          <architecture name="org.leda.symbol#capacitor"/>
+        </for-instance>
+        <for-instance name="V1">
+          <entity name="org.leda.entity#vac_source"/>
+          <architecture name="org.leda.symbol#vac_source"/>
+        </for-instance>
+      </for-architecture>
+    </configuration>
+  </configurations>
+</leda-xdl>

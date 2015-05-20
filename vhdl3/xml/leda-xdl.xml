@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<leda-xdl version="1.0">
+  <!-- TODO: Add meta-data section -->
+  <entities count="1">
+    <entity name="design">
+      <description>Top level design</description>
+    </entity>
+  </entities>
+  <architectures count="1">
+    <architecture name="Structure" entityName="design">
+      <description>Structure of top-level design</description>
+      <components>
+        <component name="resistor">
+          <ports count="2">
+            <port name="1"/>
+            <port name="2"/>
+          </ports>
+        </component>
+        <component name="capacitor">
+          <ports count="2">
+            <port name="1"/>
+            <port name="2"/>
+          </ports>
+        </component>
+        <component name="vac_source">
+          <ports count="2">
+            <port name="+"/>
+            <port name="-"/>
+          </ports>
+        </component>
+      </components>
+      <signals count="3">
+        <signal name="gnd"/>
+        <signal name="in"/>
+        <signal name="out"/>
+      </signals>
+      <body>
+        <instance name="R1" component="resistor">
+          <port-map>
+            <map from="1" to="1"/>
+            <map from="2" to="2"/>
+          </port-map>
+          <generic-map>
+        </generic-map>
+        </instance>
+        <instance name="C1" component="capacitor">
+       </instance>
+        <instance name="V1" component="vac_source">
+       </instance>
+      </body>
+    </architecture>
+  </architectures>
+  <configurations count="1">
+    <configuration name="simulation">
+      <for-architecture name="Structure">
+        <for-instance name="R1">
+          <entity name="org.qucs.entity#discrete-resistor"/>
+          <architecture name="org.qucs.model#discrete-resistor"/>
+        </for-instance>
+      </for-architecture>
+    </configuration>
+    <configuration name="schematics">
+      <for-architecture name="Structure">
+        <for-instance name="R1">
+          <entity name="org.leda.entity#resistor"/>
+          <architecture name="org.leda.symbol#eu-resistor"/>
+          <generic-map>
+           <map name="position">
+            <x>10</x><y>25</y>
+           </map>
+          </generic-map>
+        </for-instance>
+        <for-instance name="C1">
+          <entity name="org.leda.entity#capacitor"/>
+          <architecture name="org.leda.symbol#capacitor"/>
+        </for-instance>
+        <for-instance name="V1">
+          <entity name="org.leda.entity#vac_source"/>
+          <architecture name="org.leda.symbol#vac_source"/>
+        </for-instance>
+      </for-architecture>
+    </configuration>
+  </configurations>
+</leda-xdl>
