@@ -69,7 +69,7 @@
         </generic>
       </generics>
     </entity>
-    <entity name="R_discrete">
+    <entity name="R_semi">
       <description>Discrete Resistor</description>
       <ports count="2">
         <port name="1"/>
@@ -113,7 +113,7 @@
         </generic>
       </generics>
     </entity>
-    <entity name="VAC">
+    <entity name="org.qucs.entity#vac_source">
       <description>AC Voltage Source</description>
       <ports count="2">
         <port name="+"/>
@@ -212,34 +212,34 @@
     </entity>
   </entities>
   <architectures count="6">
-    <!-- And configuratiosn could contains some typical settings -->
-    <architecture name="Spice3f5" entityName="R_discrete">
+    <architecture name="1" entityName="R_discrete">
       <description>Spice model of a discrete resistor</description>
       <body>
         <template>%DESIGNATOR %1 %2 %VALUE TEMP=%T</template>
+        <!-- Move this to entity -->
       </body>
       <!-- TODO: choice of javascript, template, ... -->
     </architecture>
-    <architecture name="Spice3f5" entityName="R_semi">
+    <architecture name="2" entityName="R_semi">
       <description>Spice model of a semiconductor resistor</description>
       <body>
         <template>%DESIGNATOR %1 %2 L=%L W=%W TEMP=%T</template>
       </body>
     </architecture>
-    <architecture name="Qucs" entityName="C">
+    <architecture name="3" entityName="C">
       <description>Qucs model of a capacitor</description>
       <body>
         <template>%DESIGNATOR %1 %2 L=%L W=%W TEMP=%T</template>
       </body>
     </architecture>
-    <architecture name="Qucs" entityName="R-dicrete">
+    <architecture name="4" entityName="R_discrete">
       <description>Qucs model of a discrete resistor</description>
       <body>
         <template>"R:" + comp.refdes + " " + comp.pin["1"].net + " " + comp.pin["2"].net + " R=\"" + comp.generic["R"] +"\""</template>
       </body>
       <!-- TODO: choice of javascript, template, ... -->
     </architecture>
-    <architecture name="Qucs" entityName="R_semi">
+    <architecture name="5" entityName="R_semi">
       <description>Spice model of a semiconductor resistor</description>
       <body>
         <template>%DESIGNATOR %1 %2 L=%L W=%W TEMP=%T</template>
@@ -251,7 +251,6 @@
         <template>Vac:%name %1 %2 U="%U" f="%f" Phase="%Phase" Theta="%Theta"</template>
       </body>
     </architecture>
-    <!-- PSpice, Qucs, ... -->
   </architectures>
   <configurations count="1">
 </configurations>

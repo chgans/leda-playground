@@ -1,4 +1,6 @@
+#include "designunit.h"
 #include "document.h"
+
 #include <QList>
 #include <QVariant>
 #include <QDebug>
@@ -29,99 +31,89 @@ QString DocumentReader::errorString() const
             .arg(xml.columnNumber());
 }
 
-QObject *DocumentReader::document() const
+DesignUnit *DocumentReader::document() const
 {
     return m_document;
 }
 
+void DocumentReader::reportUnknownTag(const QStringRef &tag)
+{
+    xml.raiseError(QString("\"%1\": Unexpected tag").arg(tag.toString()));
+}
+
 void DocumentReader::readDocument()
 {
-    m_document = new QObject();
+    m_document = new DesignUnit();
     while (xml.readNextStartElement()) {
         qDebug() << __FUNCTION__ << xml.name();
         if (xml.name() == "entities") {
-            m_document->setProperty("entities",
-                                    QVariant::fromValue<QObjectList>(readEntities(m_document)));
+            m_document->entities = readList<Entity>("entity", &DocumentReader::readEntity);
         }
         else {
-            xml.skipCurrentElement();
+            reportUnknownTag(xml.name());
         }
     }
 }
 
-QObjectList DocumentReader::readEntities(QObject *parent)
+Entity *DocumentReader::readEntity()
 {
-    int count = xml.attributes().value("count").toInt();
-    QObjectList entities;
-    entities.reserve(count);
-    for (int i = 0; i < count; i++) {
-        if (!xml.readNextStartElement()) {
-            xml.raiseError(QString("Expected %1 entities, got only %2").arg(count).arg(i));
-            return entities;
-        }
-        if (xml.name() != "entity") {
-            xml.raiseError(QString("Expected \"entity\" got \"%1\"").arg(xml.name().toString()));
-            return entities;
-        }
-        qDebug() << __FUNCTION__ << xml.name();
-        entities.append(readEntity(parent));
-    }
-    return entities;
-}
-
-QObject *DocumentReader::readEntity(QObject *parent)
-{
-    QObject *entity = new QObject(parent);
-    entity->setProperty("name", xml.attributes().value("name").toString());
+    Entity *entity = new Entity;
+    entity->name = xml.attributes().value("name").toString();
     while (xml.readNextStartElement()) {
         qDebug() << __FUNCTION__ << xml.name();
-        if (xml.name() == "generics") {
-            entity->setProperty("generics",
-                                QVariant::fromValue<QObjectList>(readGenerics(entity)));
+        if (xml.name() == "description") {
+            entity->description = xml.readElementText();
+        }
+        else if (xml.name() == "generics") {
+            entity->generics = readList<Generic>("generic", &DocumentReader::readGeneric);
+            xml.skipCurrentElement();
+        }
+        else if (xml.name() == "ports") {
+            entity->ports = readList<Port>("port", &DocumentReader::readPort);
             xml.skipCurrentElement();
         }
         else {
-            xml.skipCurrentElement();
+            reportUnknownTag(xml.name());
         }
     }
     return entity;
 }
 
-QObjectList DocumentReader::readGenerics(QObject *parent)
+Generic *DocumentReader::readGeneric()
 {
-    int count = xml.attributes().value("count").toInt();
-    QObjectList generics;
-    generics.reserve(count);
-    for (int i = 0; i < count; i++) {
-        if (!xml.readNextStartElement()) {
-            xml.raiseError(QString("Expected %1 generics, got only %2").arg(count).arg(i));
-            return generics;
-        }
-        if (xml.name() != "generic") {
-            xml.raiseError(QString("Expected \"generic\" got \"%1\"").arg(xml.name().toString()));
-            return generics;
-        }
-        qDebug() << __FUNCTION__ << xml.name();
-        generics.append(readGeneric(parent));
-    }
-    return generics;
-}
+    Generic *generic = new Generic();
+    generic->name = xml.attributes().value("name").toString();
 
-QObject *DocumentReader::readGeneric(QObject *parent)
-{
-    QObject *generic = new QObject(parent);
-    generic->setProperty("name", xml.attributes().value("name").toString());
     while (xml.readNextStartElement()) {
         qDebug() << __FUNCTION__ << xml.name();
         if (xml.name() == "unit") {
-            generic->setProperty("unit", xml.readElementText());
+            generic->unit = xml.readElementText();
         }
         else if (xml.name() == "required") {
-            generic->setProperty("required", xml.readElementText());
+            generic->required = xml.readElementText() == "true" ? true : false;
         }
         else {
-            xml.skipCurrentElement();
+            reportUnknownTag(xml.name());
         }
     }
     return generic;
+}
+
+Port *DocumentReader::readPort()
+{
+
+    Port *port = new Port();
+    port->name = xml.attributes().value("name").toString();
+
+    while (xml.readNextStartElement()) {
+        qDebug() << __FUNCTION__ << xml.name();
+        if (xml.name() == "unit") {
+        }
+        else if (xml.name() == "required") {
+        }
+        else {
+            reportUnknownTag(xml.name());
+        }
+    }
+    return port;
 }

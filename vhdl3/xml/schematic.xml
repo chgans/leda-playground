@@ -2,6 +2,7 @@
 <leda-xdl xmlns="http://www.leda.org/xmlns/xdl-1.0" version="1.0">
   <configurations count="1">
     <configuration name="schematics">
+    <!--
       <for-architecture name="Structure">
         <for-instance name="R1">
           <entity name="org.leda.entity#resistor"/>
@@ -22,6 +23,7 @@
           <architecture name="org.leda.symbol#vac_source"/>
         </for-instance>
       </for-architecture>
+      -->
     </configuration>
   </configurations>
 </leda-xdl>

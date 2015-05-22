@@ -1,3 +1,6 @@
+#!/bin/sh
+
+set -e 
 schema=leda-xdl.xsd
 files="models.xml symbols.xml netlist.xml schematic.xml simulation.xml"
 

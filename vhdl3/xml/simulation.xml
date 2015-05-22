@@ -2,6 +2,7 @@
 <leda-xdl xmlns="http://www.leda.org/xmlns/xdl-1.0" version="1.0">
   <configurations count="1">
     <configuration name="simulation">
+    <!--
       <for-architecture name="Structure">
         <for-instance name="R1">
           <entity name="org.qucs.entity#discrete-resistor"/>
@@ -16,6 +17,7 @@
           <architecture name="org.qucs.model#vac_source"/>
         </for-instance>
       </for-architecture>
+      -->
     </configuration>
   </configurations>
 </leda-xdl>

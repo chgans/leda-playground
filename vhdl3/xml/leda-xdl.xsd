@@ -1,25 +1,79 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.leda.org/xmlns/xdl-1.0" targetNamespace="http://www.leda.org/xmlns/xdl-1.0" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xdl="http://www.leda.org/xmlns/xdl-1.0" targetNamespace="http://www.leda.org/xmlns/xdl-1.0" elementFormDefault="qualified">
+  <xs:element name="leda-xdl">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="entities" type="xdl:EntityListType" minOccurs="0">
+        </xs:element>
+        <xs:element name="architectures" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="architecture" type="xdl:ArchitectureType" minOccurs="0" maxOccurs="unbounded">
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="configurations" type="xdl:ConfigurationListType" minOccurs="0">
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:unique name="EntityUniqueKey">
+      <xs:selector xpath="xdl:entities/xdl:entity"/>
+      <xs:field xpath="@name"/>
+    </xs:unique>
+    <xs:key name="EntityKey">
+      <xs:selector xpath="xdl:entities/xdl:entity"/>
+      <xs:field xpath="@name"/>
+    </xs:key>
+    <xs:unique name="ArchitectureUniqueKey">
+      <xs:selector xpath="xdl:architectures/xdl:architecture"/>
+      <xs:field xpath="@name"/>
+    </xs:unique>
+    <xs:key name="ArchitectureKey">
+      <xs:selector xpath="xdl:architectures/xdl:architecture"/>
+      <xs:field xpath="@name"/>
+    </xs:key>
+    <xs:keyref name="EntityKeyRef" refer="xdl:EntityKey">
+      <xs:selector xpath="xdl:architectures/xdl:architecture"/>
+      <xs:field xpath="@entityName"/>
+    </xs:keyref>
+    <xs:unique name="ConfigurationUniqueKey">
+      <xs:selector xpath="xdl:configurations/xdl:configuration"/>
+      <xs:field xpath="@name"/>
+    </xs:unique>
+    <xs:key name="ConfigurationKey">
+      <xs:selector xpath="xdl:configurations/xdl:configuration"/>
+      <xs:field xpath="@name"/>
+    </xs:key>
+  </xs:element>
+
   <xs:complexType name="EntityType">
     <xs:sequence>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
-      <xs:element name="ports" type="PortListType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="generics" type="GenericListType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ports" type="xdl:PortListType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="generics" type="xdl:GenericListType" minOccurs="0" maxOccurs="1">
+        <xs:unique name="GenericUniqueKey">
+          <xs:selector xpath="generic"/>
+          <xs:field xpath="@name"/>
+        </xs:unique>
+      </xs:element>
     </xs:sequence>
     <xs:attribute name="name" type="xs:string" use="required"/>
   </xs:complexType>
   <xs:complexType name="EntityListType">
     <xs:sequence>
-      <xs:element name="entity" type="EntityType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="entity" type="xdl:EntityType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
   <xs:complexType name="ArchitectureType">
     <xs:sequence>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
-      <xs:element name="components" type="ComponentListType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="signals" type="SignalListType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="generics" type="GenericListType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="components" type="xdl:ComponentListType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="signals" type="xdl:SignalListType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="generics" type="xdl:GenericListType" minOccurs="0" maxOccurs="1"/>
       <xs:element name="body" minOccurs="0" maxOccurs="1">
         <xs:complexType>
           <xs:sequence>
@@ -32,12 +86,6 @@
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="entityName" type="xs:string" use="required"/>
   </xs:complexType>
-  <xs:complexType name="ArchitectureListType">
-    <xs:sequence>
-      <xs:element name="architecture" type="ArchitectureType" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-    <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
-  </xs:complexType>
   <xs:complexType name="ConfigurationType">
     <xs:sequence>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
@@ -46,7 +94,7 @@
   </xs:complexType>
   <xs:complexType name="ConfigurationListType">
     <xs:sequence>
-      <xs:element name="configuration" type="ConfigurationType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="configuration" type="xdl:ConfigurationType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
@@ -63,7 +111,7 @@
   </xs:complexType>
   <xs:complexType name="GenericListType">
     <xs:sequence>
-      <xs:element name="generic" type="GenericType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="generic" type="xdl:GenericType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
@@ -75,7 +123,7 @@
   </xs:complexType>
   <xs:complexType name="PortListType">
     <xs:sequence>
-      <xs:element name="port" type="PortType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="port" type="xdl:PortType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
@@ -86,19 +134,19 @@
   </xs:complexType>
   <xs:complexType name="SignalListType">
     <xs:sequence>
-      <xs:element name="signal" type="SignalType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="signal" type="xdl:SignalType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
   <xs:complexType name="ComponentType">
     <xs:sequence>
-      <xs:element name="ports" type="PortListType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ports" type="xdl:PortListType" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
     <xs:attribute name="name" type="xs:string" use="required"/>
   </xs:complexType>
   <xs:complexType name="ComponentListType">
     <xs:sequence>
-      <xs:element name="component" type="ComponentType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="component" type="xdl:ComponentType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="count" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
@@ -106,14 +154,4 @@
 </xs:complexType>
   <xs:complexType name="PortMapType">
 </xs:complexType>
-  <xs:complexType name="DocumentType">
-    <xs:sequence>
-      <xs:element name="entities" type="EntityListType" minOccurs="0"/>
-      <xs:element name="architectures" type="ArchitectureListType" minOccurs="0"/>
-      <xs:element name="configurations" type="ConfigurationListType" minOccurs="0"/>
-    </xs:sequence>
-    <xs:attribute name="version" type="xs:string" use="required"/>
-  </xs:complexType>
-  <xs:element name="leda-xdl" type="DocumentType">
-</xs:element>
 </xs:schema>
