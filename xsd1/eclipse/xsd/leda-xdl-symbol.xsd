@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.leda.org/xdl" xmlns:xdl="http://www.leda.org/xdl">
+  <xs:element name="symbol" type="xdl:Symbol"/>
+  <xs:complexType name="Symbol">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="label" type="xs:string"/>
+      <xs:element name="drawing" type="xdl:ItemList"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ItemList">
+    <xs:sequence>
+    	<xs:group ref="xdl:AnyItem" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Item">
+    <xs:sequence>
+    	<xs:element name="position" type="xdl:Point" />
+    	<xs:element name="z-value" type="xs:double" minOccurs="0" />
+    	<xs:element name="rotation" type="xdl:Angle" minOccurs="0" />
+    	<xs:element name="opacity" type="xdl:Opacity" minOccurs="0" />
+    	<xs:element name="locked" type="xs:boolean" minOccurs="0" />
+    	<xs:element name="mirrored" type="xdl:Mirroring" minOccurs="0" />
+    	<xs:element name="visible" type="xs:boolean" minOccurs="0" maxOccurs="1"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Shape">
+    <xs:complexContent>
+      <xs:extension base="xdl:Item">
+        <xs:sequence>
+          <xs:element name="pen" type="xdl:Pen" minOccurs="0"/>
+          <xs:element name="brush" type="xdl:Brush" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="Ellipse">
+    <!-- TODO: circle vs ellipse  -->
+    <xs:complexContent>
+      <xs:extension base="xdl:Shape">
+        <xs:sequence>
+          <xs:element name="center" type="xdl:Point"/>
+          <xs:element name="x-radius" type="xdl:NonNegativeDouble"/>
+          <xs:element name="y-radius" type="xdl:NonNegativeDouble"/>
+          <xs:element name="start-angle" type="xdl:Angle"/>
+          <xs:element name="span-angle" type="xdl:Angle"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="Rectangle">
+    <!-- TODO: rounded corners -->
+    <xs:complexContent>
+      <xs:extension base="xdl:Shape">
+        <xs:sequence>
+          <xs:element name="top-left" type="xdl:Point"/>
+          <xs:element name="bottom-right" type="xdl:Point"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- TODO: Simple text and text area -->
+  <!-- TODO: picture -->
+  <xs:complexType name="Line">
+    <xs:complexContent>
+      <xs:extension base="xdl:Item">
+        <xs:sequence>
+        	<xs:element name="points" type="xdl:PointList" />
+                <xs:element name="pen" type="xdl:Pen"></xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="Pin">
+        <xs:annotation>
+        	<xs:documentation>TODO: 
+====
+
+Use 4 sets of symbols one for each &quot;side&quot;, replace symbol list with in-symbol, inedge-symbol, outedge-symbol and out-symbol
+- inside: postponed output, open collector, hi-z, high current, pulse, schmitt, open collector pull up, open emitter, open emitter pull up, shift left, open output
+- inside edge: clock
+- outside edge: dot (inverted), active low input, active low output
+- outside: right left signal flow, analog signal in, not logic connection, digital signal, left right signal flow, bidirectional signal flow
+Or allow a generic name (allow adding more symbol through lib/plugins)
+
+For name and label, use a SimpleText child item?
+=> we should be able to allow for custom positioning, font, color, ...
+
+Altium has display name, designator and description, name and designator can be hidden, description is alwas hidden
+
+Pin symbol on the far outside, edge ouside, far inside or edge inside. NOTE: Pin symbol for what is known as it's electrical type (I/O, ...) as to be set explicitly here, no automatic pin symbol wiil be inferred.
+</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+      <xs:extension base="xdl:Item">
+        <xs:sequence>
+        	<xs:element name="designator" type="xs:string" >
+        		<xs:annotation>
+        			<xs:documentation></xs:documentation>
+        		</xs:annotation></xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ItemGroup">
+    <xs:complexContent>
+      <xs:extension base="xdl:Item">
+        <xs:sequence>
+          <xs:element name="children" type="xdl:ItemList"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:group name="AnyItem">
+    <xs:choice>
+    	<xs:element name="ellipse" type="xdl:Ellipse" />
+    	<xs:element name="line" type="xdl:Line" />
+    	<xs:element name="pin" type="xdl:Pin" />
+    	<xs:element name="rectangle" type="xdl:Rectangle" />
+    	<xs:element name="group" type="xdl:ItemGroup" />
+    	<xs:element name="arc" type="xdl:Arc"></xs:element>
+    	<xs:element name="label" type="xdl:Label"></xs:element>
+    </xs:choice>
+  </xs:group>
+  <xs:complexType name="PinSymbol">
+        <xs:annotation>
+        	<xs:documentation></xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="type" type="xdl:PinSymbolEnum"></xs:attribute>
+  	<xs:attribute name="location" type="xdl:Side"></xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="PinSymbolList">
+    <xs:sequence>
+      <xs:element name="symbol" type="xdl:PinSymbol" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Point">
+    <xs:sequence>
+      <xs:element name="x" type="xs:double"/>
+      <xs:element name="y" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PointList">
+    <xs:sequence>
+      <xs:element name="point" type="xdl:Point" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Pen">
+    <xs:sequence>
+      <xs:element name="width" type="xdl:NonNegativeDouble"/>
+      <xs:element name="color" type="xdl:Color"/>
+      <!-- QPen defaults -->
+      <xs:element name="style" type="xdl:PenStyle" minOccurs="0"/>
+      <xs:element name="cap-style" type="xdl:PenCapStyle" minOccurs="0"/>
+      <xs:element name="join-style" type="xdl:PenJoinStyle" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Brush">
+    <xs:sequence>
+      <xs:element name="color" type="xdl:Color"/>
+      <xs:element name="style" type="xdl:BrushStyle" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="PenStyle">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NoPen"/>
+      <xs:enumeration value="SolidLine"/>
+      <xs:enumeration value="DashLine"/>
+      <xs:enumeration value="DotLine"/>
+      <xs:enumeration value="DashDotLine"/>
+      <xs:enumeration value="DashDotDotLine"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PenCapStyle">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Flat"/>
+      <xs:enumeration value="Square"/>
+      <xs:enumeration value="Round"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PenJoinStyle">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Miter"/>
+      <xs:enumeration value="Bevel"/>
+      <xs:enumeration value="Round"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="BrushStyle">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NoBrush"/>
+      <xs:enumeration value="Solid"/>
+      <xs:enumeration value="Horizontal"/>
+      <xs:enumeration value="Vertival"/>
+      <xs:enumeration value="Cross"/>
+      <xs:enumeration value="BDiagonal"/>
+      <xs:enumeration value="FDiagonal"/>
+      <xs:enumeration value="CrossDiagonal"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Color">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="#[0-9a-fA-F]{6}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Side">
+  	<xs:restriction base="xs:string">
+  		<xs:enumeration value="in"></xs:enumeration>
+  		<xs:enumeration value="inedge"></xs:enumeration>
+  		<xs:enumeration value="out"></xs:enumeration>
+  		<xs:enumeration value="outedge"></xs:enumeration>
+  	</xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Angle">
+  	<xs:restriction base="xs:double">
+  		<xs:minInclusive value="0.0"></xs:minInclusive>
+  		<xs:maxInclusive value="360.0"></xs:maxInclusive>
+  		<xs:whiteSpace value="collapse"></xs:whiteSpace>
+  	</xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Opacity">
+  	<xs:restriction base="xs:double">
+  		<xs:minInclusive value="0.0"></xs:minInclusive>
+  		<xs:maxInclusive value="1.0"></xs:maxInclusive>
+  		<xs:whiteSpace value="collapse"></xs:whiteSpace>
+  	</xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="Mirroring">
+  	<xs:attribute name="x" type="xs:boolean" default="false"></xs:attribute>
+  	<xs:attribute name="y" type="xs:boolean" default="false"></xs:attribute>
+  </xs:complexType>
+
+  <xs:simpleType name="NonNegativeDouble">
+  	<xs:restriction base="xs:double">
+  		<xs:minInclusive value="0.0"></xs:minInclusive>
+  	</xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:simpleType name="NewSimpleType">
+  	<xs:restriction base="xs:string"></xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PinSymbolEnum">
+  	<xs:restriction base="xs:string"></xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="Arc">
+  	<xs:complexContent>
+  		<xs:extension base="xdl:Shape">
+  			<xs:sequence>
+  				<xs:element name="center" type="xdl:Point"></xs:element>
+  				<xs:element name="x-radius" type="xdl:NonNegativeDouble"></xs:element>
+  				<xs:element name="y-radius" type="xdl:NonNegativeDouble"></xs:element>
+  				<xs:element name="start-angle" type="xdl:Angle"></xs:element>
+  				<xs:element name="span-angle" type="xdl:Angle"></xs:element>
+  			</xs:sequence>
+  		</xs:extension>
+  	</xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Label">
+  	<xs:complexContent>
+  		<xs:extension base="xdl:Shape">
+  			<xs:sequence>
+  				<xs:element name="text" type="xs:string"></xs:element>
+  				<xs:element name="font" type="xdl:Font" maxOccurs="1" minOccurs="0"></xs:element>
+  			</xs:sequence>
+  		</xs:extension>
+  	</xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Font">
+  	<xs:sequence>
+  		<xs:element name="family" type="xs:string"></xs:element>
+  		<xs:element name="size" type="xs:nonNegativeInteger"></xs:element>
+  		<xs:element name="bold" type="xs:boolean" maxOccurs="1" minOccurs="0"></xs:element>
+  		<xs:element name="italic" type="xs:boolean" maxOccurs="1" minOccurs="0"></xs:element>
+  		<xs:element name="underline" type="xs:boolean" maxOccurs="1" minOccurs="0"></xs:element>
+  		<xs:element name="strikeout" type="xs:boolean" maxOccurs="1" minOccurs="0"></xs:element>
+  	</xs:sequence>
+  </xs:complexType>
+</xs:schema>
