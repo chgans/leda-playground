@@ -1,11 +1,11 @@
-#include "symbolparser.h"
+#include "symbolreader.h"
 #include "leda-xdl-symbol-pimpl.h"
 
 #include <sstream>
 
-struct SymbolParserPrivate
+struct SymbolReaderPrivate
 {
-    SymbolParserPrivate()
+    SymbolReaderPrivate()
     {
         // Connect the parsers together.
         //
@@ -163,12 +163,12 @@ struct SymbolParserPrivate
     ::xml_schema::non_negative_integer_pimpl non_negative_integer_p;
 };
 
-SymbolParser::SymbolParser():
-    p(new SymbolParserPrivate)
+SymbolReader::SymbolReader():
+    p(new SymbolReaderPrivate)
 {
 }
 
-Symbol *SymbolParser::parse(const QString &filename)
+Symbol *SymbolReader::parse(const QString &filename)
 {
     m_errorString.clear();
     try

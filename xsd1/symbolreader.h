@@ -5,11 +5,11 @@
 
 class Symbol;
 
-struct SymbolParserPrivate;
-class SymbolParser
+struct SymbolReaderPrivate;
+class SymbolReader
 {
 public:
-    SymbolParser();
+    SymbolReader();
 
     Symbol *parse(const QString &filename);
 
@@ -19,7 +19,7 @@ public:
     }
 
 private:
-    SymbolParserPrivate *p;
+    SymbolReaderPrivate *p;
     QString m_errorString;
 };
 

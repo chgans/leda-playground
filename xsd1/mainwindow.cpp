@@ -1,7 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "symbol.h"
-#include "symbolparser.h"
+#include "symbolreader.h"
+#include "symbolwriter.h"
+#include "treemodel.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsItemGroup>
@@ -46,14 +48,14 @@ MainWindow::MainWindow(QWidget *parent) :
             //m->setRootPath(info.filePath());
         }
         else if (info.fileName().endsWith(".xml")) {
-            SymbolParser *parser = new SymbolParser();
+            SymbolReader *parser = new SymbolReader();
             Symbol *sym = parser->parse(info.filePath());
             if (sym == nullptr) {
                 qCritical() << parser->errorString();
                 return;
             }
-            ui->captionLineEdit->setText(sym->name);
-            ui->descriptionLineEdit->setText(sym->label);
+            ui->captionLineEdit->setText(sym->caption);
+            ui->descriptionLineEdit->setText(sym->description);
             m_scene->clear();
             QGraphicsItemGroup *group;
             group = m_scene->createItemGroup(sym->drawings);

@@ -16,14 +16,16 @@ SOURCES += main.cpp\
         mainwindow.cpp \
         symbol.cpp \
         leda-xdl-symbol-pskel.cxx \
-    symbolparser.cpp \
-    leda-xdl-symbol-pimpl.cpp
+    leda-xdl-symbol-pimpl.cpp \
+    symbolreader.cpp \
+    symbolwriter.cpp
 
 HEADERS  += mainwindow.h \
         symbol.h \
         leda-xdl-symbol-pskel.hxx \
-    symbolparser.h \
-    leda-xdl-symbol-pimpl.h
+    leda-xdl-symbol-pimpl.h \
+    symbolreader.h \
+    symbolwriter.h
 
 FORMS    += mainwindow.ui
 

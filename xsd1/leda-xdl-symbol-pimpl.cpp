@@ -45,8 +45,8 @@ void Symbol_pimpl::drawing(QList<QGraphicsItem*> drawing)
 Symbol* Symbol_pimpl::post_Symbol()
 {
     Symbol *sym = new Symbol();
-    sym->name = m_name;
-    sym->label = m_label;
+    sym->caption = m_name;
+    sym->description = m_label;
     sym->drawings = m_drawing;
     return sym;
 }
@@ -61,36 +61,43 @@ void ItemList_pimpl::pre()
 
 void ItemList_pimpl::ellipse(QGraphicsEllipseItem* ellipse)
 {
+    ellipse->setData(0, "ellipse");
     m_items.append(ellipse);
 }
 
 void ItemList_pimpl::line(QGraphicsLineItem* line)
 {
+    line->setData(0, "line");
     m_items.append(line);
 }
 
 void ItemList_pimpl::pin(QGraphicsEllipseItem *pin)
 {
+    pin->setData(0, "pin");
     m_items.append(pin);
 }
 
 void ItemList_pimpl::rectangle(QGraphicsRectItem* rectangle)
 {
+    rectangle->setData(0, "rectangle");
     m_items.append(rectangle);
 }
 
 void ItemList_pimpl::group(QGraphicsItemGroup* group)
 {
+    group->setData(0, "group");
     m_items.append(group);
 }
 
 void ItemList_pimpl::arc(QGraphicsPathItem *arc)
 {
+    arc->setData(0, "arc");
     m_items.append(arc);
 }
 
 void ItemList_pimpl::label(QGraphicsSimpleTextItem *label)
-{
+{    
+    label->setData(0, "label");
     m_items.append(label);
 }
 
@@ -148,7 +155,6 @@ void Item_pimpl::visible(bool visible)
     m_visible = visible;
 }
 
-// FIXME
 void Item_pimpl::post_Item()
 {
     m_item->setPos(m_position);
@@ -158,7 +164,6 @@ void Item_pimpl::post_Item()
     m_item->setEnabled(!m_locked);
     m_item->setTransform(m_transform);
     m_item->setVisible(m_visible);
-    DBG << m_item->pos();
 }
 
 // Shape_pimpl
@@ -187,7 +192,6 @@ void Shape_pimpl::post_Shape()
     post_Item();
     m_shapeItem->setBrush(m_brush);
     m_shapeItem->setPen(m_pen);
-    DBG << m_shapeItem->pen() << m_shapeItem->brush();
 }
 
 // Ellipse_pimpl
@@ -233,14 +237,12 @@ QGraphicsEllipseItem* Ellipse_pimpl::post_Ellipse()
     QGraphicsEllipseItem *ellipse = new QGraphicsEllipseItem();
     m_shapeItem = ellipse;
     post_Shape();
-    DBG << m_startAngle << m_spanAngle << m_center << m_xRadius << m_yRadius;
     ellipse->setStartAngle(m_startAngle*16);
     ellipse->setSpanAngle(m_spanAngle*16);
     ellipse->setRect(m_center.x() - m_xRadius,
                      m_center.y() - m_yRadius,
                      m_xRadius*2.0,
                      m_yRadius*2.0);
-    DBG << ellipse->rect();
     return ellipse;
 }
 
@@ -270,7 +272,6 @@ QGraphicsRectItem* Rectangle_pimpl::post_Rectangle()
     m_shapeItem = rect;
     post_Shape();
     rect->setRect(QRectF(m_topLeft, m_bottomRight));
-    DBG << rect->rect();
     return rect;
 }
 
@@ -299,7 +300,6 @@ void Line_pimpl::pen(const QPen& pen)
 
 QGraphicsLineItem* Line_pimpl::post_Line()
 {
-    DBG << m_line << m_pen;
     QGraphicsLineItem *line = new QGraphicsLineItem();
     m_item = line;
     post_Item();
@@ -316,6 +316,7 @@ void Pin_pimpl::pre()
     Item_pimpl::pre();
 }
 
+// FIXME
 void Pin_pimpl::designator(const ::std::string& designator)
 {
     m_designator = QString::fromStdString(designator);
@@ -328,7 +329,6 @@ QGraphicsEllipseItem *Pin_pimpl::post_Pin()
     post_Item();
     ellipse->setPen(QPen(QBrush(Qt::red), 0.0));
     ellipse->setRect(-3.5, -3.5, 7, 7);
-    DBG << ellipse->rect();
     return ellipse;
 }
 
@@ -375,7 +375,6 @@ void Arc_pimpl::center(const QPointF& center)
 
 void Arc_pimpl::x_radius(const qreal &x_radius)
 {
-    DBG << x_radius;
     m_xRadius = x_radius;
 }
 
@@ -399,7 +398,6 @@ QGraphicsPathItem* Arc_pimpl::post_Arc()
     QGraphicsPathItem *item = new QGraphicsPathItem();
     m_shapeItem = item;
     post_Shape();
-    DBG << m_startAngle << m_spanAngle << m_center << m_xRadius << m_yRadius;
     QPainterPath path;
     QRectF rect(m_center.x() - m_xRadius,
                 m_center.y() - m_yRadius,
@@ -441,7 +439,6 @@ QGraphicsSimpleTextItem *Label_pimpl::post_Label()
     post_Shape();
     item->setFont(m_font);
     item->setText(m_text);
-    DBG << item->text() << item->font();
     return item;
 }
 

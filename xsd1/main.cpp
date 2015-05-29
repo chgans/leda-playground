@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "symbol.h"
-#include "symbolparser.h"
+#include "symbolreader.h"
 
 #include <QApplication>
 #include <QMultiMap>
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
             subDir.setNameFilters(QStringList() << "*.xml");
             foreach (QFileInfo info, subDir.entryInfoList()) {
                 QString path = info.absoluteFilePath();
-                SymbolParser *parser = new SymbolParser();
+                SymbolReader *parser = new SymbolReader();
                 Symbol *sym = parser->parse(path);
                 if (sym == nullptr) {
                     qCritical() << parser->errorString();
@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
                 qDebug() << "Generating" << generator.fileName() << size;
                 generator.setSize(size);
                 generator.setViewBox(QRect(0, 0, size.width(), size.height()));
-                generator.setTitle(sym->name);
-                generator.setDescription(sym->label);
+                generator.setTitle(sym->caption);
+                generator.setDescription(sym->description);
                 QPainter painter;
                 painter.begin(&generator);
                 painter.setRenderHint(QPainter::Antialiasing);
