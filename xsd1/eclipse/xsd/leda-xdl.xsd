@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://www.example.org/leda-xdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.example.org/leda-xdl/">
+    <xsd:element name="document" type="xsd:string"></xsd:element>
+
+
+    <xsd:complexType name="Document"></xsd:complexType>
+
+    <xsd:complexType name="DocumentHeader">
+    	<xsd:sequence>
+    		<xsd:element name="author" type="xsd:string"></xsd:element>
+    		<xsd:element name="copyright" type="xsd:string"></xsd:element>
+    		<xsd:element name="license" type="xsd:string"></xsd:element>
+    		<xsd:element name="url" type="xsd:anyURI"></xsd:element>
+    	</xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>
