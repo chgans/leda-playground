@@ -1,0 +1,39 @@
+Kicad:
+======
+- polygon
+  - nb points
+  - Xi,Yi: coordinates of point #i
+  - Fill:
+- Rectangle:
+  - topleft
+  - bottom right
+  - thickness
+  - Fill
+- circle:
+  - center X/Y
+  - radius
+  - thickness
+  - fill
+- Arc of circle:
+  - center X/Y
+  - start/end angle (0.1 Deg)
+  - thickness
+  - fill
+  - start/end X/Y
+- Text:
+  - Orientation: Horizontal/Vertical
+  - Pos X/Y
+  - text
+- Pin:
+  - orientation: Up/Down/Right/Left
+  - pin name (~ if no name)
+  - pin number
+  - length
+  - pin name size
+  - pin number size
+  - electric type
+  - shape (clock, inverted, ...)
+  - shape visible
+
+gEDA:
+=====

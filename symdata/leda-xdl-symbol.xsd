@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xdl="http://www.leda.org/xdl" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified" targetNamespace="http://www.leda.org/xdl">
+
+  <xs:element name="symbol-drawing" type="xdl:ItemList"/>
+
+  <xs:complexType name="ItemList">
+    <xs:sequence>
+    	<xs:group maxOccurs="unbounded" minOccurs="0" ref="xdl:AnyItem"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Item">
+    <xs:sequence>
+        <xs:element name="x-position" type="xdl:double"/>
+        <xs:element name="y-position" type="xdl:double"/>
+        <xs:element name="z-value" type="xs:double"/>
+    	<xs:element minOccurs="0" name="rotation" type="xdl:Angle"/>
+        <xs:element minOccurs="0" name="opacity" type="xdl:Opacity"/>
+        <xs:element minOccurs="0" name="locked" type="xs:boolean"/>
+        <xs:element minOccurs="0" name="hidden" type="xs:boolean"/>
+        <xs:element minOccurs="0" name="x-mirrored" type="xdl:boolean"/>
+        <xs:element minOccurs="0" name="y-mirrored" type="xdl:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Shape">
+    <xs:complexContent>
+      <xs:extension base="xdl:Item">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="pen" type="xdl:Pen"/>
+          <xs:element minOccurs="0" name="brush" type="xdl:Brush"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Ellipse">
+    <xs:complexContent>
+      <xs:extension base="xdl:Shape">
+        <xs:sequence>
+          <xs:element name="x-radius" type="xdl:NonNegativeDouble"/>
+          <xs:element name="y-radius" type="xdl:NonNegativeDouble"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Rectangle">
+    <xs:complexContent>
+      <xs:extension base="xdl:Shape">
+        <xs:sequence>
+          <xs:element name="width" type="xdl:NonNegativeDouble"/>
+          <xs:element name="height" type="xdl:NonNegativeDouble"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Pin">
+    <xs:complexContent>
+      <xs:extension base="xdl:Item">
+        <xs:sequence>
+          <xs:element name="length" type="xdl:NonNegativeDouble"/>
+          <xs:element name="pen" type="xdl:Pen"/>
+          <xs:element name="designator" type="xs:string"/>
+          <xs:element name="label" type="xs:string"/>
+          <xs:element name="show-designator" type="xs:boolean"/>
+          <xs:element name="show-label" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ItemGroup">
+    <xs:complexContent>
+      <xs:extension base="xdl:Item">
+        <xs:sequence>
+          <xs:element name="children" type="xdl:ItemList"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:group name="AnyItem">
+    <xs:choice>
+        <xs:element name="ellipse" type="xdl:Ellipse"/>
+    	<xs:element name="pin" type="xdl:Pin"/>
+        <xs:element name="rectangle" type="xdl:Rectangle"/>
+        <xs:element name="group" type="xdl:ItemGroup"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="Pen">
+    <xs:sequence>
+      <xs:element name="width" type="xdl:NonNegativeDouble"/>
+      <xs:element name="color" type="xdl:Color"/>
+      <xs:element minOccurs="0" name="style" type="xdl:PenStyle"/>
+      <xs:element minOccurs="0" name="cap-style" type="xdl:PenCapStyle"/>
+      <xs:element minOccurs="0" name="join-style" type="xdl:PenJoinStyle"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Brush">
+    <xs:sequence>
+      <xs:element name="color" type="xdl:Color"/>
+      <xs:element minOccurs="0" name="style" type="xdl:BrushStyle"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="PenStyle">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NoPen"/>
+      <xs:enumeration value="SolidLine"/>
+      <xs:enumeration value="DashLine"/>
+      <xs:enumeration value="DotLine"/>
+      <xs:enumeration value="DashDotLine"/>
+      <xs:enumeration value="DashDotDotLine"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PenCapStyle">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Flat"/>
+      <xs:enumeration value="Square"/>
+      <xs:enumeration value="Round"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PenJoinStyle">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Miter"/>
+      <xs:enumeration value="Bevel"/>
+      <xs:enumeration value="Round"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BrushStyle">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NoBrush"/>
+      <xs:enumeration value="Solid"/>
+      <xs:enumeration value="Horizontal"/>
+      <xs:enumeration value="Vertival"/>
+      <xs:enumeration value="Cross"/>
+      <xs:enumeration value="BDiagonal"/>
+      <xs:enumeration value="FDiagonal"/>
+      <xs:enumeration value="CrossDiagonal"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Color">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="#[0-9a-fA-F]{6}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Angle">
+  	<xs:restriction base="xs:double">
+  		<xs:minInclusive value="0.0"/>
+                <xs:maxInclusive value="359.99"/>
+  		<xs:whiteSpace value="collapse"/>
+  	</xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Opacity">
+  	<xs:restriction base="xs:double">
+  		<xs:minInclusive value="0.0"/>
+  		<xs:maxInclusive value="1.0"/>
+  		<xs:whiteSpace value="collapse"/>
+  	</xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NonNegativeDouble">
+  	<xs:restriction base="xs:double">
+  		<xs:minInclusive value="0.0"/>
+  	</xs:restriction>
+  </xs:simpleType>
+</xs:schema>

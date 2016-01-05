@@ -1,0 +1,53 @@
+
+
+namespace http://www.leda.org/xdl
+{
+    include <QtGlobal>;
+    include <QString>;
+    include <QList>;
+    include <QPointF>;
+    include <QPen>;
+    include <QBrush>;
+    include <QTransform>;
+    include <QColor>;
+    include <QFont>;
+    include <QGraphicsLineItem>;
+    include <QGraphicsEllipseItem>;
+    include <QGraphicsRectItem>;
+    include <QGraphicsItemGroup>;
+    include <QGraphicsSimpleTextItem>;
+
+    include "symbol.h";
+
+    Symbol Symbol*;
+    ItemList QList<QGraphicsItem*> QList<QGraphicsItem*>;
+    ItemGroup QGraphicsItemGroup*;
+    Rectangle QGraphicsRectItem*;
+    Line QGraphicsLineItem*;
+    Ellipse QGraphicsEllipseItem*;
+    Pin QGraphicsEllipseItem*;
+    Arc QGraphicsPathItem*;
+    Label QGraphicsSimpleTextItem*;
+
+    Angle qreal;
+    Opacity qreal;
+    Mirroring QTransform;
+    NonNegativeDouble qreal;
+
+    Pen QPen;
+    PenStyle Qt::PenStyle;
+    PenCapStyle Qt::PenCapStyle;
+    PenJoinStyle Qt::PenJoinStyle;
+    Brush QBrush;
+    BrushStyle Qt::BrushStyle;
+    Point QPointF;
+    PointList QList<QPointF>;
+    Color QColor;
+    Font QFont;
+}
+
+namespace http://www.w3.org/2001/XMLSchema
+{
+    #double qreal;
+    #string QString;
+}
