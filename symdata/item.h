@@ -144,10 +144,10 @@ public:
     double yRadius;
 };
 
-class LabelItem: public Item
+class TextItem: public Item
 {
 public:
-    LabelItem();
+    TextItem();
     std::string htmlText;
     HorizontalAlignment horizontalAlignment;
     VerticalAlignment verticalAlignment;
@@ -157,8 +157,8 @@ class PinItem: public Item
 {
 public:
     PinItem();
-    LabelItem *designator;
-    LabelItem *label;
+    TextItem *designator;
+    TextItem *label;
     double length;
 };
 
