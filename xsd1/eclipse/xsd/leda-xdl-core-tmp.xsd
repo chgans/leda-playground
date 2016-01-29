@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.leda.org/xdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.leda.org/xdl">
+  
+  <!-- TODO: differentiate id and (user) name:
+       user name can freely change (used for display only)
+       identifier cannot (used for resolving references) -->
+  <xs:simpleType name="IdentifierType">
+    <xs:restriction base="xs:string">
+      <!-- <xs:pattern value="[a-zA-Z]+"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="VariableNameType">
+    <xs:restriction base="xs:string">
+      <!-- <xs:pattern value="[a-zA-Z]+"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- TBD: allow for composite (array and record), bit and file -->
+  <!--
+  <xs:simpleType name="VariableType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="boolean"/>
+      <xs:enumeration value="integer"/>
+      <xs:enumeration value="real"/>
+      <xs:enumeration value="string"/>
+      <xs:enumeration value="character"/>
+    </xs:restriction>
+  </xs:simpleType>
+  -->
+  <xs:simpleType name="VariableTypeType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-zA-Z]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="VariableValueType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <!-- TBD: XHTML? Support for multi language? -->
+  <xs:simpleType name="DocumentationType">
+    <xs:restriction base="xs:string" />
+  </xs:simpleType>
+
+  <xs:simpleType name="PortModeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="in"/>
+      <xs:enumeration value="out"/>
+      <xs:enumeration value="inout"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="GenericType">
+    <xs:sequence>
+      <xs:element name="documentation" type="DocumentationType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="value" type="VariableValueType" maxOccurs="1" minOccurs="0"></xs:element>
+      <!-- TBD: unit -->
+    </xs:sequence>
+    <xs:attribute name="name" type="IdentifierType"></xs:attribute>
+    <xs:attribute name="type" type="VariableTypeType"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="SignalType">
+    <xs:sequence>
+      <xs:element name="documentation" type="DocumentationType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="value" type="VariableValueType" maxOccurs="1" minOccurs="0"></xs:element>
+      <!-- TBD: unit -->
+    </xs:sequence>
+    <xs:attribute name="name" type="IdentifierType"></xs:attribute>
+    <xs:attribute name="type" type="VariableTypeType"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="PortType">
+    <xs:sequence>
+      <xs:element name="documentation" type="DocumentationType" maxOccurs="1" minOccurs="0"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="IdentifierType"></xs:attribute>
+    <xs:attribute name="type" type="VariableTypeType"></xs:attribute>
+    <xs:attribute name="mode" type="PortModeType"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="EntityType">
+    <xs:sequence>
+      <xs:element name="documentation" type="DocumentationType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="generic" type="GenericType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      <xs:element name="port" type="PortType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="IdentifierType"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ArchitectureType">
+    <xs:sequence>
+      <xs:element name="documentation" type="DocumentationType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="generic" type="GenericType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      <xs:element name="signal" type="SignalType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      <!-- TODO: constants, components -->
+      <xs:element name="body" type="xs:string"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="IdentifierType"></xs:attribute>
+    <xs:attribute name="entity" type="IdentifierType"></xs:attribute>
+  </xs:complexType>
+
+    <xs:element name="unit">
+    <xs:complexType>
+      <xs:sequence>
+	<!-- label and description -->
+	<xs:element name="entity" type="EntityType" minOccurs="0" maxOccurs="unbounded"/>
+	<!--
+	    <xs:element name="architecture" type="ArchitectureType" minOccurs="0" maxOccurs="unbounded"/>
+	-->
+      </xs:sequence>
+      <xs:attribute name="id" type="IdentifierType"></xs:attribute>      
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

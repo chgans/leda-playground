@@ -1,71 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema targetNamespace="http://www.leda.org/xdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.leda.org/xdl">
-    <xs:complexType name="Entity">
-    	<xs:sequence>
-    		<xs:element name="description" type="xs:string"></xs:element>
-    		<xs:element name="generic-list" type="GenericList"></xs:element>
-    		<xs:element name="port-list" type="PortList"></xs:element>
-    	</xs:sequence>
-    	<xs:attribute name="name" type="xs:ID" use="required">
-    		<xs:annotation>
-    			<xs:documentation>TODO: Assure uniqueness within a parent element using xs:unique, xs:key, ...</xs:documentation>
-    		</xs:annotation></xs:attribute>
-    </xs:complexType>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	   targetNamespace="http://www.leda.org/xdl"
+	   xmlns="http://www.leda.org/xdl">
 
-    <xs:complexType name="Port">
-    	<xs:attribute name="name" type="xs:ID"></xs:attribute>
-    	<xs:attribute name="type" type="xs:IDREF"></xs:attribute>
-    </xs:complexType>
+  <xs:simpleType name="IdentifierType">
+    <xs:restriction base="xs:string">
+      <!-- TBD -->
+    </xs:restriction>
+  </xs:simpleType>
 
-    <xs:complexType name="Generic">
-    	<xs:sequence>
-    		<xs:element name="description" type="xs:string"></xs:element>
-    		<xs:element name="default" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
-    	</xs:sequence>
-    	<xs:attribute name="name" type="xs:ID"></xs:attribute>
-    	<xs:attribute name="type" type="xs:IDREF"></xs:attribute>
-    	<xs:attribute name="required" type="xs:boolean" use="optional" default="true"></xs:attribute>
-    </xs:complexType>
+  <xs:simpleType name="VariableNameType">
+    <xs:restriction base="xs:string">
+      <!-- TBD -->
+    </xs:restriction>
+  </xs:simpleType>
 
+  <xs:simpleType name="VariableTypeType">
+    <xs:restriction base="xs:string">
+      <!-- TBD -->
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="VariableValueType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
 
-    <xs:complexType name="GenericList">
-    	<xs:sequence maxOccurs="unbounded">
-    		<xs:element name="generic" type="Generic" maxOccurs="unbounded"></xs:element>
-    	</xs:sequence>
-    </xs:complexType>
+  <xs:simpleType name="PortModeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="in"/>
+      <xs:enumeration value="out"/>
+      <xs:enumeration value="inout"/>
+    </xs:restriction>
+  </xs:simpleType>
 
-    <xs:complexType name="PortList">
-    	<xs:sequence>
-    		<xs:element name="port" type="Port" maxOccurs="unbounded"></xs:element>
-    	</xs:sequence>
-    </xs:complexType>
+  <xs:attribute name="id" type="IdentifierType"/>
 
+  <xs:complexType name="GenericType">
+    <xs:sequence>
+      <xs:element name="value" type="VariableValueType" maxOccurs="1" minOccurs="0"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="type" type="VariableTypeType"></xs:attribute>
+    <xs:attribute ref="id"></xs:attribute>
+  </xs:complexType>
 
+  <xs:complexType name="SignalType">
+    <xs:sequence>
+      <xs:element name="value" type="VariableValueType" maxOccurs="1" minOccurs="0"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="type" type="VariableTypeType"></xs:attribute>
+    <xs:attribute ref="id"></xs:attribute>
+  </xs:complexType>
 
-    <xs:complexType name="EntityList">
-    	<xs:sequence>
-    		<xs:element name="entity" type="Entity" maxOccurs="unbounded"></xs:element>
-    	</xs:sequence>
-    </xs:complexType>
+  <xs:complexType name="PortType">
+    <xs:attribute ref="id"></xs:attribute>
+    <xs:attribute name="type" type="VariableTypeType"></xs:attribute>
+    <xs:attribute name="mode" type="PortModeType"></xs:attribute>
+  </xs:complexType>
 
+  <xs:complexType name="EntityType">
+    <xs:sequence>
+      <xs:element name="generic" type="GenericType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      <xs:element name="port" type="PortType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+    <xs:attribute ref="id"></xs:attribute>
+  </xs:complexType>
 
-    <xs:complexType name="Architecture">
-    	<xs:sequence>
-    		<xs:element name="description" type="xs:string"></xs:element>
-    		<xs:element name="body" type="Body"></xs:element>
-    	</xs:sequence>
-    	<xs:attribute name="name" type="xs:ID"></xs:attribute>
-    	<xs:attribute name="entityRef" type="xs:IDREF"></xs:attribute>
-    </xs:complexType>
-
-    <xs:complexType name="Body">
-    	<xs:sequence>
-    		<xs:any minOccurs="0" maxOccurs="unbounded"></xs:any>
-    	</xs:sequence></xs:complexType>
-
-    <xs:complexType name="Import">
-    	<xs:sequence></xs:sequence>
-    	<xs:attribute name="uri" type="xs:anyURI"></xs:attribute>
-    </xs:complexType>
+  <xs:complexType name="PackageType">
+    <xs:sequence>
+      <xs:element name="entity" type="EntityType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute ref="id"/>
+  </xs:complexType>
+  
+  <xs:element name="package" type="PackageType"/>
 
 </xs:schema>

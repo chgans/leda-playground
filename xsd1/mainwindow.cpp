@@ -3,7 +3,7 @@
 #include "symbol.h"
 #include "symbolreader.h"
 #include "symbolwriter.h"
-#include "treemodel.h"
+//#include "treemodel.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsItemGroup>

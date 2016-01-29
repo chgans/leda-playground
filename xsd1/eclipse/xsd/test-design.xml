@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<package xmlns="http://www.leda.org/xdl"
+	 id="org.leda.collection.entities.passive">
+  
+  <!-- TBD: provides labels and documentation in separate files: id->{label,doc} -->
+  <!-- TBD: name (or id) is machine facing data (immutable), label is user facing data (translatable) -->
+  <label xml:lang="en">LibreEDA passive entities</label>
+  <documentation xml:lang="en">This unit provides the most common entities for passive components such as resistor, capacitor, ...</documentation>
+  
+  <entity id="resistor">
+    <label xml:lang="en">Resistor</label>
+    <documentation></documentation>
+    <generic id="resistance" type="real">
+      <value>100</value>
+      <unit>ohm</unit>
+    </generic>
+    <port id="1" type="real" mode="inout"/> 
+    <port id="2" type="real" mode="inout"/>
+  </entity>
+  
+  <entity id="capacitor">
+    <label xml:lang="en">Capacitor</label>
+    <documentation></documentation>
+    <generic id="capacitance" type="real">
+      <label xml:lang="en">Capacitance</label>
+      <value>100e-9</value>
+      <unit>farad</unit>
+      <documentation></documentation>
+    </generic>
+    <port id="1" type="real" mode="inout">
+      <label>1</label>
+      <documentation></documentation>
+    </port>
+    <port id="2" type="real" mode="inout">
+      <label>1</label>
+      <documentation></documentation>
+    </port>
+  </entity>
+  
+</unit>
