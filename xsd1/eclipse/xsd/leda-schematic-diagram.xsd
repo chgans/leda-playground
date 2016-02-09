@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	   xmlns:xdl="http://www.leda.org/xdl"
+	   elementFormDefault="qualified"
+	   targetNamespace="http://www.leda.org/xdl">
+
+  <!-- See Color in leda-xdl-symbol.xsd -->
+  <xs:simpleType name="ColorType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="#[0-9a-fA-F]{6}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- See NonNegativeDouble in leda-xdl-symbol.xsd -->
+  <xs:simpleType name="NonNegativeRealType">
+    <xs:restriction base="xs:double">
+      <xs:minInclusive value="0.0"></xs:minInclusive>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- See Point in leda-xdl-symbol.xsd -->
+  <xs:complexType name="PointType">
+    <xs:sequence>
+      <xs:element name="x" type="xs:double"/>
+      <xs:element name="y" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="AngleType">
+    <xs:restriction base="xs:double">
+      <xs:minInclusive value="0.0"></xs:minInclusive>
+      <xs:maxInclusive value="360.0"></xs:maxInclusive>
+      <xs:whiteSpace value="collapse"></xs:whiteSpace>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="AbstractItemType">
+    <xs:sequence>
+      <xs:element name="position" type="xdl:Point" />
+      <xs:element name="z-value" type="xs:double" minOccurs="0" />
+      <xs:element name="locked" type="xs:boolean" minOccurs="0" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- electrical "simple" wire (as opposed to bus, harness, ... -->
+  <xs:complexType name="WireType">
+    <xs:sequence>
+      <xs:element name="locked" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="width" type="xdl:NonNegativeRealType"/>
+      <xs:element name="color" type="xdl:ColorType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Structural architecture sections:
+       - Component declaration
+       - signal declarations
+       - component specification (aka. configuration)
+       - component instanciation
+  -->
+  
+  <!-- Net name, net label, wire label, ... -->
+  <!-- TBD: power port as a special net label?
+       Or let user decide by selecting a style
+       - circle/arrow/bar/wave power net
+       - chassis/earth/power/signal/digital/analog ground net
+       - bubble/callout/rect/trapeze signal net
+       TBD: test points (target: simulation, PCB fabrication, ...)
+  -->
+  <!-- Map somehow to signal in structural architecture -->
+  <xs:complexType name="LabelType">
+    <xs:sequence>
+      <xs:element name="location" type="xdl:PointType"/>
+      <xs:element name="orientation" type="xdl:AngleType"/>
+      <xs:element name="locked" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="anchor" type="xdl:PointType"/>
+      <xs:element name="style" type="xs:string"/>
+      <xs:element name="name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <!-- Map to ports of implemented entity in structural architecture -->
+  <xs:complexType name="PortType">
+    <xs:sequence>
+      <xs:element name="location" type="xdl:PointType"/>
+      <xs:element name="orientation" type="xdl:AngleType"/>
+      <xs:element name="locked" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- TBD: manual vs auto junctions -->
+  <xs:complexType name="JunctionType">
+    <xs:sequence>
+      <xs:element name="location" type="xdl:PointType"/>
+      <xs:element name="color" type="xdl:ColorType"/>
+      <xs:element name="locked" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="size" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+
+  <!-- Graphical symbol to use for an instance of a component
+       within a structural architecture
+       Altium calls that "Part".
+       Technically speaking, this is an instance of a "schematic symbol" as
+       defined by leda-xdl-symbol.xsd
+  -->
+  
+  <xs:complexType name="InstanceType">    
+    <xs:sequence>
+      <xs:element name="symbolId" type="xs:string"/> <!-- reference to a symbol drawing from a library -->
+      <xs:element name="location" type="xdl:PointType"/>
+      <xs:element name="z-value" type="xs:double" minOccurs="0" />
+      <xs:element name="rotation" type="xdl:Angle" minOccurs="0" />
+      <xs:element name="opacity" type="xdl:Opacity" minOccurs="0" />
+      <xs:element name="locked" type="xs:boolean" minOccurs="0" />
+      <xs:element name="mirrored" type="xdl:Mirroring" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string"/>
+    <xs:attribute name="symbolId" type="xs:string"/>
+    <xs:attribute name="symbolId" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="DiagramType">    
+  </xs:complexType>
+
+  <xs:element name="diagram" type="xdl:DiagramType"/>
+
+</xs:schema>
