@@ -6,14 +6,29 @@
 
 #include <QGraphicsSceneMouseEvent>
 
+
 GraphicsView::GraphicsView(QWidget *parent):
     QGraphicsView(parent)
 {
     setInteractive(true);
     setMouseTracking(true);
-    //setViewport(new QOpenGLWidget);
     m_task = new RouteTrackTask(this);
     m_task->setView(this);
+    setCacheMode(CacheBackground);
+    setViewportUpdateMode(BoundingRectViewportUpdate);
+    setRenderHint(QPainter::Antialiasing);
+    setTransformationAnchor(AnchorUnderMouse);
+    scale(qreal(0.8), qreal(0.8));
+}
+
+void GraphicsView::zoomIn()
+{
+    scaleView(qreal(1.2));
+}
+
+void GraphicsView::zoomOut()
+{
+    scaleView(1 / qreal(1.2));
 }
 
 void GraphicsView::mousePressEvent(QMouseEvent *event)
@@ -102,6 +117,15 @@ void GraphicsView::buildMouseSceneEvent(QGraphicsSceneMouseEvent *sceneEvent, QM
     sceneEvent->setFlags(event->flags());
 }
 
+void GraphicsView::scaleView(qreal scaleFactor)
+{
+    qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
+    if (factor < 0.07 || factor > 100)
+        return;
+
+    scale(scaleFactor, scaleFactor);
+}
+
 
 void GraphicsView::keyPressEvent(QKeyEvent *event)
 {
@@ -139,4 +163,9 @@ void GraphicsView::keyReleaseEvent(QKeyEvent *event)
     {
         QGraphicsView::keyReleaseEvent(event);
     }
+}
+
+void GraphicsView::wheelEvent(QWheelEvent *event)
+{
+    scaleView(pow((double)2, -event->delta() / 240.0));
 }
