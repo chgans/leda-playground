@@ -20,13 +20,17 @@ SOURCES += main.cpp\
     ipathrouter.cpp \
     tests.cpp \
     routetracktask.cpp \
-    igraphicstask.cpp
+    igraphicstask.cpp \
+    node.cpp \
+    track.cpp
 
 HEADERS  += mainwindow.h \
     graphicsview.h \
     ipathrouter.h \
     tests.h \
     routetracktask.h \
-    igraphicstask.h
+    igraphicstask.h \
+    node.h \
+    track.h
 
 FORMS    += mainwindow.ui
