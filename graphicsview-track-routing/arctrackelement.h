@@ -19,6 +19,9 @@ private:
     TrackNode *m_node1;
     TrackNode *m_node2;
     qreal m_radius;
+    QRectF m_rect;
+    qreal m_startAngle;
+    qreal m_sweepLength;
 
     // QGraphicsItem interface
 public:

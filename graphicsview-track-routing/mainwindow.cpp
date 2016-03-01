@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "linetrackelement.h"
+#include "arctrackelement.h"
 #include "tracknode.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -29,12 +30,18 @@ MainWindow::MainWindow(QWidget *parent) :
     TrackNode *p4 = new TrackNode();
     p4->setPos(300, 200);
     m_scene->addItem(p4);
+    TrackNode *p5 = new TrackNode();
+    p5->setPos(400, 100);
+    m_scene->addItem(p5);
     LineTrackElement *t1 = new LineTrackElement(p1, p2);
     m_scene->addItem(t1);
     LineTrackElement *t2 = new LineTrackElement(p2, p3);
     m_scene->addItem(t2);
     LineTrackElement *t3 = new LineTrackElement(p3, p4);
     m_scene->addItem(t3);
+    ArcTrackElement *a1 = new ArcTrackElement(p4, p5);
+    a1->setPos(300, 100);
+    m_scene->addItem(a1);
 }
 
 MainWindow::~MainWindow()
