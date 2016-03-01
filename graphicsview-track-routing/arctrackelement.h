@@ -1,20 +1,14 @@
 #ifndef ARCTRACKELEMENT_H
 #define ARCTRACKELEMENT_H
 
-#include <QGraphicsItem>
+#include "trackelement.h"
 
 class TrackNode;
 
-class ArcTrackElement : public QGraphicsItem
+class ArcTrackElement : public TrackElement
 {
 public:
     ArcTrackElement(TrackNode *n1, TrackNode *n2, QGraphicsItem *parent = nullptr);
-
-    qreal width() const;
-    void setWidth(qreal width);
-
-    qreal clearance() const;
-    void setClearance(qreal clearance);
 
     TrackNode *n1() const;
     TrackNode *n2() const;
@@ -24,8 +18,6 @@ public:
 private:
     TrackNode *m_node1;
     TrackNode *m_node2;
-    qreal m_width;
-    qreal m_clearance;
     qreal m_radius;
 
     // QGraphicsItem interface

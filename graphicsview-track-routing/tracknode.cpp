@@ -11,14 +11,14 @@ TrackNode::TrackNode(QGraphicsItem *parent): QGraphicsItem(parent)
     setFlag(ItemSendsGeometryChanges);
 }
 
-QList<LineTrackElement *> TrackNode::tracks() const
+QList<TrackElement *> TrackNode::trackElements() const
 {
-    return m_tracks;
+    return m_trackElements;
 }
 
-void TrackNode::addTrack(LineTrackElement *track)
+void TrackNode::addTrackElement(TrackElement *track)
 {
-    m_tracks.append(track);
+    m_trackElements.append(track);
 }
 
 
@@ -48,8 +48,8 @@ QVariant TrackNode::itemChange(QGraphicsItem::GraphicsItemChange change, const Q
 {
     switch (change) {
     case ItemPositionHasChanged:
-        for (LineTrackElement *track: m_tracks)
-            track->adjust();
+        for (TrackElement *element: m_trackElements)
+            element->adjust();
         break;
     default:
         break;

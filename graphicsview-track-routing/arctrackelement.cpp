@@ -3,41 +3,13 @@
 #include "tracknode.h"
 
 ArcTrackElement::ArcTrackElement(TrackNode *n1, TrackNode *n2, QGraphicsItem *parent):
-    QGraphicsItem(parent), m_node1(n1), m_node2(n2)
+    TrackElement(parent), m_node1(n1), m_node2(n2)
 {
     setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);
-    //m_node1->addTrack(this);
-    //m_node2->addTrack(this);
+    m_node1->addTrackElement(this);
+    m_node2->addTrackElement(this);
     adjust();
-}
-
-qreal ArcTrackElement::width() const
-{
-    return m_width;
-}
-
-void ArcTrackElement::setWidth(qreal width)
-{
-    if (qFuzzyCompare(m_width, width))
-        return;
-
-    prepareGeometryChange();
-    m_width = width;
-}
-
-qreal ArcTrackElement::clearance() const
-{
-    return m_clearance;
-}
-
-void ArcTrackElement::setClearance(qreal clearance)
-{
-    if (qFuzzyCompare(m_clearance, clearance))
-        return;
-
-    prepareGeometryChange();
-    m_clearance = clearance;
 }
 
 TrackNode *ArcTrackElement::n1() const
@@ -61,7 +33,7 @@ QRectF ArcTrackElement::boundingRect() const
     if (!m_node1 || !m_node2)
         return QRectF();
 
-    qreal extra = (m_width) / 2.0;
+    qreal extra = (width()) / 2.0;
 
     return QRectF();
 }
@@ -75,7 +47,7 @@ QPainterPath ArcTrackElement::shape() const
     //path.moveTo(m_line.p1());
     //path.lineTo(m_line.p2());
     QPainterPathStroker stroker;
-    stroker.setWidth(m_width);
+    stroker.setWidth(width());
     stroker.setCapStyle(Qt::RoundCap);
     stroker.setJoinStyle(Qt::RoundJoin);
     return stroker.createStroke(path);

@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     igraphicstask.cpp \
     linetrackelement.cpp \
     tracknode.cpp \
-    arctrackelement.cpp
+    arctrackelement.cpp \
+    trackelement.cpp
 
 HEADERS  += mainwindow.h \
     graphicsview.h \
@@ -33,6 +34,7 @@ HEADERS  += mainwindow.h \
     igraphicstask.h \
     linetrackelement.h \
     tracknode.h \
-    arctrackelement.h
+    arctrackelement.h \
+    trackelement.h
 
 FORMS    += mainwindow.ui

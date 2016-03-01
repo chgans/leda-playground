@@ -3,18 +3,18 @@
 
 #include <QGraphicsItem>
 
-class LineTrackElement;
+class TrackElement;
 
 class TrackNode : public QGraphicsItem
 {
 public:
     TrackNode(QGraphicsItem *parent = nullptr);
 
-    QList<LineTrackElement *> tracks() const;
-    void addTrack(LineTrackElement *track);
+    QList<TrackElement *> trackElements() const;
+    void addTrackElement(TrackElement *track);
 
 private:
-    QList<LineTrackElement *> m_tracks;
+    QList<TrackElement *> m_trackElements;
 
     // QGraphicsItem interface
 public:
