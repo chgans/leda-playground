@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     routetracktask.cpp \
     igraphicstask.cpp \
     linetrackelement.cpp \
-    tracknode.cpp
+    tracknode.cpp \
+    arctrackelement.cpp
 
 HEADERS  += mainwindow.h \
     graphicsview.h \
@@ -31,6 +32,7 @@ HEADERS  += mainwindow.h \
     routetracktask.h \
     igraphicstask.h \
     linetrackelement.h \
-    tracknode.h
+    tracknode.h \
+    arctrackelement.h
 
 FORMS    += mainwindow.ui
