@@ -1,20 +1,20 @@
-#ifndef NODE_H
-#define NODE_H
+#ifndef TRACKNODE_H
+#define TRACKNODE_H
 
 #include <QGraphicsItem>
 
-class Track;
+class LineTrackElement;
 
-class Node : public QGraphicsItem
+class TrackNode : public QGraphicsItem
 {
 public:
-    Node(QGraphicsItem *parent = nullptr);
+    TrackNode(QGraphicsItem *parent = nullptr);
 
-    QList<Track *> tracks() const;
-    void addTrack(Track *track);
+    QList<LineTrackElement *> tracks() const;
+    void addTrack(LineTrackElement *track);
 
 private:
-    QList<Track *> m_tracks;
+    QList<LineTrackElement *> m_tracks;
 
     // QGraphicsItem interface
 public:
@@ -26,4 +26,4 @@ protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 };
 
-#endif // NODE_H
+#endif // TRACKNODE_H

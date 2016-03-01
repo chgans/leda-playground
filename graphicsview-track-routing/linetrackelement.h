@@ -1,15 +1,15 @@
-#ifndef TRACK_H
-#define TRACK_H
+#ifndef LINETRACKELEMENT_H
+#define LINETRACKELEMENT_H
 
 #include <QGraphicsItem>
 #include <QLineF>
 
-class Node;
+class TrackNode;
 
-class Track : public QGraphicsItem
+class LineTrackElement : public QGraphicsItem
 {
 public:
-    Track(Node *n1, Node *n2, QGraphicsItem *parent = nullptr);
+    LineTrackElement(TrackNode *n1, TrackNode *n2, QGraphicsItem *parent = nullptr);
 
     qreal width() const;
     void setWidth(qreal width);
@@ -17,14 +17,14 @@ public:
     qreal clearance() const;
     void setClearance(qreal clearance);
 
-    Node *p1() const;
-    Node *p2() const;
+    TrackNode *p1() const;
+    TrackNode *p2() const;
 
     void adjust();
 
 private:
-    Node *m_p1;
-    Node *m_p2;
+    TrackNode *m_p1;
+    TrackNode *m_p2;
     qreal m_width;
     qreal m_clearance;
     QLineF m_line;
@@ -39,4 +39,4 @@ protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 };
 
-#endif // TRACK_H
+#endif // LINETRACKELEMENT_H

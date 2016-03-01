@@ -1,12 +1,12 @@
-#include "track.h"
-#include "node.h"
+#include "linetrackelement.h"
+#include "tracknode.h"
 
 #include <QPainter>
 #include <QPainterPath>
 #include <QPainterPathStroker>
 
 
-Track::Track(Node *n1, Node *n2, QGraphicsItem *parent): QGraphicsItem(parent),
+LineTrackElement::LineTrackElement(TrackNode *n1, TrackNode *n2, QGraphicsItem *parent): QGraphicsItem(parent),
     m_p1(n1), m_p2(n2), m_width(50), m_clearance(10)
 {
     setFlag(ItemIsMovable);
@@ -16,12 +16,12 @@ Track::Track(Node *n1, Node *n2, QGraphicsItem *parent): QGraphicsItem(parent),
     adjust();
 }
 
-qreal Track::width() const
+qreal LineTrackElement::width() const
 {
     return m_width;
 }
 
-void Track::setWidth(qreal width)
+void LineTrackElement::setWidth(qreal width)
 {
     if (qFuzzyCompare(m_width, width))
         return;
@@ -30,12 +30,12 @@ void Track::setWidth(qreal width)
     m_width = width;
 }
 
-qreal Track::clearance() const
+qreal LineTrackElement::clearance() const
 {
     return m_clearance;
 }
 
-void Track::setClearance(qreal clearance)
+void LineTrackElement::setClearance(qreal clearance)
 {
     if (qFuzzyCompare(m_clearance, clearance))
         return;
@@ -44,17 +44,17 @@ void Track::setClearance(qreal clearance)
     m_clearance = clearance;
 }
 
-Node *Track::p1() const
+TrackNode *LineTrackElement::p1() const
 {
     return m_p1;
 }
 
-Node *Track::p2() const
+TrackNode *LineTrackElement::p2() const
 {
     return m_p2;
 }
 
-void Track::adjust()
+void LineTrackElement::adjust()
 {
     if (!m_p1 || !m_p2)
         return;
@@ -69,7 +69,7 @@ void Track::adjust()
 }
 
 
-QRectF Track::boundingRect() const
+QRectF LineTrackElement::boundingRect() const
 {
     if (!m_p1 || !m_p2)
         return QRectF();
@@ -81,7 +81,7 @@ QRectF Track::boundingRect() const
         .adjusted(-extra, -extra, extra, extra);
 }
 
-QPainterPath Track::shape() const
+QPainterPath LineTrackElement::shape() const
 {
     if (!m_p1 || !m_p2)
         return QPainterPath();
@@ -96,7 +96,7 @@ QPainterPath Track::shape() const
     return stroker.createStroke(path);
 }
 
-void Track::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void LineTrackElement::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -109,7 +109,7 @@ void Track::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
 }
 
 
-QVariant Track::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+QVariant LineTrackElement::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     switch (change) {
     case ItemPositionHasChanged:

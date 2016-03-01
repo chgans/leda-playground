@@ -21,8 +21,8 @@ SOURCES += main.cpp\
     tests.cpp \
     routetracktask.cpp \
     igraphicstask.cpp \
-    node.cpp \
-    track.cpp
+    linetrackelement.cpp \
+    tracknode.cpp
 
 HEADERS  += mainwindow.h \
     graphicsview.h \
@@ -30,7 +30,7 @@ HEADERS  += mainwindow.h \
     tests.h \
     routetracktask.h \
     igraphicstask.h \
-    node.h \
-    track.h
+    linetrackelement.h \
+    tracknode.h
 
 FORMS    += mainwindow.ui
