@@ -5,6 +5,14 @@
 #include "graphicsview.h"
 #include <QGraphicsScene>
 
+class TrackElement;
+
+enum CircularMotionDirection
+{
+    ClockWiseDirection = 0,
+    CounterClockWiseDirection,
+};
+
 namespace Ui {
 class MainWindow;
 }
@@ -16,7 +24,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
+    void WalkAround(const TrackElement *subject, const TrackElement *obstacle,
+                    qreal clearance);
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *m_scene;
